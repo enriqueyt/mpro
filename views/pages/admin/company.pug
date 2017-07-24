@@ -1,0 +1,33 @@
+
+extends ../../layout
+block content-mpro
+	include ../../partials/header.pug
+	.container-fluid
+		.row
+			.col-md-12
+				.row.dashboard-nav-row
+					.col-md-4
+						a(href="/"+user.role+"/"+user.identifier)
+							h5 Actividad
+					.col-md-4.nav-active
+						a(href="/"+user.role+"/"+user.identifier+"/company")
+							h5 Empresa
+					.col-md-4
+						a(href="/"+user.role+"/"+user.identifier+"/usuarios")
+							h5 Usuarios
+				.row.company-nav-row
+					ul.nav.nav-tabs(role="tablist", id="tabCompany")
+						li.nav-item
+							a.nav-link.active(data-toggle="tab", href="#company", role="tab", aria-controls="company") Empresas
+						li.nav-item
+							a.nav-link(data-toggle="tab", href="#branchcompany", role="tab", aria-controls="branchcompany") Sucursales
+					.tab-content
+						#company.tab-pane.active(role="tabpanel")
+							span company tabpanel
+						#branchcompany.tab-pane(role="tabpanel")
+							span branchcompany
+	script(type="text/javascript").
+		$('#tabCompany a').click(function (e) {
+			e.preventDefault()
+			$(this).tab('show')
+		})

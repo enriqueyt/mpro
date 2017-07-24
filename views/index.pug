@@ -1,0 +1,24 @@
+extends layout
+block content-mpro
+  include ./partials/header.pug
+  .jumbotron.banner
+    .row
+      .col-sm-12
+        .row
+          .col-md-10
+            h2.text-left.mpro-definition Control para el mantenimiento de equipos
+        br
+    .row
+      .col-sm-4
+      .col-sm-4
+      .col-sm-4.text-center
+        br
+        a#mpro.btn-lg
+          h2 MPRO
+
+  .pagefooter
+    include ./partials/footer.pug
+  script(type='text/javascript').
+    $(document).ready(function(){
+      console.log('Hello mpro');
+    });
