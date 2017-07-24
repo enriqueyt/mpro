@@ -107,7 +107,7 @@ router.get('/admin/:identifier/company', function(req, res, next){
     })
     .then(function(companies){
         console.log(companies)
-        return res.render('pages/admin/company', {
+        return res.render('pages/company', {
             user : req.user || {},
             //csrfToken: req.csrfToken()
             currentAccount:currentAccount,

@@ -1,6 +1,70 @@
-extends ../../layout
+extends ../layout
 block content-mpro
-	include ../../partials/header.pug
+	include ../partials/header.pug
 	.container-fluid
 		.row
-			span Pagina principal de una compa;ia 
+			.col-md-12
+				.row.dashboard-nav-row
+					.col-md-4
+						a(href="/"+user.role+"/"+user.identifier)
+							h5 Actividad
+					.col-md-4.nav-active
+						a(href="/"+user.role+"/"+user.identifier+"/company")
+							h5 Empresa
+					.col-md-4
+						a(href="/"+user.role+"/"+user.identifier+"/usuarios")
+							h5 Usuarios
+				.row.company-nav-row
+					ul.nav.nav-tabs(role="tablist", id="tabCompany")
+						li.nav-item
+							a.nav-link.active(data-toggle="tab", href="#company", role="tab", aria-controls="company") Empresas
+						li.nav-item
+							a.nav-link(data-toggle="tab", href="#branchcompany", role="tab", aria-controls="branchcompany") Sucursales
+					.tab-content(style="width:100%")
+						#company.tab-pane.active(role="tabpanel")
+							.row
+								.col-md-12
+									#addComapny.button.btn.btn-primary.btn-lg.btn-block(type="button", data-toggle="addCompanyModal") Agregar Empresa
+							.row
+								.col-md-12
+						#branchcompany.tab-pane(role="tabpanel")
+							span branchcompany
+	#addCompanyModal.modal.fade(rol="dialog")
+		.modal-dialog(role="document")
+			.modal-content
+				.modal-header
+					h5.modal-title Agregar Empresa
+					button.close(type="button", data-dismiss="modal", aria-label="Close")
+						span(aria-hidden="true") &times;
+				.modal-body
+					form(role="form", id="addComapnyForm", action="/add-company", method="post")
+						.form-group.row
+							label.col-2.col-form-label(for="name") Nombre
+							.col-10
+								input.form-control(type="text", id="name", name="name", plateholder="Nombre")
+						.form-group.row
+							label.col-2.col-form-label(for="email") Correo
+							.col-10
+								input.form-control(type="email", id="email", name="email", plateholder="Correo")
+						.form-group.row
+							label.col-2.col-form-label(for="phone") Telefono
+							.col-10
+								input.form-control(type="phone", id="phone", name="phone", plateholder="Correo")
+						.form-group.row
+							label.col-2.col-form-label(for="location") Ubicacion
+							.col-10
+								textarea.form-control(id="location", name="location", wrap="hard")
+				.modal-footer
+					button.btn.btn-secondary(type="button", data-dismiss="modal") Cerrar
+					button.btn.btn-primary(type="button") Crear
+	script(type="text/javascript").
+		$(document).ready(function(){
+			$('#tabCompany a').click(function (e) {
+				e.preventDefault()
+				$(this).tab('show')
+			})
+
+			$('#addComapny').click(function(event){
+				$('#addCompanyModal').modal('show');
+			})
+		})

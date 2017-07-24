@@ -28,13 +28,6 @@ a.top-nav {
   padding: 5px;
 }
 
-.banner{
-  background: url("/");
-  background-position: center;
-  background-size: cover;  
-  color: #203d55;
-}
-
 .login-content {
   padding-top: 10%;
   padding-bottom: 60px;
@@ -187,3 +180,9 @@ a.top-nav {
     vertical-align: middle;
     margin-bottom: 0.2%;
 }
+
+.company-nav-row{}
+
+.company-nav-row ul{
+  width: 100%;
+};
