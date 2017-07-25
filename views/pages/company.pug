@@ -37,34 +37,64 @@ block content-mpro
 					button.close(type="button", data-dismiss="modal", aria-label="Close")
 						span(aria-hidden="true") &times;
 				.modal-body
-					form(role="form", id="addComapnyForm", action="/add-company", method="post")
+					form(role="form", id="addComapnyForm", name="addComapnyForm", action="/add-company", method="post")
 						.form-group.row
-							label.col-2.col-form-label(for="name") Nombre
-							.col-10
+							label.col-3.col-form-label(for="name") Nombre
+							.col-9
 								input.form-control(type="text", id="name", name="name", plateholder="Nombre")
 						.form-group.row
-							label.col-2.col-form-label(for="email") Correo
-							.col-10
+							label.col-3.col-form-label(for="email") Correo
+							.col-9
 								input.form-control(type="email", id="email", name="email", plateholder="Correo")
 						.form-group.row
-							label.col-2.col-form-label(for="phone") Telefono
-							.col-10
+							label.col-3.col-form-label(for="phone") Telefono
+							.col-9
 								input.form-control(type="phone", id="phone", name="phone", plateholder="Correo")
 						.form-group.row
-							label.col-2.col-form-label(for="location") Ubicacion
-							.col-10
+							label.col-3.col-form-label(for="location") Ubicacion
+							.col-9
 								textarea.form-control(id="location", name="location", wrap="hard")
-				.modal-footer
-					button.btn.btn-secondary(type="button", data-dismiss="modal") Cerrar
-					button.btn.btn-primary(type="button") Crear
+						.col-12(style="text-align:right")
+							button.btn.btn-secondary(type="button", data-dismiss="modal", style="margin-right:1%;") Cerrar
+							button.btn.btn-primary.addComapnySubmit(type="submit") Crear
 	script(type="text/javascript").
 		$(document).ready(function(){
 			$('#tabCompany a').click(function (e) {
 				e.preventDefault()
 				$(this).tab('show')
-			})
+			});
 
-			$('#addComapny').click(function(event){
+			$('#addComapny').click(function(e){
 				$('#addCompanyModal').modal('show');
-			})
+			});
+
+			$('.addComapnySubmit').click(function(e){
+				e.preventDefault();
+				$(document).find('[name="description"]').remove();
+				
+				var form = document.addComapnyForm, data={};				
+				_.each(form,function(item, i){
+										
+					if(item.getAttribute('class')=='form-control'){
+						
+						if(item.value.length>0){
+							if(item.tagName.toLowerCase()=='input'||item.tagName.toLowerCase()=='textarea')
+								data[item.name]=item.value;
+						}
+						else{
+							$(item).after("<p style='color:red;' name='description'>Campo requerido</p>");
+						}
+					}
+				});
+
+				if(!$(form).find('[name="description"]').length>0){
+ 
+					$.post('/add-company', data, function(response){						
+						if(!response.error){
+							$('#addCompanyModal').modal('hide');
+						}
+					});
+
+				}				
+			});
 		})

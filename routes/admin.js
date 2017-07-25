@@ -121,4 +121,34 @@ router.get('/admin/:identifier/company', function(req, res, next){
     });
 });
 
+router.post('/add-company', function(req, res, next){
+  if(!req.user||!req.user.username){
+    return res.json({error:true, message:'Usuario no encontrado'});
+  }
+  
+  var query = {name:req.body.name, email:req.body.email};
+    
+    company.find(query).exec()
+    .then(function(companyResult){      
+      if(companyResult.length>0){
+        return res.json({error:true,message:'Ya existe la empresa'});        
+      }
+      var newCompany = new company({
+        name : req.body.name,
+        email : req.body.email,
+        phone : req.body.phone,
+        location : req.body.location
+      });
+      
+      newCompany.save(callback);
+
+      function callback(err, doc){
+        if(err)
+          return res.json({error:true,message:err});
+        return res.json({error:false, data:doc});
+      };
+    });
+		
+});
+
 module.exports = router;
