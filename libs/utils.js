@@ -9,6 +9,9 @@ var utils = {
 		path += config.db.dbname;
         console.log(path)
 		return mongoose.connect(path);
+	},
+	 createHash : function(password, bCrypt){
+		return bCrypt.hashSync(password, bCrypt.genSaltSync(10), null);
 	}
 };
 

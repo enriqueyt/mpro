@@ -7,12 +7,9 @@ var csrfProtection = csrf({ cookie: true });
 var mongoose = require('mongoose');
 var account = mongoose.model('account');
 var bCrypt = require('bcrypt-nodejs');
+var utils = require('../libs/utils');
 
-module.exports = function(passport){
-
-  var createHash = function(password){
-		return bCrypt.hashSync(password, bCrypt.genSaltSync(10), null);
-	};
+module.exports = function(passport){ 
 
   router.use(function (req, res, next) {
     res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
@@ -111,7 +108,7 @@ module.exports = function(passport){
 
 					newUser.name = req.body.name;
 					newUser.username = user.username;
-					newUser.password = createHash(user.password);					
+					newUser.password = utils.createHash(user.password, bCrypt);					
 					newUser.email = req.body.email;
 					newUser.role = req.body.role;
 

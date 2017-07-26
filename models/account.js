@@ -39,6 +39,10 @@ var account = new Schema({
 	date : {
 		type: Date,
 		default: Date.now
+	},
+	status:{
+		type:Boolean,
+		default:true
 	}
 
 }, {autoIndex:false});

@@ -16,19 +16,70 @@ block content-mpro
 							h5 Usuarios
 				.row.company-nav-row
 					ul.nav.nav-tabs(role="tablist", id="tabCompany")
-						li.nav-item
-							a.nav-link.active(data-toggle="tab", href="#company", role="tab", aria-controls="company") Empresas
-						li.nav-item
-							a.nav-link(data-toggle="tab", href="#branchcompany", role="tab", aria-controls="branchcompany") Sucursales
+						if user.role=="admin"
+							li.nav-item
+								a.nav-link.active(data-toggle="tab", href="#company", role="tab", aria-controls="company") Empresas
+							li.nav-item
+								a.nav-link(data-toggle="tab", href="#branchcompany", role="tab", aria-controls="branchcompany") Sucursales
+						else
+							li.nav-item
+								a.nav-link.active(data-toggle="tab", href="#branchcompany", role="tab", aria-controls="branchcompany") Sucursales
 					.tab-content(style="width:100%")
-						#company.tab-pane.active(role="tabpanel")
-							.row
-								.col-md-12
-									#addComapny.button.btn.btn-primary.btn-lg.btn-block(type="button", data-toggle="addCompanyModal") Agregar Empresa
-							.row
-								.col-md-12
+						if user.role=="admin"
+							#company.tab-pane.active(role="tabpanel")
+								.row
+									.col-md-12
+										#addComapny.button.btn.btn-primary.btn-lg.btn-block(type="button", data-toggle="addCompanyModal") Agregar Empresa
+									.col-md-12
+										table.table
+											thead
+												th #
+												th Nombre
+												th Email
+												th Contacto
+												th Ubicacion
+												th
+												th
+											tbody
+												each company, i in companies
+													tr
+														td=i+1
+														td=company.name
+														td=company.email
+														td=company.phone
+														td=company.location
+														td
+															i.fa.fa-pencil-square-o(aria-hidden="true")
+														td
+															i.fa.fa-trash(aria-hidden="true")
 						#branchcompany.tab-pane(role="tabpanel")
-							span branchcompany
+							.row
+								.col-md-12
+									#addBranchCompany.button.btn.btn-primary.btn-lg.btn-block(type="button", data-toggle="addBranchCompanyModal") Agregar Sucursal
+								.col-md-12
+									table.table
+										thead
+											th #
+											th Nombre
+											th Email
+											th Contacto
+											th Ubicacion
+											th Empresa
+											th
+											th
+										tbody
+											each company, i in branch_companies
+												tr
+													td=i+1
+													td=company.name
+													td=company.email
+													td=company.phone
+													td=company.location
+													td=company.company
+													td
+														i.fa.fa-pencil-square-o(aria-hidden="true")
+													td
+														i.fa.fa-trash(aria-hidden="true")
 	#addCompanyModal.modal.fade(rol="dialog")
 		.modal-dialog(role="document")
 			.modal-content
@@ -37,7 +88,7 @@ block content-mpro
 					button.close(type="button", data-dismiss="modal", aria-label="Close")
 						span(aria-hidden="true") &times;
 				.modal-body
-					form(role="form", id="addComapnyForm", name="addComapnyForm", action="/add-company", method="post")
+					form(role="form", id="addComapnyForm", name="addComapnyForm", action="/company", method="post")
 						.form-group.row
 							label.col-3.col-form-label(for="name") Nombre
 							.col-9
@@ -57,6 +108,41 @@ block content-mpro
 						.col-12(style="text-align:right")
 							button.btn.btn-secondary(type="button", data-dismiss="modal", style="margin-right:1%;") Cerrar
 							button.btn.btn-primary.addComapnySubmit(type="submit") Crear
+	#addBranchCompanyModal.modal.fade(rol="dialog")
+		.modal-dialog(role="document")
+			.modal-content
+				.modal-header
+					h5.modal-title Agregar Sucursal
+					button.close(type="button", data-dismiss="modal", aria-label="Close")
+						span(aria-hidden="true") &times;
+				.modal-body
+					form(role="form", id="addBranchCompanyForm", name="addBranchCompanyForm", action="/brach-company", method="post")
+						.form-group.row
+							label.col-3.col-form-label(for="name") Nombre
+							.col-9
+								input.form-control(type="text", id="name", name="name", plateholder="Nombre")
+						.form-group.row
+							label.col-3.col-form-label(for="email") Correo
+							.col-9
+								input.form-control(type="email", id="email", name="email", plateholder="Correo")
+						.form-group.row
+							label.col-3.col-form-label(for="phone") Telefono
+							.col-9
+								input.form-control(type="phone", id="phone", name="phone", plateholder="Correo")
+						.form-group.row
+							label.col-3.col-form-label(for="location") Ubicacion
+							.col-9
+								textarea.form-control(id="location", name="location", wrap="hard")
+						.form-group.row
+							label.col-3.col-form-label(for="") Empresa
+							.col-9
+								select.form-control(id="company", name="company")
+									option Seleccione
+									each company in companies
+										option(value=company._id) #{company.name}
+						.col-12(style="text-align:right")
+							button.btn.btn-secondary(type="button", data-dismiss="modal", style="margin-right:1%;") Cerrar
+							button.btn.btn-primary.addBranchCompanySubmit(type="submit") Crear
 	script(type="text/javascript").
 		$(document).ready(function(){
 			$('#tabCompany a').click(function (e) {
@@ -68,33 +154,37 @@ block content-mpro
 				$('#addCompanyModal').modal('show');
 			});
 
-			$('.addComapnySubmit').click(function(e){
+			$('#addBranchCompany').click(function(e){
+				$('#addBranchCompanyModal').modal('show');
+			});
+
+			$('.addComapnySubmit, .addBranchCompanySubmit').click(function(e){
 				e.preventDefault();
-				$(document).find('[name="description"]').remove();
+				$(document).find('[name="description"]').remove();				
 				
-				var form = document.addComapnyForm, data={};				
-				_.each(form,function(item, i){
-										
+				var form = document[$($(this).parents('form')).attr('name')], data={};
+								
+				_.each(form,function(item, i){					
 					if(item.getAttribute('class')=='form-control'){
-						
-						if(item.value.length>0){
-							if(item.tagName.toLowerCase()=='input'||item.tagName.toLowerCase()=='textarea')
+						if(item.tagName.toLowerCase()=='input'||item.tagName.toLowerCase()=='textarea'){
+							if(item.value.length>0){
 								data[item.name]=item.value;
-						}
-						else{
-							$(item).after("<p style='color:red;' name='description'>Campo requerido</p>");
-						}
+							}
+							else{
+								$(item).after("<p style='color:red;' name='description'>Campo requerido</p>");
+							}
+						}						
 					}
 				});
 
-				if(!$(form).find('[name="description"]').length>0){
- 
-					$.post('/add-company', data, function(response){						
+				if(!$(form).find('[name="description"]').length>0){					
+					$.post($($(this).parents('form')).attr('action'), data, function(response){						
 						if(!response.error){
 							$('#addCompanyModal').modal('hide');
 						}
 					});
-
 				}				
 			});
+			
+
 		})

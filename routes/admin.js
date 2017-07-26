@@ -7,6 +7,8 @@ var csrfProtection = csrf({ cookie: true });
 var mongoose = require('mongoose');
 var account = mongoose.model('account');
 var company = mongoose.model('company');
+var branch_company = mongoose.model('branch_company')
+var utils = require('../libs/utils');
 
 router.use(function (req, res, next) {
   res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
@@ -52,7 +54,7 @@ router.get('/admin/:identifier', function(req, res, next){
   account.findOne(query).exec()
   .then(function(user){    
     if(!user||user.length==0){
-      throw new Error('wfT!!');
+      throw new Error('wtf!!');
       return;
     }
     else{      
@@ -85,12 +87,10 @@ router.get('/admin/:identifier/company', function(req, res, next){
         res.redirect('/login');
     }
     var identifier = req.params.identifier||req.user.identifier;
-    var query = {'identifier':identifier}, currentAccount={};
+    var query = {'identifier':identifier}, currentAccount={}, companies=[];
     
     account.findOne(query).exec()
-    .then(function(user){    
-        console.log('---------------------------')
-        console.log(user)
+    .then(function(user){
         if(!user||user.length==0){
             throw new Error('wfT!!');
             return;
@@ -105,13 +105,19 @@ router.get('/admin/:identifier/company', function(req, res, next){
         }
         return company.find({}).exec()
     })
-    .then(function(companies){
-        console.log(companies)
+    .then(function(data){        
+        companies=data.slice();        
+        return branch_company.find({}).populate('company').exec();
+    })
+    .then(function(data){        
+        var bc = data.splice();
         return res.render('pages/company', {
             user : req.user || {},
             //csrfToken: req.csrfToken()
             currentAccount:currentAccount,
-            companies:companies
+            companies:companies,
+            branch_companies:bc,
+            roles:account.schema.path('role').enumValues
         });
     })
     .catch(function(err){
@@ -121,15 +127,15 @@ router.get('/admin/:identifier/company', function(req, res, next){
     });
 });
 
-router.post('/add-company', function(req, res, next){
+router.post('/company', function(req, res, next){
   if(!req.user||!req.user.username){
     return res.json({error:true, message:'Usuario no encontrado'});
   }
-  
+
   var query = {name:req.body.name, email:req.body.email};
     
     company.find(query).exec()
-    .then(function(companyResult){      
+    .then(function(companyResult){
       if(companyResult.length>0){
         return res.json({error:true,message:'Ya existe la empresa'});        
       }
@@ -147,8 +153,173 @@ router.post('/add-company', function(req, res, next){
           return res.json({error:true,message:err});
         return res.json({error:false, data:doc});
       };
-    });
+    });		
+});
+
+router.put('/company', function(req, res, next){
+    if(!req.user||!req.user.username){
+      return res.json({error:true, message:'Usuario no encontrado'});
+    }  
+    var ObjectId = mongoose.Schema.Types.ObjectId;
 		
+		var query = { "_id" : new ObjectId(req.body._id) },			
+			option = { upsert:true };
+		
+		company.findOne(query, callback);
+
+		function callback(err, doc){
+			
+			if(err || !doc){
+				return res.json({ error:true, message:'No exite el documento' });
+			}
+			
+			if(typeof req.body.name !== 'undefined')
+				doc.reAssigned = req.body.name
+
+			if(typeof req.body.email !== 'undefined')
+				doc.email = req.body.email
+
+			if(typeof req.body.phone !== 'undefined')
+				doc.phone = req.body.phone
+
+			if(typeof req.body.location !== 'undefined')
+				doc.location = req.body.location
+
+			doc.save();
+
+			return res.json({ error:false, data:doc });
+		};
+});
+
+router.post('/brach-company', function(req, res, next){
+  if(!req.user||!req.user.username){
+    return res.json({error:true, message:'Usuario no encontrado'});
+  }
+
+  var query = {name:req.body.name, email:req.body.email};
+    
+    branch_company.find(query).exec()
+    .then(function(data){
+      if(data.length>0){
+        return res.json({error:true,message:'Ya existe la sucursal'});        
+      }
+      var newBranchCompany = new branch_company({
+          name : req.body.name,
+          email : req.body.email,
+          phone : req.body.phone,
+          location : req.body.location,
+          company:req.body.company
+      });
+      
+      newBranchCompany.save(callback);
+
+      function callback(err, doc){
+        if(err)
+          return res.json({error:true,message:err});
+        return res.json({error:false, data:doc});
+      };
+    });
+});
+
+router.put('/brach-company', function(req, res, next){
+    if(!req.user||!req.user.username){
+      return res.json({error:true, message:'Usuario no encontrado'});
+    }  
+    var ObjectId = mongoose.Schema.Types.ObjectId;
+		
+		var query = { "_id" : new ObjectId(req.body._id) },			
+			option = { upsert:true };
+		
+		branch_company.findOne(query, callback);
+
+		function callback(err, doc){
+			
+			if(err || !doc){
+				return res.json({ error:true, message:'No exite el documento' });
+			}
+			
+			if(typeof req.body.name !== 'undefined')
+				doc.reAssigned = req.body.name
+
+			if(typeof req.body.email !== 'undefined')
+				doc.email = req.body.email
+
+			if(typeof req.body.phone !== 'undefined')
+				doc.phone = req.body.phone
+
+			if(typeof req.body.location !== 'undefined')
+				doc.location = req.body.location
+
+      if(typeof req.body.company !== 'undefined')
+				doc.company = req.body.company
+
+			doc.save();
+
+			return res.json({ error:false, data:doc });
+		};
+});
+
+router.post('/account', function(req, res, next){
+  if(!req.user||!req.user.username){
+    return res.json({error:true, message:'Usuario no encontrado'});
+  }
+
+  var query = {username:req.body.username};
+    
+    account.find(query).exec()
+    .then(function(data){
+      if(data.length>0){
+        return res.json({error:true,message:'Ya existe el usuario'});        
+      }
+      var account = new account({
+					name : req.body.name,
+					username : user.username,
+					password : utils.createHash(user.password, bCrypt),
+					email : req.body.email,
+					role : req.body.role,
+          company : req.body.company
+      });
+      
+      account.save(callback);
+
+      function callback(err, doc){
+        if(err)
+          return res.json({error:true,message:err});
+        return res.json({error:false, data:doc});
+      };
+    });
+});
+
+router.put('/account', function(req, res, next){
+    if(!req.user||!req.user.username){
+      return res.json({error:true, message:'Usuario no encontrado'});
+    }  
+    var ObjectId = mongoose.Schema.Types.ObjectId;
+		
+		var query = { "_id" : new ObjectId(req.body._id) },			
+			option = { upsert:true };
+		
+		account.findOne(query, callback);
+
+		function callback(err, doc){
+			
+			if(err || !doc){
+				return res.json({ error:true, message:'No exite el documento' });
+			}
+			
+			if(typeof req.body.name !== 'undefined')
+				doc.reAssigned = req.body.name
+
+			if(typeof req.body.role !== 'undefined')
+				doc.role = req.body.role
+
+			if(typeof req.body.company !== 'undefined')
+				doc.company = req.body.company
+
+			doc.save();
+
+			return res.json({ error:false, data:doc });
+		};
 });
 
 module.exports = router;
