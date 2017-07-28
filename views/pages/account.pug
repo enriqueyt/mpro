@@ -1,0 +1,141 @@
+extends ../layout
+block content-mpro
+	include ../partials/header.pug
+	.container-fluid
+		.row
+			.col-md-12
+				.row.dashboard-nav-row
+					.col-md-4
+						a(href="/"+user.role+"/"+user.identifier)
+							h5 Actividad
+					.col-md-4
+						a(href="/"+user.role+"/"+user.identifier+"/company")
+							h5 Empresa
+					.col-md-4.nav-active
+						a(href="/"+user.role+"/"+user.identifier+"/usuarios")
+							h5 Usuarios
+				.row.company-nav-row
+					.col-md-12
+						#addAccount.button.btn.btn-primary.btn-lg.btn-block(type="button", data-toggle="addAccountModal") Agregar Usuario
+					.col-md-12
+						table.table
+							each account, i in currentAccounts
+								if i==0
+									thead
+										th #
+										th Nombre
+										th username
+										th Correo
+										th Rol
+										if account.role == "admin"
+											th Empresa
+										if account.role == "admin_company"
+											th Sucursal
+										th Fecha de ingreso
+										th status
+										th
+										th 
+								tbody
+									each account, i in currentAccounts
+										td=i+1
+										td=account.name
+										td=account.username
+										td=account.email
+										td=account.role
+										td=account.company
+										td=account.date
+										td=account.status
+										td
+											i.fa.fa-pencil-square-o(aria-hidden="true")
+										td
+											i.fa.fa-trash(aria-hidden="true")
+	#addAccountModal.modal.fadde(role="dialog")
+		.modal-dialog(role="document")
+			.modal-content
+				.modal-header
+					h5.modal-title Agregar Usuario
+					button.close(type="button", data-dismiss="modal", aria-label="Close")
+						span(aria-hidden="true") &times;
+				.modal-body
+					#warningAccountForm.alert.alert-warning.alert-dismissible(role="alert",, style="display:none;")
+						button.close(type="button", data-dismiss="alert", aria-label="Close")
+							span(aria-hidden="true")
+						strong Hey! 
+						#content(style="display:inline-block")
+					form(role="form", id="addAccountForm", name="addAccountForm", action="/account", method="post")
+						.form-group.row
+							label.col-3.col-form-label(for="name") Nombre
+							.col-9
+								input.form-control(type="text", id="name", name="name", plateholder="Nombre")
+						.form-group.row
+							label.col-3.col-form-label(for="email") Correo
+							.col-9
+								input.form-control(type="email", id="username", name="username", plateholder="Correo")
+						.form-group.row
+							label.col-3.col-form-label(for="role") Role
+							.col-9
+								select.form-control(id="role", name="role")
+									option Seleccione
+									each rol in roles
+										option(value=rol) #{rol}
+						.form-group.row
+							label.col-3.col-form-label(for="") Empresa
+							.col-9
+								select.form-control(id="company", name="company")
+									option Seleccione
+									each company in companies
+										option(value=company._id) #{company.name}
+						.form-group.row
+							label.col-3.col-form-label(for="status") Estatus
+							.col-9
+								input.form-control(type="checkbox", id="status", name="status" )
+						.col-12(style="text-align:right")
+							button.btn.btn-secondary(type="button", data-dismiss="modal", style="margin-right:1%;") Cerrar
+							button.btn.btn-primary.addAccountSubmit(type="submit") Crear
+	script(type="text/javascript").
+		$(document).ready(function(){
+			$('#addAccount').click(function(e){
+				$('#addAccountModal').modal('show');
+			});
+			$('.addAccountSubmit').click(function(e){
+				e.preventDefault();
+				$('#warningAccountForm').css({display:'none'});
+				$('#warningAccountForm #content').empty();
+				$(document).find('[name="description"]').remove();		
+				
+				var form = document[$($(this).parents('form')).attr('name')], data={};
+								
+				_.each(form,function(item, i){					
+					if(item.getAttribute('class')=='form-control'){
+						if(item.tagName.toLowerCase()=='input'||item.tagName.toLowerCase()=='textarea'){
+							if(item.value.length>0){
+								data[item.name]=item.value;
+							}
+							else{
+								$(item).after("<p style='color:red;' name='description'>Campo requerido</p>");
+							}
+						}else if(item.tagName.toLowerCase()=='select'){
+							var aux = $(item).find('option:selected').attr('value')							
+							if(aux!=undefined){
+								data[item.name]=aux;
+							}
+							else{
+								$(item).after("<p style='color:red;' name='description'>Campo requerido</p>");
+							}
+						}
+					}
+				});
+
+				if(!$(form).find('[name="description"]').length>0){					
+					$.post($($(this).parents('form')).attr('action'), data, function(response){						
+						if(!response.error){
+							$('#addAccountModal').modal('hide');
+						}
+						else{
+							$('#warningAccountForm').css({display:''});
+							$('#warningAccountForm #content').append(response.message)
+						}
+					});
+				}				
+			});
+		});

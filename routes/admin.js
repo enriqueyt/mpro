@@ -9,6 +9,7 @@ var account = mongoose.model('account');
 var company = mongoose.model('company');
 var branch_company = mongoose.model('branch_company')
 var utils = require('../libs/utils');
+var _ = require('underscore');
 
 router.use(function (req, res, next) {
   res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
@@ -110,11 +111,62 @@ router.get('/admin/:identifier/company', function(req, res, next){
         return branch_company.find({}).populate('company').exec();
     })
     .then(function(data){        
-        var bc = data.splice();
+        var bc = data.slice();
+        
         return res.render('pages/company', {
             user : req.user || {},
             //csrfToken: req.csrfToken()
             currentAccount:currentAccount,
+            companies:companies,
+            branch_companies:bc,
+            roles:account.schema.path('role').enumValues
+        });
+    })
+    .catch(function(err){
+        console.log('error:', err);
+        res.redirect('/');
+        return;
+    });
+});
+
+router.get('/admin/:identifier/usuarios', function(req, res, next){
+    if(!req.user){
+        req.session.loginPath=null;
+        console.log('no identifier');
+        res.redirect('/login');
+    }
+    var identifier = req.params.identifier||req.user.identifier;
+    
+    var query = {}, currentAccounts={}, companies=[];
+    
+    account.find(query).exec()
+    .then(function(user){
+        if(!user||user.length==0){
+            throw new Error('wfT!!');
+            return;
+        }
+        else{      
+            currentAccounts=user;
+        }
+        var aux = _.find(currentAccounts, function(ca){return ca.identifier===identifier});
+        currentAccounts.splice(currentAccounts.indexOf(aux),1);
+
+        if(req.user.role!='admin'){
+            throw new Error('just for main admins');
+            return;
+        }
+        return company.find({}).exec()
+    })
+    .then(function(data){        
+        companies=data.slice();        
+        return branch_company.find({}).populate('company').exec();
+    })
+    .then(function(data){
+        var bc = data.splice();
+        return res.render('pages/account', {
+            user : req.user || {},
+            //csrfToken: req.csrfToken()
+            currentAccounts:currentAccounts,
             companies:companies,
             branch_companies:bc,
             roles:account.schema.path('role').enumValues
@@ -203,13 +255,16 @@ router.post('/brach-company', function(req, res, next){
       if(data.length>0){
         return res.json({error:true,message:'Ya existe la sucursal'});        
       }
-      var newBranchCompany = new branch_company({
-          name : req.body.name,
-          email : req.body.email,
-          phone : req.body.phone,
-          location : req.body.location,
-          company:req.body.company
-      });
+
+      var obj = {
+        name : req.body.name,
+        email : req.body.email,
+        phone : req.body.phone,
+        location : req.body.location,
+        company:req.body.company
+      };
+
+      var newBranchCompany = new branch_company(obj);
       
       newBranchCompany.save(callback);
 
@@ -262,23 +317,25 @@ router.put('/brach-company', function(req, res, next){
 router.post('/account', function(req, res, next){
   if(!req.user||!req.user.username){
     return res.json({error:true, message:'Usuario no encontrado'});
-  }
-
+  }  
   var query = {username:req.body.username};
-    
-    account.find(query).exec()
-    .then(function(data){
-      if(data.length>0){
-        return res.json({error:true,message:'Ya existe el usuario'});        
+  
+    account.findOne(query).exec()
+    .then(function(data){      
+      if(data!=null){
+        return res.json({error:true,message:'Ya existe el usuario'});
       }
-      var account = new account({
+
+      var obj= {
 					name : req.body.name,
-					username : user.username,
-					password : utils.createHash(user.password, bCrypt),
-					email : req.body.email,
+					username : req.body.username,
+					password : utils.createHash('mpro-'+req.body.username.split('@')[0], bCrypt),
+					email : req.body.username,
 					role : req.body.role,
           company : req.body.company
-      });
+      };
+      
+      var account = new account(obj);
       
       account.save(callback);
 

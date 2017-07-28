@@ -75,7 +75,7 @@ block content-mpro
 													td=company.email
 													td=company.phone
 													td=company.location
-													td=company.company
+													td=company.company.name
 													td
 														i.fa.fa-pencil-square-o(aria-hidden="true")
 													td
@@ -173,18 +173,26 @@ block content-mpro
 							else{
 								$(item).after("<p style='color:red;' name='description'>Campo requerido</p>");
 							}
-						}						
+						}
+						else if(item.tagName.toLowerCase()=='select'){
+							var aux = $(item).find('option:selected').attr('value')							
+							if(aux!=undefined){
+								data[item.name]=aux;
+							}
+							else{
+								$(item).after("<p style='color:red;' name='description'>Campo requerido</p>");
+							}
+						}
 					}
 				});
 
 				if(!$(form).find('[name="description"]').length>0){					
 					$.post($($(this).parents('form')).attr('action'), data, function(response){						
 						if(!response.error){
-							$('#addCompanyModal').modal('hide');
+							$('#addCompanyModal, #addBranchCompanyModal').modal('hide');
+							window.location.reload(true);							
 						}
 					});
 				}				
-			});
-			
-
-		})
+			});			
+		});
