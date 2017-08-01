@@ -6,8 +6,8 @@ var csrf = require('csurf');
 var csrfProtection = csrf({ cookie: true });
 var mongoose = require('mongoose');
 var account = mongoose.model('account');
-var company = mongoose.model('company');
-var branch_company = mongoose.model('branch_company')
+var entity = mongoose.model('entity');
+var bCrypt = require('bcrypt-nodejs');
 var utils = require('../libs/utils');
 var _ = require('underscore');
 
@@ -17,30 +17,6 @@ router.use(function (req, res, next) {
   req.params = JSON.parse(sanitizer.sanitize(JSON.stringify(mongoSanitize(req.params))));
   req.query = JSON.parse(sanitizer.sanitize(JSON.stringify(mongoSanitize(req.query))));
   next();
-});
-
-/* GET home page. */
-router.get('/', function(req, res, next) {
-
-  if(req.user){
-
-    if(req.session.loginPath){
-      res.redirect(req.session.loginPath);
-    } else {
-      
-      if(res.user.role.role=='admin'){
-        res.redirect('/admin/' + req.user.nickname);
-      }
-      
-    }
-
-  } else {
-    res.render('index', { //csrfToken: req.csrfToken(),
-      user : {}
-    });
-
-  }
-
 });
 
 router.get('/admin/:identifier', function(req, res, next){
@@ -104,15 +80,14 @@ router.get('/admin/:identifier/company', function(req, res, next){
             throw new Error('Solo paa administradores generales');
             return;
         }
-        return company.find({}).exec()
+        return entity.find({type:'company'}).exec()
     })
-    .then(function(data){        
+    .then(function(data){
         companies=data.slice();        
-        return branch_company.find({}).populate('company').exec();
+        return entity.find({type:'branch_company'}).populate('company').exec();
     })
-    .then(function(data){        
+    .then(function(data){
         var bc = data.slice();
-        
         return res.render('pages/company', {
             user : req.user || {},
             //csrfToken: req.csrfToken()
@@ -139,7 +114,7 @@ router.get('/admin/:identifier/usuarios', function(req, res, next){
     
     var query = {}, currentAccounts={}, companies=[];
     
-    account.find(query).exec()
+    account.find(query).populate('company').exec()
     .then(function(user){
         if(!user||user.length==0){
             throw new Error('wfT!!');
@@ -154,12 +129,12 @@ router.get('/admin/:identifier/usuarios', function(req, res, next){
         if(req.user.role!='admin'){
             throw new Error('just for main admins');
             return;
-        }
-        return company.find({}).exec()
+        }        
+        return entity.find({type:'company'}).exec()
     })
     .then(function(data){        
         companies=data.slice();        
-        return branch_company.find({}).populate('company').exec();
+        return entity.find({type:'branch_company'}).populate('company').exec();
     })
     .then(function(data){
         var bc = data.splice();
@@ -179,96 +154,37 @@ router.get('/admin/:identifier/usuarios', function(req, res, next){
     });
 });
 
-router.post('/company', function(req, res, next){
-  if(!req.user||!req.user.username){
-    return res.json({error:true, message:'Usuario no encontrado'});
-  }
-
-  var query = {name:req.body.name, email:req.body.email};
-    
-    company.find(query).exec()
-    .then(function(companyResult){
-      if(companyResult.length>0){
-        return res.json({error:true,message:'Ya existe la empresa'});        
-      }
-      var newCompany = new company({
-        name : req.body.name,
-        email : req.body.email,
-        phone : req.body.phone,
-        location : req.body.location
-      });
-      
-      newCompany.save(callback);
-
-      function callback(err, doc){
-        if(err)
-          return res.json({error:true,message:err});
-        return res.json({error:false, data:doc});
-      };
-    });		
-});
-
-router.put('/company', function(req, res, next){
+router.post('/entity', function(req, res, next){
     if(!req.user||!req.user.username){
       return res.json({error:true, message:'Usuario no encontrado'});
-    }  
-    var ObjectId = mongoose.Schema.Types.ObjectId;
-		
-		var query = { "_id" : new ObjectId(req.body._id) },			
-			option = { upsert:true };
-		
-		company.findOne(query, callback);
+    }
 
-		function callback(err, doc){
-			
-			if(err || !doc){
-				return res.json({ error:true, message:'No exite el documento' });
-			}
-			
-			if(typeof req.body.name !== 'undefined')
-				doc.reAssigned = req.body.name
+    var query = {name:req.body.name, email:req.body.email};
 
-			if(typeof req.body.email !== 'undefined')
-				doc.email = req.body.email
-
-			if(typeof req.body.phone !== 'undefined')
-				doc.phone = req.body.phone
-
-			if(typeof req.body.location !== 'undefined')
-				doc.location = req.body.location
-
-			doc.save();
-
-			return res.json({ error:false, data:doc });
-		};
-});
-
-router.post('/brach-company', function(req, res, next){
-  if(!req.user||!req.user.username){
-    return res.json({error:true, message:'Usuario no encontrado'});
-  }
-
-  var query = {name:req.body.name, email:req.body.email};
-    
-    branch_company.find(query).exec()
+    entity.find(query).exec()
     .then(function(data){
+
       if(data.length>0){
-        return res.json({error:true,message:'Ya existe la sucursal'});        
+        return res.json({error:true,message:'Ya existe el registro'});        
       }
 
       var obj = {
         name : req.body.name,
         email : req.body.email,
         phone : req.body.phone,
-        location : req.body.location,
-        company:req.body.company
+        location : req.body.location,        
+        type : req.body.type
       };
 
-      var newBranchCompany = new branch_company(obj);
-      
-      newBranchCompany.save(callback);
+      if(req.body.company!=undefined){
+        obj.company=req.body.company;
+      };
 
-      function callback(err, doc){
+      var newEntity = new entity(obj);
+      
+      newEntity.save(callback);
+
+      function callback(err, doc){        
         if(err)
           return res.json({error:true,message:err});
         return res.json({error:false, data:doc});
@@ -276,7 +192,7 @@ router.post('/brach-company', function(req, res, next){
     });
 });
 
-router.put('/brach-company', function(req, res, next){
+router.put('/entity', function(req, res, next){
     if(!req.user||!req.user.username){
       return res.json({error:true, message:'Usuario no encontrado'});
     }  
@@ -285,7 +201,7 @@ router.put('/brach-company', function(req, res, next){
 		var query = { "_id" : new ObjectId(req.body._id) },			
 			option = { upsert:true };
 		
-		branch_company.findOne(query, callback);
+		entity.findOne(query, callback);
 
 		function callback(err, doc){
 			
@@ -321,7 +237,8 @@ router.post('/account', function(req, res, next){
   var query = {username:req.body.username};
   
     account.findOne(query).exec()
-    .then(function(data){      
+    .then(function(data){
+      
       if(data!=null){
         return res.json({error:true,message:'Ya existe el usuario'});
       }
@@ -332,14 +249,14 @@ router.post('/account', function(req, res, next){
 					password : utils.createHash('mpro-'+req.body.username.split('@')[0], bCrypt),
 					email : req.body.username,
 					role : req.body.role,
-          company : req.body.company
+          company : req.body.branchcompany =='0' ? req.body.company : req.body.branchcompany
       };
+                  
+      var newAccount = new account(obj);
       
-      var account = new account(obj);
-      
-      account.save(callback);
+      newAccount.save(callback);
 
-      function callback(err, doc){
+      function callback(err, doc){        
         if(err)
           return res.json({error:true,message:err});
         return res.json({error:false, data:doc});

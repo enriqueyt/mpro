@@ -31,7 +31,10 @@ var account = new Schema({
             return code;
         }
 	},
-    company: ObjectId, //hace referencia a que company o branch_company esta asignado. Depende del rol asisnado
+    company: {
+		type: Schema.Types.ObjectId,
+        ref:'entity'
+	},
     image: [{
         filename : String,
         imageurl : String
@@ -42,7 +45,7 @@ var account = new Schema({
 	},
 	status:{
 		type:Boolean,
-		default:true
+		default:false
 	}
 
 }, {autoIndex:false});

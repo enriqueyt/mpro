@@ -26,23 +26,21 @@ block content-mpro
 										th Nombre
 										th username
 										th Correo
-										th Rol
-										if account.role == "admin"
-											th Empresa
-										if account.role == "admin_company"
-											th Sucursal
+										th Rol										
+										th Empresa										
+										th Sucursal
 										th Fecha de ingreso
 										th status
 										th
 										th 
 								tbody
-									each account, i in currentAccounts
+									tr
 										td=i+1
 										td=account.name
 										td=account.username
 										td=account.email
 										td=account.role
-										td=account.company
+										td=account.company.name
 										td=account.date
 										td=account.status
 										td
@@ -66,24 +64,31 @@ block content-mpro
 						.form-group.row
 							label.col-3.col-form-label(for="name") Nombre
 							.col-9
-								input.form-control(type="text", id="name", name="name", plateholder="Nombre")
+								input.form-control(type="text", id="name", name="name", plateholder="Nombre", required="true")
 						.form-group.row
 							label.col-3.col-form-label(for="email") Correo
 							.col-9
-								input.form-control(type="email", id="username", name="username", plateholder="Correo")
+								input.form-control(type="email", id="username", name="username", plateholder="Correo", required="true" )
 						.form-group.row
 							label.col-3.col-form-label(for="role") Role
 							.col-9
-								select.form-control(id="role", name="role")
+								select.form-control(id="role", name="role", required="true")
 									option Seleccione
 									each rol in roles
 										option(value=rol) #{rol}
 						.form-group.row
 							label.col-3.col-form-label(for="") Empresa
 							.col-9
-								select.form-control(id="company", name="company")
+								select.form-control(id="company", name="company", required="true")
 									option Seleccione
 									each company in companies
+										option(value=company._id) #{company.name}
+						.form-group.row
+							label.col-3.col-form-label(for="") Sucursal
+							.col-9
+								select.form-control(id="branchcompany", name="branchcompany")
+									option Seleccione
+									each company in branch_companies
 										option(value=company._id) #{company.name}
 						.form-group.row
 							label.col-3.col-form-label(for="status") Estatus
@@ -114,28 +119,42 @@ block content-mpro
 							else{
 								$(item).after("<p style='color:red;' name='description'>Campo requerido</p>");
 							}
-						}else if(item.tagName.toLowerCase()=='select'){
-							var aux = $(item).find('option:selected').attr('value')							
+						}else if(item.tagName.toLowerCase()=='select'){							
+							var aux = $(item).find('option:selected').attr('value');
 							if(aux!=undefined){
 								data[item.name]=aux;
 							}
-							else{
+							else if($(item).attr('required')!=undefined){
 								$(item).after("<p style='color:red;' name='description'>Campo requerido</p>");
 							}
 						}
 					}
 				});
-
+				
 				if(!$(form).find('[name="description"]').length>0){					
 					$.post($($(this).parents('form')).attr('action'), data, function(response){						
 						if(!response.error){
 							$('#addAccountModal').modal('hide');
+							window.location.reload(true);
 						}
 						else{
 							$('#warningAccountForm').css({display:''});
 							$('#warningAccountForm #content').append(response.message)
 						}
 					});
-				}				
+				}
+			});
+			$('select#company').change(function(e){
+				e.preventDefault();
+				$('#branchcompany').empty();
+				if($(this).find('option:selected').val()=='Seleccione') return;
+				$.get('/get-branch-company-by-company/'+$(this).find('option:selected').val(), function(data){
+					var aux ='';
+					aux+='<option value="0">Seleccione</option>';					
+					_.each(data.data, function(item, i){
+						aux+='<option value="'+item._id+'">'+item.name+'</option>';
+					});
+					$('#branchcompany').append(aux);
+				});
 			});
 		});
