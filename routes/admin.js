@@ -120,9 +120,9 @@ router.get('/admin/:identifier/usuarios', function(req, res, next){
             throw new Error('wfT!!');
             return;
         }
-        else{      
-            currentAccounts=user;
-        }
+        
+        currentAccounts=user;
+        
         var aux = _.find(currentAccounts, function(ca){return ca.identifier===identifier});
         currentAccounts.splice(currentAccounts.indexOf(aux),1);
 
@@ -138,9 +138,11 @@ router.get('/admin/:identifier/usuarios', function(req, res, next){
     })
     .then(function(data){
         var bc = data.splice();
+        console.log(currentAccounts)
         return res.render('pages/account', {
             user : req.user || {},
             //csrfToken: req.csrfToken()
+            currentAccount:{company:{name:""}},
             currentAccounts:currentAccounts,
             companies:companies,
             branch_companies:bc,

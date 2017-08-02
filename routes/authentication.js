@@ -39,6 +39,7 @@ module.exports = function(passport){
           return res.redirect('/login/failed-login');
         }
         var _doc=data.data;
+        console.log(_doc)
         req.logIn(_doc, function(err) {
           if (err) { 
             return next(err); 

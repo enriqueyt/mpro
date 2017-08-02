@@ -35,7 +35,9 @@ module.exports = function(passport){
 
 		var query = {'username': username};
 	
-		account.findOne(query, function(err, doc){	
+		account.findOne(query).populate('company').exec(callback);
+
+		function callback(err, doc){	
 				
 			if(err)
 				return done({error:true, data:false, message:err});				
@@ -49,7 +51,8 @@ module.exports = function(passport){
 				return done({error:true, data:false, message:'Usuario o password errado!'});
 			}
 			return done({error:false, data:doc, message:'Exito!'});
-		});
+		};
+
 	}));
 
 	passport.use('signup', new LocalStrategy({

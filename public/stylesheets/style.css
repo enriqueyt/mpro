@@ -190,3 +190,7 @@ a.top-nav {
 .company-nav-row ul{
   width: 100%;
 };
+
+.information-company{
+  display: inline-block;
+}
