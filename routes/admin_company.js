@@ -123,7 +123,6 @@ router.get('/admin_company/:identifier/usuarios', function(req, res, next){
         return account.find({company:{$in:aux}}).populate('company').exec();
     })
     .then(function(data){
-      console.log(req.user)
         return res.render('pages/account', {
             user : req.user || {},
             companies:[],

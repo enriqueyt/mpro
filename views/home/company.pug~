@@ -1,8 +1,0 @@
-extends ../layout
-block content-mpro
-	include ../partials/header.pug
-	.container-fluid
-		.row
-			.col-md-6
-				.row.dashboard-nav-row
-            		.col-md-6.row

@@ -40,9 +40,35 @@ router.get('/home/:identifier/company/:id', function(req, res, next){
       console.log('no identifier');
       res.redirect('/login');
   }
-  return res.render('home/company',{
-    user : req.user || {}
-  })
+
+  var query = { _id : req.params.id, type : 'company' }, _entity;
+
+  entity
+    .findOne(query)
+    .exec()
+    .then(function(data){
+      _entity=data;
+      query={type:'branch_company', company: new ObjectId(data._id)};
+      return entity.find(query).exec();
+    })
+    .then(function(data){
+        entitybc=data;
+        var ids=[];
+      _.each(entitybc, function(item, i){
+        ids.push(item._id);
+      });
+      query={company:{$in:ids}};
+      return account.find(query).exec();
+    })
+    .then(function(data){
+        return res.render('home/home_page',{
+          user : req.user || {},
+          entity:_entity||[],
+          entitybc:entitybc||[],
+          accounts:data
+        });
+    })
+    
 });
 
 router.get('/home/:identifier/branch_company/:id', function(req, res, next){
