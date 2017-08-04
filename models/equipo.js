@@ -17,17 +17,15 @@ var equipo = new Schema({
 		type : String,
 		required : true
 	},
-    branch_company: {
+    company: {
         type:Schema.Types.ObjectId,
-        ref:'branch_company'
+        ref:'entity'
     },
     image: [{
         filename : String,
         imageurl : String
     }],
-    maintenances_date:[{
-        date:Date
-    }],
+    maintenances_date:[Date],
     date:{
         type:Date
     },

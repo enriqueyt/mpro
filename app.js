@@ -21,12 +21,15 @@ db.on('error', console.error.bind(console, 'Database connection error:'));
 db.once('open', console.error.bind(console, 'Connected to MongDB'));
 
 require('./models/account');
-require('./models/company');
+require('./models/entity');
 
 var index = require('./routes/index');
 var initPassport = require('./config/passport')(passport);
 var authentication = require('./routes/authentication')(passport);
 var admin = require('./routes/admin');
+var admin_company = require('./routes/admin_company');
+var admin_branch_company = require('./routes/admin_branch_company');
+var technical = require('./routes/technical');
 
 var app = express();
 
@@ -57,7 +60,9 @@ app.use(passport.session());
 app.use('/', index);
 app.use('/', authentication);
 app.use('/', admin);
-
+app.use('/', admin_company);
+app.use('/', admin_branch_company);
+app.use('/', technical);
 
 // catch 404 and forward to error handler
 /*app.use(function(req, res, next) {

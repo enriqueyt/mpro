@@ -9,12 +9,14 @@ block content-mpro
 					.col-md-4.nav-active
 						a(href="/"+user.role+"/"+user.identifier)
 							h5 Actividad
-					.col-md-4
-						a(href="/"+user.role+"/"+user.identifier+"/company")
-							h5 Empresa
-					.col-md-4
-						a(href="#{user.role}/#{user.identifier}/usuarios")
-							h5 Usuarios
+					if user.role=="admin"||user.role=="admin_company"
+						.col-md-4
+							a(href="/"+user.role+"/"+user.identifier+"/company")
+								h5 Empresa
+					if user.role!="technical"
+						.col-md-4
+							a(href="/"+user.role+"/"+user.identifier+"/usuarios")
+								h5 Usuarios
 				#tabcontent
 	script(type="text/javascript").
 		$(document).ready(function(){

@@ -181,8 +181,16 @@ a.top-nav {
     margin-bottom: 0.2%;
 }
 
-.company-nav-row{}
+.company-nav-row{
+  padding: 0.8% 0;
+    vertical-align: middle;
+    margin-bottom: 0.2%;
+}
 
 .company-nav-row ul{
   width: 100%;
 };
+
+.information-company{
+  display: inline-block;
+}
