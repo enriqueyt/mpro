@@ -1,51 +1,71 @@
 # MPRO
 
-## Inicio
+## Pre-requisites
+    * MongoDB
+    * Node.js
+    * Git 
 
-Inicar en mpro
+## Setup
 
-## Prerequisitos
+### Install dependencies
 
-    Para poner en marcha debe tener instalado:
-        * MongoDB
-        * Node (NPM querido)
-        * Git 
+#### MongoDB
+    Go to the MongoDB main page (https://www.mongodb.com/), download and install.
 
-## Instalación
+### Node.js
+    Go to the Node.js main page (https://nodejs.org/en/), download and install.
 
-    ### Instalar todas las Dependencias
+### Git
+    Go to the Git main page (https://git-scm.com/), download and install.
 
-    MongoDB
-        Ir a la página principal de node (https://www.mongodb.com/), descargar e Instalar.
+#### To get source code from parent repository
+``` bash
+    > $ git clone https://github.com/enriqueyt/mpro.git
+```
 
-    Node:
-        Ir a la página principal de node (https://nodejs.org/en/), descargar e Instalar.
-
-    Git:
-        Ir a la página principal de node (https://git-scm.com/), descargar e Instalar.
-
-    #### Realizar el clone del prodyecto y descargar todos las dependencias requeridas
-
-        > $ npm install
+### To install Node.js dependencies
+``` bash
+    > $ npm install
+```
    
-## Desarrollo
+## Development
 
-    MongoDB:         
-        > $ ./mongod
-    
-    Node: 
-        > $ npm start
+### To start MongoDB server:         
+``` bash
+    > $ mongod
+``` 
 
-    ir a localhost:3000
+### To start the Node.js server: 
+``` bash
+    > $ npm start
+```
+
+### To preview the app on web browser
+    Go to http://localhost:3000
+
+## Git Rules
+
+### Commit messages:
+    Use the following prefix to classified the actions made:
+        #N for adding new features.
+        #M for updating features.
+        #R for removing features or some piece of code.
+        #F for fixing some bug on features.
+
+### Branches
+    Use the following prefix to create branches:
+        feature/FUNCTIONALITY-NAME for normal development.
+        fix/ISSUE-DESCRIPTION for bug's fix.
 
 ## Version
 
     0.1
 
-## Autor
+## Author
 
-* **EYT** - *Trabajo inicial* - [enriqueyt](https://github.com/enriqueyt)
+* **EYT** - *Initial work* - [enriqueyt](https://github.com/enriqueyt)
 
-## Licencia
+## Licence
 
 N/A
+
