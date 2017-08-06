@@ -36,7 +36,9 @@ block content-mpro
 							#company.tab-pane.active(role="tabpanel")
 								.row
 									.col-md-12
-										#addComapny.button.btn.btn-primary.btn-lg.btn-block(type="button", data-toggle="addCompanyModal") Agregar Empresa
+										.btn-group
+											button#addComapny.btn.btn-primary(type="button", data-toggle="addCompanyModal", style="cursor:pointer; background-color:rgb(0,155,219)") Agregar Empresa 
+												i.fa.fa-plus
 									.col-md-12
 										table.table
 											thead
@@ -64,7 +66,9 @@ block content-mpro
 							#branchcompany.tab-pane(role="tabpanel")
 								.row
 									.col-md-12
-										#addBranchCompany.button.btn.btn-primary.btn-lg.btn-block(type="button", data-toggle="addBranchCompanyModal") Agregar Sucursal
+										.btn-group
+											button#addBranchCompany.btn.btn-primary(type="button", data-toggle="addBranchCompanyModal", style="cursor:pointer; background-color:rgb(0,155,219)") Agregar Sucursal 
+												i.fa.fa-plus
 									.col-md-12
 										table.table
 											thead

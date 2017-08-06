@@ -17,7 +17,9 @@ block content-mpro
 							h5 Usuarios
 				.row.company-nav-row
 					.col-md-12
-						#addAccount.button.btn.btn-primary.btn-lg.btn-block(type="button", data-toggle="addAccountModal") Agregar Usuario						
+						.btn-group
+							button#addAccount.btn.btn-primary(type="button", data-toggle="addAccountModal", style="cursor:pointer; background-color:rgb(0,155,219)") Agregar Usuario 
+								i.fa.fa-plus
 					.col-md-12
 						table.table
 							each account, i in currentAccounts
@@ -48,7 +50,11 @@ block content-mpro
 											td=currentAccount.company.name
 										td=account.company.name
 										td=account.date
-										td=account.status
+										td
+											if account.status==true
+												label.label-sm.label-success Activo
+											else
+												label.label-sm.label-default Inactivo
 										td
 											i.fa.fa-pencil-square-o(aria-hidden="true")
 										td
@@ -81,13 +87,13 @@ block content-mpro
 								select.form-control(id="role", name="role", required="true")
 									option Seleccione
 									each rol in roles
-										if currentAccount.role=="admin"
+										if user.role=="admin"
 											option(value=rol) #{rol}
 										else if rol!="admin" && rol!="admin_company"&& currentAccount.role=="admin_company"
 											option(value=rol) #{rol}
 										else if rol!="admin" && rol!="admin_company" && rol!="admin_branch_company" && currentAccount.role=="admin_branch_company"
 											option(value=rol, selected="true") #{rol}
-						if currentAccount.role=="admin"
+						if user.role=="admin"
 							.form-group.row
 								label.col-3.col-form-label(for="") Empresa
 								.col-9

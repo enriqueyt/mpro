@@ -251,7 +251,8 @@ router.post('/account', function(req, res, next){
 					password : utils.createHash('mpro-'+req.body.username.split('@')[0], bCrypt),
 					email : req.body.username,
 					role : req.body.role,
-          company : req.body.branchcompany =='0' ? req.body.company : req.body.branchcompany
+          company : req.body.branchcompany =='0' ? req.body.company : req.body.branchcompany,
+          status:req.body.status=='on'?true:false
       };
                   
       var newAccount = new account(obj);

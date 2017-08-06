@@ -42,18 +42,19 @@ router.get('/home/:identifier/company/:id', function(req, res, next){
   }
 
   var query = { _id : req.params.id, type : 'company' }, _entity;
+  var ids=[];
 
   entity
     .findOne(query)
     .exec()
     .then(function(data){
       _entity=data;
+      if(req.user.role=="admin") ids.push(data._id);
       query={type:'branch_company', company: new ObjectId(data._id)};
       return entity.find(query).exec();
     })
     .then(function(data){
-        entitybc=data;
-        var ids=[];
+        entitybc=data;        
       _.each(entitybc, function(item, i){
         ids.push(item._id);
       });
@@ -61,7 +62,7 @@ router.get('/home/:identifier/company/:id', function(req, res, next){
       return account.find(query).exec();
     })
     .then(function(data){
-        return res.render('home/home_page',{
+        return res.render('pages/entity',{
           user : req.user || {},
           entity:_entity||[],
           entitybc:entitybc||[],
@@ -77,9 +78,28 @@ router.get('/home/:identifier/branch_company/:id', function(req, res, next){
       console.log('no identifier');
       res.redirect('/login');
   }
-  return res.render('home/branch_company',{
-    user : req.user || {}
-  })
+
+  var query = { _id : req.params.id, type : 'branch_company' }, _entity;
+
+  entity
+    .findOne(query)
+    .exec()
+    .then(function(data){
+        console.log(data)
+        _entity=data;
+        return account.find({company:data._id}).exec()
+    })
+    .then(function(data){
+      console.log("data")
+        console.log(data)
+        return res.render('pages/entity',{
+          user : req.user || {},
+          entity:_entity||[],
+          entitybc:[],
+          accounts:data
+        });
+    });
+
 });
 
 router.get('/get-branch-company-by-company/:company', function(req, res, next){
