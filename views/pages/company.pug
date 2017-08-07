@@ -58,8 +58,7 @@ block content-mpro
 														td=company.phone
 														td=company.location
 														td
-															a(href="/home/"+user.identifier+"/company/"+company._id)
-																i.fa.fa-pencil-square-o(aria-hidden="true")
+															a.btn.default.btn-xs.blue-stripe(href="/home/"+user.identifier+"/company/"+company._id) ver
 														td
 															i.fa.fa-trash(aria-hidden="true")
 						if user.role=="admin"
@@ -90,8 +89,7 @@ block content-mpro
 														td=company.location
 														td=company.company.name
 														td
-															a(href="/home/"+user.identifier+"/branch_company/"+company._id)
-																i.fa.fa-pencil-square-o(aria-hidden="true")
+															a.btn.default.btn-xs.blue-stripe(href="/home/"+user.identifier+"/branch_company/"+company._id) ver
 														td
 															i.fa.fa-trash(aria-hidden="true")
 						else if user.role="admin_company"
