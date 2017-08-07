@@ -85,13 +85,12 @@ router.get('/home/:identifier/branch_company/:id', function(req, res, next){
     .findOne(query)
     .exec()
     .then(function(data){
-        console.log(data)
+      
         _entity=data;
         return account.find({company:data._id}).exec()
     })
     .then(function(data){
-      console.log("data")
-        console.log(data)
+      
         return res.render('pages/entity',{
           user : req.user || {},
           entity:_entity||[],
@@ -114,6 +113,31 @@ router.get('/get-branch-company-by-company/:company', function(req, res, next){
       return res.json({ error:false, data:branchCompany });
   };
 
-})
+});
+
+router.get('/account/:identifier', function(req, res, next){
+
+  if(!req.user){
+      req.session.loginPath=null;
+      console.log('no identifier');
+      res.redirect('/login');
+  }
+  
+  var query = { identifier : req.params.identifier };
+  
+  account.findOne(query).populate('company').exec(callback);
+
+  function callback(err, data){
+    if(err){
+      //redirecionar a un ruter escribiendo el error, por ahora
+      data=[];
+    }
+    return res.render('pages/account-home',{
+      user:req.user || {},        
+      account:data
+    });
+  };
+
+});
 
 module.exports = router;

@@ -137,8 +137,7 @@ router.get('/admin/:identifier/usuarios', function(req, res, next){
         return entity.find({type:'branch_company'}).populate('company').exec();
     })
     .then(function(data){
-        var bc = data.splice();
-        console.log(currentAccounts)
+        var bc = data.slice();
         return res.render('pages/account', {
             user : req.user || {},
             //csrfToken: req.csrfToken()
