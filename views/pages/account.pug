@@ -30,7 +30,7 @@ block content-mpro
 										th username
 										th Correo
 										th Rol
-										if currentAccount.role=="admin"||currentAccount.role=="admin_company"							
+										if user.role=="admin"||user.role=="admin_company"							
 											th Empresa
 										th Sucursal
 										th Fecha de ingreso
@@ -44,9 +44,9 @@ block content-mpro
 										td=account.username
 										td=account.email
 										td=account.role
-										if currentAccount.role=="admin"
+										if user.role=="admin"
 											td=account.company.name
-										else if currentAccount.role=="admin_company"
+										else if user.role=="admin_company"
 											td=currentAccount.company.name
 										td=account.company.name
 										td=account.date

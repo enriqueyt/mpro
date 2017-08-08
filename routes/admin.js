@@ -119,17 +119,19 @@ router.get('/admin/:identifier/usuarios', function(req, res, next){
         if(!user||user.length==0){
             throw new Error('wfT!!');
             return;
-        }
-        
-        currentAccounts=user;
-        
-        var aux = _.find(currentAccounts, function(ca){return ca.identifier===identifier});
-        currentAccounts.splice(currentAccounts.indexOf(aux),1);
+        };
+
+        var tempAccounts = _.filter(user, function(ca){          
+          return ca.identifier!=identifier&&ca.role!='admin';
+        });
+
+        currentAccounts=tempAccounts.slice();
 
         if(req.user.role!='admin'){
             throw new Error('just for main admins');
             return;
-        }        
+        };
+
         return entity.find({type:'company'}).exec()
     })
     .then(function(data){        
