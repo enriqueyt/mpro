@@ -1,131 +1,133 @@
-var express = require('express');
-var router = express.Router();
-var sanitizer = require('sanitizer');
-var mongoSanitize = require('mongo-sanitize');
-var csrf = require('csurf');
-var csrfProtection = csrf({ cookie: true });
-var mongoose = require('mongoose');
-var account = mongoose.model('account');
-var bCrypt = require('bcrypt-nodejs');
-var utils = require('../libs/utils');
+var Express = require('express');
+var Sanitizer = require('sanitizer');
+var Mongoose = require('mongoose');
+var MongoSanitize = require('mongo-sanitize');
+var Csrf = require('csurf');
+var Bcrypt = require('bcrypt-nodejs');
+var Utils = require('../libs/utils');
 
-module.exports = function(passport){ 
+var Router = Express.Router();
+var CsrfProtection = Csrf({ cookie: true });
+var Account = Mongoose.model('account');
 
-  router.use(function (req, res, next) {
-    res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
-    req.body = JSON.parse(sanitizer.sanitize(JSON.stringify(mongoSanitize(req.body))));
-    req.params = JSON.parse(sanitizer.sanitize(JSON.stringify(mongoSanitize(req.params))));
-    req.query = JSON.parse(sanitizer.sanitize(JSON.stringify(mongoSanitize(req.query))));
+module.exports = function (passport) { 
+
+  Router.use(function (req, res, next) {
+    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+    req.body = JSON.parse(Sanitizer.sanitize(JSON.stringify(MongoSanitize(req.body))));
+    req.params = JSON.parse(Sanitizer.sanitize(JSON.stringify(MongoSanitize(req.params))));
+    req.query = JSON.parse(Sanitizer.sanitize(JSON.stringify(MongoSanitize(req.query))));
     next();
   });
 
-  router.get('/login', function(req, res) {
+  Router.get('/login', function (req, res) {
     res.render('pages/login', { 
       //csrfToken: req.csrfToken(),
-      user : req.user || {}
+      user: req.user || {}
     });
   });
 
-  router.post('/login', function(req, res, next) {
+  Router.post('/login', function (req, res, next) {
+    if (!req.body.username) {
+      return res.redirect('/pages/failed-login');
+    }
+    
+    req.body.username = req.body.username.toLowerCase();
 
-    if(!req.body.username){
-        return res.redirect('/pages/failed-login');
+    passport.authenticate('login', function (data) {        
+      if (data.error) { 
+        return res.redirect('/login/failed-login');
       }
-      req.body.username = req.body.username.toLowerCase();
 
-      passport.authenticate('login', function(data) {        
-        
-        if (data.error) { 
-          return res.redirect('/login/failed-login');
+      var _doc = data.data;
+      console.log(_doc);
+
+      req.logIn(_doc, function (err) {
+        if (err) {
+          return next(err); 
         }
-        var _doc=data.data;
-        console.log(_doc)
-        req.logIn(_doc, function(err) {
-          if (err) { 
-            return next(err); 
-          }
-          if (req.session.loginPath){
-            return res.redirect(req.session.loginPath);
-          } else {
-            return res.redirect(_doc.role+'/'+_doc.identifier);
-          }  
-        });
-      })(req, res, next);
 
+        if (req.session.loginPath) {
+          return res.redirect(req.session.loginPath);
+        }
+        else {
+          return res.redirect(''.concat(_doc.role, '/', _doc.identifier));
+        }
+      });
+    })(req, res, next);
   });
 
-  router.get('/login/:loginStatus', function(req, res) {
-    if(req.params.loginStatus){
-      if (req.params.loginStatus == "failed-login"){
-        var message  = "Usuario o contrase;a errada. Favor intente nuevamente";
+  Router.get('/login/:loginStatus', function (req, res) {
+    if (req.params.loginStatus) {
+      if (req.params.loginStatus === 'failed-login') {
+        var message  = 'Usuario o contraseña errada. Favor intente nuevamente';
       }
       res.render('pages/login', { 
-        user : req.user || {}, 
+        user: req.user || {}, 
         //csrfToken: req.csrfToken(),
-        showMessage : message
+        showMessage: message
       });
-    } else {
+    }
+    else {
       res.render('pages/login', { 
-        user : req.user || {}, 
+        user: req.user || {}, 
         csrfToken: req.csrfToken() 
       });
     }
   });
 
-  router.get('/logout', function(req, res) {
+  Router.get('/logout', function (req, res) {
     req.session.loginPath = null;
     req.logout();
     res.redirect('/login');
     return;
   });
 
-  router.get('/addMyAccount/:email', function(req, res, next){
+  Router.get('/addMyAccount/:email', function (req, res, next) {
     req.body = {
-        name : req.params.email.split('@')[0],        
-        email : req.params.email,
-        role : 'admin'
-    }
+      name: req.params.email.split('@')[0],
+      email: req.params.email,
+      role: 'admin'
+    };
 
-    var user={
-      username : req.params.email,
-      password : '123456',
-    }
-    
+    var user = {
+      username: req.params.email,
+      password: '123456',
+    };
+
     var query = {'username': user.username};
 
-		account
-			.findOne(query, function(err, doc){        
-				if(err){
-					res.json({"response" : err});
-          res.end();
-				}
+		Account.findOne(query, function (err, doc) {        
+      if (err){
+        res.json({'response': err});
+        res.end();
+      }
 
-				if(doc){					
-          res.json({"response" : "Usuario ya existe"});
-          res.end();
-				}else{
+      if (doc) {
+        res.json({'response': 'Usuario ya existe'});
+        res.end();
+      }
+      else {
+        var newUser = new account();
 
-					var newUser = new account();
+        newUser.name = req.body.name;
+        newUser.username = user.username;
+        newUser.password = Utils.createHash(user.password, Bcrypt);					
+        newUser.email = req.body.email;
+        newUser.role = req.body.role;
 
-					newUser.name = req.body.name;
-					newUser.username = user.username;
-					newUser.password = utils.createHash(user.password, bCrypt);					
-					newUser.email = req.body.email;
-					newUser.role = req.body.role;
-
-					newUser.save(function(err){						
-						if(err){							
-              res.json({"response" : "Error al salvar!"+err});
-              res.end();
-						}						
-						res.json({"response" : "ok"});
+        newUser.save(function (err) {
+          if (err) {
+            res.json({'response': ''.concat('Error al salvar! ', err)});
             res.end();
-					});
+          }
 
-				}
-			});
-    
+          res.json({'response': 'ok'});
+          res.end();
+        });
+      }
+    });
   });
 
-  return router;
+  return Router;
 };

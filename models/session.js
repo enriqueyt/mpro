@@ -3,13 +3,16 @@ var Schema = mongoose.Schema;
 var ObjectId = mongoose.Schema.Types.ObjectId;
 
 var session = new Schema({
-	session : {
+	session: {
 		type: String,		
 	},
-	expire : {
+	expire: {
 		type: Date,
-        default: Date.now
+    default: Date.now
 	}
-}, {autoIndex:false});
+},
+{
+  autoIndex: false
+});
 
 module.exports = mongoose.model('session', session);
