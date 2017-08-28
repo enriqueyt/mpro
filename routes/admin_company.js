@@ -1,142 +1,264 @@
-var express = require('express');
-var router = express.Router();
-var sanitizer = require('sanitizer');
-var mongoSanitize = require('mongo-sanitize');
-var csrf = require('csurf');
-var csrfProtection = csrf({ cookie: true });
-var mongoose = require('mongoose');
-var account = mongoose.model('account');
-var entity = mongoose.model('entity');
+var Express = require('express');
+var Sanitizer = require('sanitizer');
+var Mongoose = require('mongoose');
+var MongoSanitize = require('mongo-sanitize');
+var Csrf = require('csurf');
 var ObjectId = require('mongoose').Types.ObjectId; 
-var _ = require('underscore');
+var Functional = require('underscore');
+
+var router = Express.Router();
+var csrfProtection = Csrf({cookie: true});
+var mongoAccount = Mongoose.model('account');
+var mongoEntity = Mongoose.model('entity');
 
 router.use(function (req, res, next) {
-  res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
-  req.body = JSON.parse(sanitizer.sanitize(JSON.stringify(mongoSanitize(req.body))));
-  req.params = JSON.parse(sanitizer.sanitize(JSON.stringify(mongoSanitize(req.params))));
-  req.query = JSON.parse(sanitizer.sanitize(JSON.stringify(mongoSanitize(req.query))));
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  req.body = JSON.parse(Sanitizer.sanitize(JSON.stringify(MongoSanitize(req.body))));
+  req.params = JSON.parse(Sanitizer.sanitize(JSON.stringify(MongoSanitize(req.params))));
+  req.query = JSON.parse(Sanitizer.sanitize(JSON.stringify(MongoSanitize(req.query))));
   next();
 });
 
-
-router.get('/admin_company/:identifier', function(req, res, next){
-  if(!req.user){
-    req.session.loginPath=null;
-    console.log('no identifier');
+router.get('/admin_company/:identifier', function (req, res, next) {
+  if (!req.user) {
+    req.session.loginPath = null;
+    console.log('No identifier');
     res.redirect('/login');
   }
 
-  var identifier = req.params.identifier||req.user.identifier;
-  var query = {'identifier':identifier}, currentAccount={};
-  
-  account.findOne(query).populate('company').exec()
-  .then(function(user){    
-    console.log('user')
-    console.log(user)
-    if(!user||user.length==0){
-      throw new Error('wtf!!');
-      return;
-    }
+  var accountPromise = new Promise(function (resolve, reject) {
+    var identifier = req.params.identifier || req.user.identifier;
+    var role = req.params.role || req.user.role;
+    var query = {'identifier': identifier, 'role': role};
     
-    currentAccount=user;
-    
-    return res.render('pages/dashboard', {
-      user : req.user || {},
-      currentAccount:currentAccount,      
+    mongoAccount.findOne(query).populate('company').exec()
+    .then(function (user) {    
+      if (!user || user.length === 0) {
+        var message = 'No user found';
+        reject(new Error(message));
+      }
+      else {
+        resolve(user);
+      }
+    })
+    .catch(function (err) {
+      reject(err);
     });
+  });
 
-  })
-  .catch(function(err){
-    console.log('error:', err);
+  var onRender = function (data) {
+    return res.render('pages/dashboard/dashboard_admin_company', {
+      user: req.user || {},
+      //csrfToken: req.csrfToken(),
+      currentAccount: data   
+    });
+  };
+
+  accountPromise
+  .then(onRender)
+  .catch(function (err) {
+    console.log('ERROR:', err);
     res.redirect('/');
     return;
   });
 });
 
-router.get('/admin_company/:identifier/company', function(req, res, next){
-    console.log(req.user)
-    if(!req.user){
-        req.session.loginPath=null;
-        console.log('no identifier');
-        res.redirect('/login');
-    }
+router.get('/admin_company/:identifier/company', function (req, res, next) {
+  if (!req.user) {
+    req.session.loginPath = null;
+    console.log('No identifier');
+    res.redirect('/login');
+  }
 
-    var identifier = req.params.identifier||req.user.identifier;
-    var query = {'identifier':identifier}, currentAccount={}, companies=[];
-    
-    account.findOne(query).populate('company').exec()
-    .then(function(user){
-        if(!user||user.length==0){
-            throw new Error('wfT!!');
-            return;
-        }
-        
-        currentAccount=user;
+  if (req.user.role !== 'admin_company') {
+    var message = 'Just for main administrators';
+    throw new Error(message);
+    return;
+  }
 
-        if(user.role!='admin_company'){
-            throw new Error('Solo para administradores');
-            return;
-        }
-        return entity.find({type:'branch_company', company: new ObjectId(currentAccount.company._id)}).populate('company').exec()
+  var accountPromise = new Promise(function (resolve, reject) {
+    var identifier = req.params.identifier || req.user.identifier;
+    var role = req.params.role || req.user.role;
+    var query = {'identifier': identifier, 'role': role};
+  
+    mongoAccount.findOne(query).populate('company').exec()
+    .then(function (user) {
+      if (!user || user.length === 0) {
+        var message = 'No user found';
+        reject(new Error(message));
+      }
+      else {
+        resolve(user);
+      }
     })
-    .then(function(data){
-        var bc = data.slice();
-        return res.render('pages/company', {
-            user : req.user || {},
-            currentAccount:currentAccount,
-            companies:currentAccount.company,
-            branch_companies:bc
-        });
-    })
-    .catch(function(err){
-        console.log('error:', err);
-        res.redirect('/');
-        return;
+    .catch(function (err) {
+      reject(err);
     });
+  });
+
+  var onFetchBranchCompanies = function (user) {
+    var promise = new Promise(function (resolve, reject) {
+      var query = {type: 'branch_company', company: new ObjectId(user.company._id)};
+
+      mongoEntity.find(query).populate('company').exec()
+      .then(function (branchCompanies) {
+        resolve([user, branchCompanies.slice()]);
+      })
+      .catch(function (err) {
+        reject(err);
+      });
+    });
+
+    return promise;
+  };
+
+  var onRender = function (data) {
+    return res.render('pages/company/company_admin_company', {
+      user: req.user || {},
+      //csrfToken: req.csrfToken()
+      currentAccount: data[0],
+      companies: data[0].company,
+      branchCompanies: data[1]
+    });
+  };
+
+  accountPromise
+  .then(onFetchBranchCompanies)
+  .then(onRender)
+  .catch(function (err) {
+    console.log('ERROR:', err);
+    res.redirect('/');
+    return;
+  });
 });
 
-router.get('/admin_company/:identifier/usuarios', function(req, res, next){
-    if(!req.user){
-        req.session.loginPath=null;
-        console.log('no identifier');
-        res.redirect('/login');
-    }
-    var identifier = req.params.identifier||req.user.identifier;
-    
-    var query = { identifier:req.params.identifier }, currentAccounts={}, companies=[], branch_companies=[];
-    
-    account.findOne(query).populate('company').exec()
-    .then(function(user){
-        if(!user||user.length==0){
-            throw new Error('wfT!!');
-            return;
-        }
-        currentAccounts=user;        
-        return entity.find({type:'branch_company', company: new ObjectId(user.company._id)}).exec()
-    })
-    .then(function(data){
-        branch_companies = data.slice();
-        var aux=[];
-        _.each(branch_companies, function(item, i){
-          aux.push(item._id);
-        });        
-        return account.find({company:{$in:aux}}).populate('company').exec();
-    })
-    .then(function(data){
-        return res.render('pages/account', {
-            user : req.user || {},
-            companies:[],
-            currentAccount:currentAccounts,
-            currentAccounts:data,
-            branch_companies:branch_companies,
-            roles:account.schema.path('role').enumValues
+router.get('/admin_company/:identifier/users', function (req, res, next) {
+  if (!req.user) {
+    req.session.loginPath = null;
+    console.log('No identifier');
+    res.redirect('/login');
+  }
+
+  var populateAccountCompanyPromise = function (account) {
+    var promise = new Promise(function (resolve, reject) {
+      if (account.role === 'admin_branch_company') {
+        mongoAccount.populate(account, {path: 'company.company', model: 'entity'}, function (err, account) {
+          if (err) {
+            reject(err);
+          }
+          else {
+            resolve(account);
+          }
         });
-    })
-    .catch(function(err){
-        console.log('error:', err);
-        res.redirect('/');
-        return;
+      }
+      else {
+        resolve(account);
+      }
     });
+
+    return promise;
+  };
+
+  var accountPromise = new Promise(function (resolve, reject) {
+    var identifier = req.params.identifier || req.user.identifier;
+    var role = req.params.role || req.user.role;
+    var query = {'identifier': identifier, 'role': role};
+
+    mongoAccount.findOne(query).populate('company').exec()
+    .then(function (user) {
+      if (!user || user.length === 0) {
+        var message = 'No user found';
+        reject(new Error(message));
+      }
+      else {
+        resolve(user);
+      }
+    })
+    .catch(function (err) {
+      reject(err);
+    });
+  });
+  
+  var onFetchBranchCompanies = function (user) {
+    var promise = new Promise(function (resolve, reject) {
+      var query = {type: 'branch_company', company: new ObjectId(user.company._id)} 
+    
+      mongoEntity.find(query).exec()
+      .then(function (branchCompanies) {
+        resolve([user, branchCompanies.slice()]);
+      })
+      .catch(function (err) {
+        reject(err);
+      });
+    });
+
+    return promise;
+  };
+
+  var onFetchAccounts = function (data) {
+    var branchCompanyIds = Functional.reduce(data[1], function(accumulator, branchCompany) {
+      accumulator.push(branchCompany._id);
+
+      return accumulator;
+    }, []);     
+
+    var promise = new Promise(function (resolve, reject) {
+      var query = {company: {$in: branchCompanyIds}};
+
+      mongoAccount.find(query).populate('company').exec()
+      .then(function (users) {
+        var accounts = users;
+        var promises = Functional.reduce(accounts, function (accumulator, account) {
+          var promise = populateAccountCompanyPromise(account);
+
+          accumulator.push(promise);
+
+          return accumulator;
+        }, []);
+
+        Promise.all(promises)
+        .then(function (accounts) {
+          data.push(accounts);
+          resolve(data);
+        })
+        .catch(function (err) {
+          reject(err);
+        });
+      })
+      .catch(function (err) {
+        reject(err);
+      });
+    });
+
+    return promise;
+  };
+
+  var onRender = function (data) {
+    var roleEnumValues = mongoAccount.schema.path('role').enumValues;
+    var roles = Functional.filter(roleEnumValues, function (roleEnumValue) {
+      return roleEnumValue !== 'admin' && roleEnumValue !== 'admin_company';
+    });
+
+    return res.render('pages/account/account_admin_company', {
+      user: req.user || {},
+      //csrfToken: req.csrfToken()
+      currentAccount: data[0],
+      companies: [],
+      branchCompanies: data[1],
+      accounts: data[2],
+      roles: roles
+    });
+  };
+
+  accountPromise
+  .then(onFetchBranchCompanies)
+  .then(onFetchAccounts)
+  .then(onRender)
+  .catch(function (err) {
+    console.log('ERROR:', err);
+    res.redirect('/');
+    return;
+  });
 });
 
 module.exports = router;

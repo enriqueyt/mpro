@@ -1,0 +1,21 @@
+extends ../../layout
+block content-mpro
+  include ../../partials/header.pug
+  .container-fluid
+    .row
+      .col-md-12
+        .row.dashboard-nav-row
+          .col-md-3
+            a(href="/"+user.role+"/"+user.identifier)
+              h5 Actividad
+          .col-md-3
+            a(href="/"+user.role+"/"+user.identifier+"/company")
+              h5 Empresa
+          .col-md-3
+            a(href="/"+user.role+"/"+user.identifier+"/users")
+              h5 Usuarios
+          .col-md-3
+            a(href="/"+user.role+"/"+user.identifier)
+              h5 Equipos
+        #tabcontent
+  script(src='../../javascripts/dashboard/main.js')

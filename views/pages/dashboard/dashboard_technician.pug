@@ -1,0 +1,12 @@
+extends ../../layout
+block content-mpro
+  include ../../partials/header.pug
+  .container-fluid
+    .row
+      .col-md-12
+        .row.dashboard-nav-row
+          .col-md-4
+            a(href="/"+user.role+"/"+user.identifier)
+              h5 Actividades
+        #tabcontent
+  script(src='../../javascripts/dashboard/main.js')

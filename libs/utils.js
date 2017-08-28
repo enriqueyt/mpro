@@ -1,18 +1,26 @@
-var utils = {
-	connectionDB : function(mongoose, config){
-		var path;
+var Utils = {
+	getDbConnection: function (handler, config) {
+    var path = 'mongodb://';
 
-		path = 'mongodb://';
-		//path += config.user + ':' + config.password  + '@';
-		path += config.db.host + (config.db.port.length > 0 ? ':' : '');		
-		path += config.db.port + '/';		
-		path += config.db.dbname;
-        console.log(path)
-		return mongoose.connect(path);
-	},
-	 createHash : function(password, bCrypt){
+		path = path.concat(
+      // config.user,
+      // ':',
+      // config.password,
+      // '@',
+      config.db.host,
+      (config.db.port.length > 0 ? ':' : ''),		
+      config.db.port, 
+      '/',
+      config.db.name);
+
+    console.log(path)
+
+    return handler.connect(path);
+  },
+
+	createHash: function (password, bCrypt) {
 		return bCrypt.hashSync(password, bCrypt.genSaltSync(10), null);
 	}
 };
 
-module.exports = utils;
+module.exports = Utils;

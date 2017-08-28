@@ -1,34 +1,37 @@
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ObjectId = mongoose.Schema.Types.ObjectId;
+var Mongoose = require('mongoose');
+var Schema = Mongoose.Schema;
+var ObjectId = Mongoose.Schema.Types.ObjectId;
 
 var activities_maintenance = new Schema({	
-	name : {
+	name: {
 		type: String,
 		required: true		
 	},
-	description:{
-		type : String
+	description: {
+		type: String
 	},
-	cheched :{
-		type : Boolean,
-        default:false
+	checked: {
+		type: Boolean,
+    default: false
 	},
-	equipo : { 
-        type:Schema.Types.ObjectId, 
-        ref: 'equipo'
-    },
-    date:{
-        type:Date
-    }
-}, {autoIndex:false});
-
-activities_maintenance.pre('save', function(next){
-    var self = this;
-    var model = self.model(self.constructor.modelName);    
-    console.log(model);
-    // enviar el correo antes de que se cree un usuario
-    next();
+	equipment: { 
+    type:Schema.Types.ObjectId, 
+    ref: 'equipment'
+  },
+  date: {
+    type: Date
+  }
+},
+{
+  autoIndex: false
 });
 
-module.exports = mongoose.model('activities_maintenance', activities_maintenance);
+activities_maintenance.pre('save', function (next) {
+  var self = this;
+  var model = self.model(self.constructor.modelName);    
+  console.log(model);
+  // Sends mail before activity maintenance creation was made.
+  next();
+});
+
+module.exports = Mongoose.model('activities_maintenance', activities_maintenance);

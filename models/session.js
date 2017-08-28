@@ -1,15 +1,18 @@
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ObjectId = mongoose.Schema.Types.ObjectId;
+var Mongoose = require('mongoose');
+var Schema = Mongoose.Schema;
+var ObjectId = Mongoose.Schema.Types.ObjectId;
 
 var session = new Schema({
-	session : {
+	session: {
 		type: String,		
 	},
-	expire : {
+	expire: {
 		type: Date,
-        default: Date.now
+    default: Date.now
 	}
-}, {autoIndex:false});
+},
+{
+  autoIndex: false
+});
 
-module.exports = mongoose.model('session', session);
+module.exports = Mongoose.model('session', session);
