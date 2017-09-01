@@ -40,11 +40,19 @@ Go to Docker main page (https://www.docker.com), install docker engine and docke
 > $ mongod
 ```
 
-### To start MongoDB docker container (Alternative):
+### To create the MongoDB docker container (Alternative):
 ``` bash
 > cd docker
 > docker-compose up -d mongodb
 ```
+
+### To start, restart and stop the MongoDB container:
+``` bash
+> docker-compose start mongodb
+> docker-compose restart mongodb
+> docker-compose stop mongodb
+```
+Go to Docker Compose page documentation (https://docs.docker.com/compose) to view more details.
 
 ### To start the Node.js server: 
 ``` bash
