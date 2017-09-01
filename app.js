@@ -23,6 +23,8 @@ db.once('open', console.error.bind(console, 'Connected to MongDB'));
 
 require('./models/account');
 require('./models/entity');
+require('./models/equipmentType');
+require('./models/equipment');
 
 var index = require('./routes/index');
 var initPassport = require('./config/passport')(Passport);

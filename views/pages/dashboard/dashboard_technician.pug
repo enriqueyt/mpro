@@ -8,5 +8,16 @@ block content-mpro
           .col-md-4
             a(href="/"+user.role+"/"+user.identifier)
               h5 Actividades
+          .col-md-3
+            a(href="/"+user.role+"/"+user.identifier+"/equipments")
+              h5 Equipos
+        .row.information-company
+          .col-md-12
+            span Empresa a la que colabora 
+            h4(style="display:inline-block") <b>#{currentAccount.company.company.name}</b>
+            span Sucursal
+            h4(style="display:inline-block") <b>#{currentAccount.company.name}</b>
+          .col-md-12
+            p 
         #tabcontent
   script(src='../../javascripts/dashboard/main.js')

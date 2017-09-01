@@ -12,51 +12,55 @@ var createDefaultIdentifier = function () {
   return code;
 }
 
-var account = new Schema({
-	name: {
-    type: String
-  },
-	username : {
-		type: String,
-		required: true,
-		unique: true,
-		lowercase: true
+var account = new Schema(
+	{
+		name: {
+			type: String
+		},
+		username: {
+			type: String,
+			required: true,
+			unique: true,
+			lowercase: true
+		},
+		password: {
+			type: String,
+			required: true
+		},
+		email: {
+			type: String
+		},
+		role: { 
+			type: String, 
+			enum: ['admin', 'admin_company', 'admin_branch_company', 'technical'] 
+		},
+		identifier: {
+			type: String,
+			default: createDefaultIdentifier()
+		},
+		company: {
+			type: Schema.Types.ObjectId,
+			ref: 'entity'
+		},
+		image: [
+			{
+				filename: String,
+				imageUrl: String
+			}
+		],
+		date: {
+			type: Date,
+			default: Date.now
+		},
+		status: {
+			type: Boolean,
+			default: false
+		}
 	},
-	password: {
-		type: String,
-		required: true
-	},
-	email: {
-		type: String
-	},
-	role : { 
-    type:String, 
-    enum: ['admin', 'admin_company', 'admin_branch_company', 'technical'] 
-  },
-  identifier : {
-    type: String,
-		default: createDefaultIdentifier()
-	},
-  company: {
-		type: Schema.Types.ObjectId,
-    ref: 'entity'
-	},
-  image: [{
-    filename: String,
-    imageUrl: String
-  }],
-	date: {
-		type: Date,
-		default: Date.now
-	},
-	status: {
-		type: Boolean,
-		default: false
+	{
+		autoIndex: false
 	}
-},
-{
-  autoIndex: false
-});
+);
 
 account.pre('save', function (next) {
   var self = this;

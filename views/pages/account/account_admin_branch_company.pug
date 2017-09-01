@@ -12,8 +12,16 @@ block content-mpro
             a(href="/"+user.role+"/"+user.identifier+"/users")
               h5 Usuarios
           .col-md-4
-            a(href="/"+user.role+"/"+user.identifier)
+            a(href="/"+user.role+"/"+user.identifier+"/equipments")
               h5 Equipos
+        .row.information-company
+          .col-md-12
+            span Empresa a la que colabora 
+            h4(style="display:inline-block") <b>#{currentAccount.company.company.name}</b>
+            span Sucursal
+            h4(style="display:inline-block") <b>#{currentAccount.company.name}</b>
+          .col-md-12
+            p 
         .row.company-nav-row
           .col-md-12
             .btn-group
@@ -29,8 +37,6 @@ block content-mpro
                     th username
                     th Correo
                     th Rol
-                    th Empresa
-                    th Sucursal
                     th Fecha de ingreso
                     th status
                     th
@@ -42,8 +48,6 @@ block content-mpro
                     td=account.username
                     td=account.email
                     td=account.role
-                    td=account.company.company.name
-                    td=account.company.name
                     td=account.date
                     td
                       if account.status==true

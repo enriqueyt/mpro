@@ -1,0 +1,52 @@
+extends ../../layout
+block content-mpro
+  include ../../partials/header.pug
+  .container-fluid
+    .row
+      .col-md-12
+        .row.dashboard-nav-row
+          .col-md-3
+            a(href="/"+user.role+"/"+user.identifier)
+              h5 Actividades
+          .col-md-3.nav-active
+            a(href="/"+user.role+"/"+user.identifier+"/equipments")
+              h5 Equipos
+        .row.information-company
+          .col-md-12
+            span Empresa a la que colabora 
+            h4(style="display:inline-block") <b>#{currentAccount.company.company.name}</b>
+            span Sucursal
+            h4(style="display:inline-block") <b>#{currentAccount.company.name}</b>
+          .col-md-12
+            p 
+        .row.equipment-nav-row
+          ul.nav.nav-tabs(role="tablist", id="tabEquipment")
+            li.nav-item
+              a.nav-link.active(data-toggle="tab", href="#equipment", role="tab", aria-controls="equipment") Equipos
+          .tab-content(style="width:100%")
+            #equipment.tab-pane.active(role="tabpanel")
+              .row
+                .col-md-12
+                  table.table
+                    thead
+                      th #
+                      th Nombre
+                      th Código
+                      th Ubicación
+                      th Tipo
+                      th
+                      th
+                    tbody
+                      each equipment, i in equipments
+                        tr
+                          td=i+1
+                          td=equipment.name
+                          td=equipment.code
+                          td=equipment.location
+                          td=equipment.type.name
+                          td
+                            a.btn.default.btn-xs.blue-stripe(href="/home/"+user.identifier+"/equipment/"+equipment._id) ver
+                          td
+                            i.fa.fa-trash(aria-hidden="true")
+  script(src='../../javascripts/equipment/main.js')
+    
