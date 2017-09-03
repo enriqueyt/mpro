@@ -2,45 +2,54 @@ var Mongoose = require('mongoose');
 var Schema = Mongoose.Schema;
 var ObjectId = Mongoose.Schema.Types.ObjectId;
 
-var equipment = new Schema({
-	name: {
-		type: String,
-    required: true
-	},
-	location: {
-		type: String
-	},
-  category: {
-    type: String
+var equipment = new Schema(
+  {
+    name: {
+      type: String,
+      required: true
+    },
+    code: {
+      type: String,
+      required: true
+    },
+    location: {
+      type: String
+    },
+    type: {
+      type: Schema.Types.ObjectId,
+      ref: 'equipmentType',
+      required: true
+    },
+    branchCompany: {
+      type: Schema.Types.ObjectId,
+      ref: 'entity',
+      required: true
+    },
+    image: [
+      {
+        filename: String,
+        imageUrl: String
+      }
+    ],
+    maintenances_date: [
+      Date
+    ],
+    date: {
+      type: Date,
+      default: Date.now
+    },
+    userAssigned: {
+      type: Schema.Types.ObjectId,
+      ref: 'account',
+      required: true
+    }
   },
-	code: {
-		type: String,
-		required: true
-	},
-  company: {
-    type: Schema.Types.ObjectId,
-    ref: 'entity'
-  },
-  image: [{
-    filename: String,
-    imageUrl: String
-  }],
-  maintenances_date: [
-    Date
-  ],
-  date: {
-    type: Date
-  },
-  userAssigned: {
-    type: Schema.Types.ObjectId,
-    ref: 'account'
+  {
+    autoIndex: false
   }
-},
-{
-  autoIndex: false
-});
+);
 
-company.pre('save', function (next) {
+equipment.pre('save', function (next) {
   var self = this;
   var model = self.model(self.constructor.modelName);    
   console.log(model);

@@ -60,7 +60,7 @@ $(document).ready(function () {
     if ($(this).find('option:selected').val() === 'Seleccione')
       return;
 
-    var action = ''.concat('/get-branch-company-by-company/', $(this).find('option:selected').val());
+    var action = ''.concat('/get-branch-companies-by-company/', $(this).find('option:selected').val());
 
     $.get(action, function (data) {
       var options = ''.concat('<option value="0">Seleccione</option>');

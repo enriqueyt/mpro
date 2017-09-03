@@ -9,8 +9,10 @@ var Utils = require('../libs/utils');
 
 var router = Express.Router();
 var csrfProtection = Csrf({cookie: true});
-var mongoAccount = Mongoose.model('account');
 var mongoEntity = Mongoose.model('entity');
+var mongoAccount = Mongoose.model('account');
+var mongoEquipmentType = Mongoose.model('equipmentType');
+var mongoEquipment = Mongoose.model('equipment');
 
 router.use(function (req, res, next) {
   res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
@@ -67,7 +69,7 @@ router.get('/admin/:identifier', function(req, res, next) {
 router.get('/admin/:identifier/admin-activity-block', function (req, res, next) {
 });
 
-router.get('/admin/:identifier/company', function (req, res, next) {
+router.get('/admin/:identifier/companies', function (req, res, next) {
   if (!req.user) {
     req.session.loginPath = null;
     console.log('No identifier found');
@@ -79,26 +81,6 @@ router.get('/admin/:identifier/company', function (req, res, next) {
     throw new Error(message);
     return;
   }
-
-  var accountPromise = new Promise(function (resolve, reject) {
-    var identifier = req.params.identifier || req.user.identifier;
-    var role = req.params.role || req.user.role;
-    var query = {'identifier': identifier, 'role': role};
-
-    mongoAccount.findOne(query).exec()
-    .then(function (user) {
-      if (!user || user.length === 0) {
-        var message = 'No user found';
-        reject(new Error(message));
-      }
-      else {      
-        resolve(user);
-      }
-    })
-    .catch(function (err) {
-      reject(err);
-    });
-  });
 
   var companiesPromise = new Promise(function (resolve, reject) {
     var query = {type: 'company'};
@@ -128,14 +110,12 @@ router.get('/admin/:identifier/company', function (req, res, next) {
     return res.render('pages/company/company_admin', {
       user: req.user || {},
       //csrfToken: req.csrfToken()
-      currentAccount: data[0],
-      companies: data[1],
-      branchCompanies: data[2],
-      roles: mongoAccount.schema.path('role').enumValues
+      companies: data[0],
+      branchCompanies: data[1]
     });
   };
     
-  Promise.all([accountPromise, companiesPromise, branchCompaniesPromise])
+  Promise.all([companiesPromise, branchCompaniesPromise])
   .then(onRender)
   .catch(function (err) {
     console.log('ERROR:', err);
@@ -188,25 +168,13 @@ router.get('/admin/:identifier/users', function (req, res, next) {
     });
   });
 
-  var branchCompaniesPromise = new Promise(function (resolve, reject) {
-    var query = {type: 'branch_company'};
-
-    mongoEntity.find(query).populate('company').exec()
-    .then(function (branchCompanies) {
-      resolve(branchCompanies.slice());
-    })
-    .catch(function (err) {
-      reject(err);
-    });
-  });
-
   var accountsPromise = new Promise(function (resolve, reject) {
     var query = {};
 
     mongoAccount.find(query).populate('company').exec()
     .then(function (users) {
       if (!users || users.length === 0) {
-        var message = 'No user found on the request';
+        var message = 'No user found';
         reject(new Error(message));
       }
 
@@ -243,19 +211,109 @@ router.get('/admin/:identifier/users', function (req, res, next) {
     return res.render('pages/account/account_admin', {
       user : req.user || {},
       //csrfToken: req.csrfToken()
-      currentAccount: {
-        company: {
-          name: ''
-        }
-      },
       companies: data[0],
-      branchCompanies: data[1],
-      accounts: data[2],
+      accounts: data[1],
       roles: mongoAccount.schema.path('role').enumValues
     });
   };
 
-  Promise.all([companiesPromise, branchCompaniesPromise, accountsPromise])
+  Promise.all([companiesPromise, accountsPromise])
+  .then(onRender)
+  .catch(function (err) {
+    console.log('ERROR:', err);
+    res.redirect('/');
+    return;
+  });
+});
+
+router.get('/admin/:identifier/equipments', function (req, res, next) {
+  if (!req.user) {
+    req.session.loginPath = null;
+    console.log('No identifier');
+    res.redirect('/login');
+  }
+
+  if (req.user.role !== 'admin') {
+    throw new Error('Just for main administrators');
+    return;
+  }
+
+  var populateEquipmentCompanyPromise = function (equipment) {
+    var promise = new Promise(function (resolve, reject) {
+      mongoEquipment.populate(equipment, {path: 'branchCompany.company', model: 'entity'}, function (err, equipment) {
+        if (err) {
+          reject(err);
+        }
+        else {
+          resolve(equipment);
+        }
+      });
+    });
+
+    return promise;
+  };
+
+  var equipmentTypesPromise = new Promise(function (resolve, reject) {
+    var query = {};
+
+    mongoEquipmentType.find(query).populate('company').exec()
+    .then(function (equipmentTypes) {
+      resolve(equipmentTypes);
+    })
+    .catch(function (err) {
+      reject(err);
+    });
+  });
+
+  var companiesPromise = new Promise(function (resolve, reject) {
+    var query = {type: 'company'};
+
+    mongoEntity.find(query).exec()
+    .then(function (companies) {
+      resolve(companies);
+    })
+    .catch(function (err) {
+      reject(err);
+    });
+  });
+
+  var equipmentsPromise = new Promise(function (resolve, reject) {
+    var query = {};
+
+    mongoEquipment.find(query).populate('type').populate('branchCompany').populate('userAssigned').exec()
+    .then(function (equipments) {
+      var promises = Functional.reduce(equipments, function (accumulator, equipment) {
+        var promise = populateEquipmentCompanyPromise(equipment);
+
+        accumulator.push(promise);
+
+        return accumulator;
+      }, []);
+
+      Promise.all(promises)
+      .then(function (data) {
+        resolve(data);
+      })
+      .catch(function (err) {
+        reject(err);
+      });
+    })
+    .catch(function (err) {
+      reject(err);
+    });
+  });
+
+  var onRender = function (data) {
+    return res.render('pages/equipment/equipment_admin', {
+      user : req.user || {},
+      //csrfToken: req.csrfToken()
+      equipmentTypes: data[0],
+      companies: data[1],
+      equipments: data[2]
+    });
+  };
+
+  Promise.all([equipmentTypesPromise, companiesPromise, equipmentsPromise])
   .then(onRender)
   .catch(function (err) {
     console.log('ERROR:', err);
@@ -266,7 +324,7 @@ router.get('/admin/:identifier/users', function (req, res, next) {
 
 router.post('/entity', function (req, res, next) {
   if (!req.user || !req.user.username) {
-    return res.json({error: true, message: 'Usuario no encontrado'});
+    return res.json({error: true, message: 'No user found'});
   }
 
   var query = {name: req.body.name, email: req.body.email};
@@ -274,7 +332,7 @@ router.post('/entity', function (req, res, next) {
   mongoEntity.find(query).exec()
   .then(function (data) {
     if (data.length > 0) {
-      return res.json({error: true, message: 'Ya existe el registro'});        
+      return res.json({error: true, message: 'Document already exists'});        
     }
 
     var document = {
@@ -311,7 +369,7 @@ router.post('/entity', function (req, res, next) {
 
 router.put('/entity', function (req, res, next) {
   if (!req.user || !req.user.username) {
-    return res.json({error: true, message: 'Usuario no encontrado'});
+    return res.json({error: true, message: 'No user found'});
   }
 
   var ObjectId = Mongoose.Schema.Types.ObjectId;
@@ -320,7 +378,7 @@ router.put('/entity', function (req, res, next) {
 		
   var onUpdateDocument = function (err, document) {
     if (err || !document) {
-      return res.json({error: true, message: 'No exite el documento'});
+      return res.json({error: true, message: 'Document does not exist'});
     }
     
     if (typeof req.body.name !== 'undefined') {
@@ -353,7 +411,7 @@ router.put('/entity', function (req, res, next) {
 
 router.post('/account', function (req, res, next) {
   if (!req.user || !req.user.username) {
-    return res.json({error: true, message: 'Usuario no encontrado'});
+    return res.json({error: true, message: 'No user found'});
   }
 
   var query = {username: req.body.username};
@@ -361,7 +419,7 @@ router.post('/account', function (req, res, next) {
   mongoAccount.findOne(query).exec()
   .then(function (data) {  
     if (data !== null) {
-      return res.json({error: true, message: 'Ya existe el usuario'});
+      return res.json({error: true, message: 'Document already exists'});
     }
 
     var document = {
@@ -393,9 +451,9 @@ router.post('/account', function (req, res, next) {
   });
 });
 
-router.put('/account', function(req, res, next) {
+router.put('/account', function (req, res, next) {
   if (!req.user || !req.user.username) {
-    return res.json({error: true, message: 'Usuario no encontrado'});
+    return res.json({error: true, message: 'No user found'});
   }
 
   var ObjectId = Mongoose.Schema.Types.ObjectId;
@@ -404,7 +462,7 @@ router.put('/account', function(req, res, next) {
 
   var onUpdateDocument = function (err, document) {
     if (err || !document) {
-      return res.json({error: true, message: 'No exite el documento'});
+      return res.json({error: true, message: 'Document does not exist'});
     }
     
     if (typeof req.body.name !== 'undefined') {
@@ -425,6 +483,167 @@ router.put('/account', function(req, res, next) {
   };
 		
   mongoAccount.findOne(query, onUpdateDocument);
+});
+
+router.post('/equipmentType', function (req, res, next) {
+  if (!req.user || !req.user.username) {
+    return res.json({error: true, message: 'No user found'});
+  }
+
+  var query = {name: req.body.name, company: req.body.company};
+
+  mongoEquipmentType.findOne(query).exec()
+  .then(function (data) {  
+    if (data !== null) {
+      return res.json({error: true, message: 'Document already exists'});
+    }
+
+    var document = {
+      name: req.body.name,
+      description: req.body.description,
+      company: req.body.company
+    };
+
+    var onCreateDocument = function (err, document) {        
+      if (err) {
+        console.log('ERROR:', err);
+        return res.json({error: true, message: err});
+      }
+
+      return res.json({error: false, data: document});
+    };
+
+    var newEquipmentType = new mongoEquipmentType(document);
+
+    newEquipmentType.save(onCreateDocument);
+  })
+  .catch(function (err) {
+    console.log('ERROR:', err);
+    res.redirect('/');
+    return;
+  });
+});
+
+router.put('/equipmentType', function (req, res, next) {
+  if (!req.user || !req.user.username) {
+    return res.json({error: true, message: 'No user found'});
+  }
+
+  var ObjectId = Mongoose.Schema.Types.ObjectId;
+  var query = {'_id': new ObjectId(req.body._id)};			
+  var option = {upsert: true};
+
+  var onUpdateDocument = function (err, document) {
+    if (err || !document) {
+      return res.json({error: true, message: 'Document does not exist'});
+    }
+    
+    if (typeof req.body.name !== 'undefined') {
+      document.name = req.body.name;
+    }
+
+    if (typeof req.body.description !== 'undefined') {
+      document.description = req.body.description;
+    }
+
+    if (typeof req.body.company !== 'undefined') {
+      document.company = req.body.company;
+    }
+
+    document.save();
+
+    return res.json({error: false, data: document});
+  };
+		
+  mongoEquipmentType.findOne(query, onUpdateDocument);
+});
+
+router.post('/equipment', function (req, res, next) {
+  if (!req.user || !req.user.username) {
+    return res.json({error: true, message: 'No user found'});
+  }
+
+  var query = {code: req.body.code};
+
+  mongoEquipment.findOne(query).exec()
+  .then(function (data) {  
+    if (data !== null) {
+      return res.json({error: true, message: 'Document already exists'});
+    }
+
+    var document = {
+      name: req.body.name,
+      code: req.body.code,
+      location: req.body.location,
+      branchCompany: req.body.branchCompany,
+      type: req.body.type,
+      userAssigned: req.body.account
+    };
+
+    var onCreateDocument = function (err, document) {        
+      if (err) {
+        console.log('ERROR:', err);
+        return res.json({error: true, message: err});
+      }
+
+      return res.json({error: false, data: document});
+    };
+
+    var newEquipment = new mongoEquipment(document);
+
+    newEquipment.save(onCreateDocument);
+  })
+  .catch(function (err) {
+    console.log('ERROR:', err);
+    res.redirect('/');
+    return;
+  });
+});
+
+router.put('/equipment', function (req, res, next) {
+  if (!req.user || !req.user.username) {
+    return res.json({error: true, message: 'No user found'});
+  }
+
+  var ObjectId = Mongoose.Schema.Types.ObjectId;
+  var query = {'_id': new ObjectId(req.body._id)};			
+  var option = {upsert: true};
+
+  var onUpdateDocument = function (err, document) {
+    if (err || !document) {
+      return res.json({error: true, message: 'Document does not exist'});
+    }
+    
+    if (typeof req.body.name !== 'undefined') {
+      document.name = req.body.name;
+    }
+
+    if (typeof req.body.code !== 'undefined') {
+      document.code = req.body.code;
+    }
+
+    if (typeof req.body.location !== 'undefined') {
+      document.location = req.body.location;
+    }
+
+    if (typeof req.body.branchCompany !== 'undefined') {
+      document.branchCompany = req.body.branchCompany;
+    }
+
+    if (typeof req.body.type !== 'undefined') {
+      document.type = req.body.type;
+    }
+
+    if (typeof req.body.account !== 'undefined') {
+      document.userAssigned = req.body.account;
+    }
+
+    document.save();
+
+    return res.json({error: false, data: document});
+  };
+		
+  mongoEquipment.findOne(query, onUpdateDocument);
 });
 
 module.exports = router;

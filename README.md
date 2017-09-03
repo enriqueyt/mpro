@@ -10,13 +10,13 @@
 ### Install dependencies
 
 #### MongoDB
-Go to the MongoDB main page (https://www.mongodb.com/), download and install.
+Go to MongoDB main page (https://www.mongodb.com/), download and install.
 
 ### Node.js
-Go to the Node.js main page (https://nodejs.org/en/), download and install.
+Go to Node.js main page (https://nodejs.org/en/), download and install.
 
 ### Git
-Go to the Git main page (https://git-scm.com/), download and install.
+Go to Git main page (https://git-scm.com/), download and install.
 
 #### To get source code from parent repository
 ``` bash
@@ -27,13 +27,32 @@ Go to the Git main page (https://git-scm.com/), download and install.
 ``` bash
 > $ npm install
 ```
-   
+
+### Docker (Alternative)
+Docker can be used as an alternative to create a MongoDB instance.
+
+Go to Docker main page (https://www.docker.com), install docker engine and docker compose. 
+
 ## Development
 
 ### To start MongoDB server:         
 ``` bash
 > $ mongod
-``` 
+```
+
+### To create the MongoDB docker container (Alternative):
+``` bash
+> cd docker
+> docker-compose up -d mongodb
+```
+
+### To start, restart and stop the MongoDB container:
+``` bash
+> docker-compose start mongodb
+> docker-compose restart mongodb
+> docker-compose stop mongodb
+```
+Go to Docker Compose page documentation (https://docs.docker.com/compose) to view more details.
 
 ### To start the Node.js server: 
 ``` bash
@@ -62,6 +81,7 @@ Use the following prefix to create branches:
 
 ## Author
 * **EYT** - *Initial work* - [enriqueyt](https://github.com/enriqueyt)
+* **DER** - *Contributor* - [nanielito](https://github.com/nanielito)
 
 ## Licence
 N/A

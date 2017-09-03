@@ -1,0 +1,18 @@
+version: '3.2'
+services:
+    mongodb:
+        image: mongo
+        volumes:
+            - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d    
+        container_name: mongoservice
+        hostname: mongoservice
+        networks:
+            - mongonet
+        ports:
+            - 27017:27017 # Port used by mongodb to conecctions from clients.
+networks:
+  mongonet:
+    driver: bridge
+    ipam:
+      config:
+      - subnet: 172.31.1.0/24

@@ -9,14 +9,20 @@ block content-mpro
             a(href="/"+user.role+"/"+user.identifier)
               h5 Actividades
           .col-md-3
-            a(href="/"+user.role+"/"+user.identifier+"/company")
+            a(href="/"+user.role+"/"+user.identifier+"/companies")
               h5 Sucursales
           .col-md-3.nav-active
             a(href="/"+user.role+"/"+user.identifier+"/users")
               h5 Usuarios
           .col-md-3
-            a(href="/"+user.role+"/"+user.identifier)
+            a(href="/"+user.role+"/"+user.identifier+"/equipments")
               h5 Equipos
+        .row.information-company
+          .col-md-12
+            span Empresa a la que colabora 
+            h4(style="display:inline-block") <b>#{currentAccount.company.name}</b>
+          .col-md-12
+            p 
         .row.company-nav-row
           .col-md-12
             .btn-group
@@ -32,7 +38,6 @@ block content-mpro
                     th username
                     th Correo
                     th Rol
-                    th Empresa
                     th Sucursal
                     th Fecha de ingreso
                     th status
@@ -46,10 +51,8 @@ block content-mpro
                     td=account.email
                     td=account.role
                     if account.role=="admin_company"
-                      td=account.company.name
                       td
                     else
-                      td=account.company.company.name
                       td=account.company.name
                     td=account.date
                     td
@@ -96,8 +99,8 @@ block content-mpro
               .col-9
                 select.form-control(id="branchcompany", name="branchcompany")
                   option Seleccione
-                  each company in branchCompanies
-                    option(value=company._id) #{company.name}
+                  each branchCompany in branchCompanies
+                    option(value=branchCompany._id) #{branchCompany.name}
             .form-group.row
               label.col-3.col-form-label(for="status") Estatus
               .col-9

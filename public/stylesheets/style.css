@@ -181,13 +181,15 @@ a.top-nav {
     margin-bottom: 0.2%;
 }
 
-.company-nav-row{
+.company-nav-row,
+.equipment-nav-row{
   padding: 0.8% 0;
     vertical-align: middle;
     margin-bottom: 0.2%;
 }
 
-.company-nav-row ul{
+.company-nav-row ul,
+.equipment-nav-row ul{
   width: 100%;
 };
 

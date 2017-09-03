@@ -9,18 +9,18 @@ block content-mpro
             a(href="/"+user.role+"/"+user.identifier)
               h5 Actividad
           .col-md-3.nav-active
-            a(href="/"+user.role+"/"+user.identifier+"/company")
+            a(href="/"+user.role+"/"+user.identifier+"/companies")
               h5 Empresa
           .col-md-3
             a(href="/"+user.role+"/"+user.identifier+"/users")
               h5 Usuarios
           .col-md-3
-            a(href="/"+user.role+"/"+user.identifier+"/equipment")
+            a(href="/"+user.role+"/"+user.identifier+"/equipments")
               h5 Equipos
         .row.information-company
           .col-md-12
             span Empresa a la que colabora 
-            h4(style="display:inline-block") <b>#{companies.name}</b>
+            h4(style="display:inline-block") <b>#{currentAccount.company.name}</b>
           .col-md-12
             p 
         .row.company-nav-row
@@ -41,21 +41,19 @@ block content-mpro
                       th Nombre
                       th Email
                       th Contacto
-                      th Ubicacion
-                      th Empresa
+                      th Ubicación
                       th
                       th
                     tbody
-                      each company, i in branchCompanies
+                      each branchCompany, i in branchCompanies
                         tr
                           td=i+1
-                          td=company.name
-                          td=company.email
-                          td=company.phone
-                          td=company.location
-                          td=company.company.name
+                          td=branchCompany.name
+                          td=branchCompany.email
+                          td=branchCompany.phone
+                          td=branchCompany.location
                           td
-                            a.btn.default.btn-xs.blue-stripe(href="/home/"+user.identifier+"/branch_company/"+company._id) ver
+                            a.btn.default.btn-xs.blue-stripe(href="/home/"+user.identifier+"/branch_company/"+branchCompany._id) ver
                           td
                             i.fa.fa-trash(aria-hidden="true")
   #addBranchCompanyModal.modal.fade(rol="dialog")
@@ -77,14 +75,14 @@ block content-mpro
               .col-9
                 input.form-control(type="email", id="email", name="email", plateholder="Correo")
             .form-group.row
-              label.col-3.col-form-label(for="phone") Telefono
+              label.col-3.col-form-label(for="phone") Teléfono
               .col-9
-                input.form-control(type="phone", id="phone", name="phone", plateholder="Correo")
+                input.form-control(type="phone", id="phone", name="phone", plateholder="Telefono")
             .form-group.row
-              label.col-3.col-form-label(for="location") Ubicacion
+              label.col-3.col-form-label(for="location") Ubicación
               .col-9
                 textarea.form-control(id="location", name="location", wrap="hard")
-            input(type="hidden", name="company", value=companies._id)
+            input(type="hidden", name="company", value=currentAccount.company._id)
             .col-12(style="text-align:right")
               button.btn.btn-secondary(type="button", data-dismiss="modal", style="margin-right:1%;") Cerrar
               button.btn.btn-primary.addBranchCompanySubmit(type="submit") Crear
