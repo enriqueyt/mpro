@@ -108,7 +108,7 @@ module.exports = function (passport) {
         res.end();
       }
       else {
-        var newUser = new account();
+        var newUser = new Account();
 
         newUser.name = req.body.name;
         newUser.username = user.username;
