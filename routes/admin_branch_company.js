@@ -12,6 +12,8 @@ var mongoAccount = Mongoose.model('account');
 var mongoEquipmentType = Mongoose.model('equipmentType');
 var mongoEquipment = Mongoose.model('equipment');
 
+var sessionHandle = require('../libs/sessionHandle');
+
 router.use(function (req, res, next) {
   res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
   req.body = JSON.parse(Sanitizer.sanitize(JSON.stringify(MongoSanitize(req.body))));
@@ -20,9 +22,8 @@ router.use(function (req, res, next) {
   next();
 });
 
-router.get('/admin_branch_company/:identifier', function (req, res, next) {
+router.get('/admin_branch_company', sessionHandle.isLoogged, function (req, res, next) {
   if (!req.user) {
-    req.session.loginPath = null;
     console.log('No identifier');
     res.redirect('/login');
   }
@@ -71,10 +72,11 @@ router.get('/admin_branch_company/:identifier', function (req, res, next) {
   });
   
   var onRender = function (data) {
+    var tempuser = req.user||{};
+    req.user={};
     return res.render('pages/dashboard/dashboard_admin_branch_company', {
-      user: req.user || {},
-      //csrfToken: req.csrfToken()
-      currentAccount: data      
+      user: tempuser,
+      currentAccount: data
     });
   };
 
@@ -87,9 +89,8 @@ router.get('/admin_branch_company/:identifier', function (req, res, next) {
   });
 });
 
-router.get('/admin_branch_company/:identifier/users', function (req, res, next) {
+router.get('/admin_branch_company/users', sessionHandle.isLoogged, function (req, res, next) {
   if (!req.user) {
-    req.session.loginPath = null;
     console.log('No identifier');
     res.redirect('/login');
   }
@@ -158,9 +159,10 @@ router.get('/admin_branch_company/:identifier/users', function (req, res, next) 
     var roles = Functional.filter(roleEnumValues, function (roleEnumValue) {
       return roleEnumValue !== 'admin' && roleEnumValue !== 'admin_company' && roleEnumValue !== 'admin_branch_company';
     });
-
+    var tempuser = req.user||{};
+    req.user={};
     return res.render('pages/account/account_admin_branch_company', {
-      user: req.user || {},
+      user: tempuser,
       currentAccount: data[0],
       accounts: data[1],
       roles: roles
@@ -177,9 +179,8 @@ router.get('/admin_branch_company/:identifier/users', function (req, res, next) 
   });
 });
 
-router.get('/admin_branch_company/:identifier/equipments', function (req, res, next) {
+router.get('/admin_branch_company/equipments', sessionHandle.isLoogged, function (req, res, next) {
   if (!req.user) {
-    req.session.loginPath = null;
     console.log('No identifier');
     res.redirect('/login');
   }
@@ -278,9 +279,10 @@ router.get('/admin_branch_company/:identifier/equipments', function (req, res, n
   }
 
   var onRender = function (data) {
+    var tempuser = req.user||{};
+    req.user={};
     return res.render('pages/equipment/equipment_admin_branch_company', {
-      user : req.user || {},
-      //csrfToken: req.csrfToken()
+      user : tempuser,
       currentAccount: data[0],
       equipmentTypes: data[1],
       equipments: data[2],

@@ -12,6 +12,8 @@ var mongoAccount = Mongoose.model('account');
 var mongoEntity = Mongoose.model('entity');
 var mongoEquipmentType = Mongoose.model('equipmentType');
 
+var sessionHandle = require('../libs/sessionHandle');
+
 /* GET home page. */
 router.get('/', function (req, res, next) {
   if (req.user) {
@@ -33,7 +35,7 @@ router.get('/', function (req, res, next) {
   }
 });
 
-router.get('/home/:identifier/company/:id', function (req, res, next) {
+router.get('/home/company/:id', sessionHandle.isLoogged, function (req, res, next) {
   if (!req.user) {
     req.session.loginPath = null;
     console.log('No identifier');
@@ -126,7 +128,7 @@ router.get('/home/:identifier/company/:id', function (req, res, next) {
   });
 });
 
-router.get('/home/:identifier/branch_company/:id', function (req, res, next) {
+router.get('/home/branch_company/:id', sessionHandle.isLoogged, function (req, res, next) {
   if (!req.user) {
     req.session.loginPath = null;
     console.log('No identifier');
@@ -298,14 +300,14 @@ router.get('/get-technicians-by-branch-company/:branchCompany', function (req, r
   });
 });
 
-router.get('/account/:identifier', function (req, res, next) {
+router.get('/account', sessionHandle.isLoogged, function (req, res, next) {
   if (!req.user) {
     req.session.loginPath = null;
     console.log('no identifier');
     res.redirect('/login');
   }
 
-  var query = {identifier: req.params.identifier};
+  var query = {identifier: req.user.identifier};
 
   function onFetchAccount(err, data) {
     if (err) {
@@ -317,9 +319,10 @@ router.get('/account/:identifier', function (req, res, next) {
       user: req.user || {},        
       account: data
     });
+  };
 
   mongoAccount.findOne(query).populate('company').exec(onFetchAccount);
-  };
+
 });
 
 module.exports = router;

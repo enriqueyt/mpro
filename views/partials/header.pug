@@ -12,8 +12,19 @@
             a.top-nav(href="/about") Nosotros
             a.top-nav(href="/services") Services
             a.top-nav(href="/contact") Contacto
-            a.home-login.btn-go.btn-sm(href="/login" style="margin-right:1em;") Inicio de sesión
+            a.home-login.btn-go.btn-sm(href="/login", style="margin-right:1em;") Inicio de sesión
           else
-            a(href="/#{user.role}/#{user.identifier}" )
+            a(href="/".concat(user.role,"/",user.identifier))
               span.userName #{user.name}
+            img.avatar(src=user.image, alt="avatar")
             a.home-login.btn.btn-go.btn-sm(href="/logout") Cerrar sesión
+  script(type="text/javascript").
+    /*var canvas = document.getElementById('mycanvas');
+    var ctx = canvas.getContext('2d');
+    var img = new Image();
+    img.addEventListener('load', function() {
+      ctx.drawImage(img, 0, 0, 100, 100);
+    }, false);
+    img.src = "#{user.image}";*/
+
+    

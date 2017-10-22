@@ -6,16 +6,16 @@ block content-mpro
       .col-md-12
         .row.dashboard-nav-row
           .col-md-3
-            a(href="/"+user.role+"/"+user.identifier)
+            a(href="/"+user.role)
               h5 Actividades
           .col-md-3
-            a(href="/"+user.role+"/"+user.identifier+"/companies")
+            a(href="/"+user.role+"/companies")
               h5 Sucursales
           .col-md-3.nav-active
-            a(href="/"+user.role+"/"+user.identifier+"/users")
+            a(href="/"+user.role+"/users")
               h5 Usuarios
           .col-md-3
-            a(href="/"+user.role+"/"+user.identifier+"/equipments")
+            a(href="/"+user.role+"/equipments")
               h5 Equipos
         .row.information-company
           .col-md-12
@@ -61,7 +61,7 @@ block content-mpro
                       else
                         label.label-sm.label-default Inactivo
                     td
-                      a.btn.default.btn-xs.blue-stripe(href="/account/"+account.identifier) ver
+                      a.btn.default.btn-xs.blue-stripe(href="/account") ver
                     td
                       i.fa.fa-trash(aria-hidden="true")
   #addAccountModal.modal.fadde(role="dialog")
@@ -72,7 +72,7 @@ block content-mpro
           button.close(type="button", data-dismiss="modal", aria-label="Close")
             span(aria-hidden="true") &times;
         .modal-body
-          #warningAccountForm.alert.alert-warning.alert-dismissible(role="alert",, style="display:none;")
+          #warningAccountForm.alert.alert-warning.alert-dismissible(role="alert", style="display:none;")
             button.close(type="button", data-dismiss="alert", aria-label="Close")
               span(aria-hidden="true")
             strong Hey! 

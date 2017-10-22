@@ -42,19 +42,16 @@ var account = new Schema(
 			type: Schema.Types.ObjectId,
 			ref: 'entity'
 		},
-		image: [
-			{
-				filename: String,
-				imageUrl: String
-			}
-		],
+		image: {
+			type: String
+		},
 		date: {
 			type: Date,
 			default: Date.now
 		},
 		status: {
 			type: Boolean,
-			default: false
+			default: true
 		}
 	},
 	{

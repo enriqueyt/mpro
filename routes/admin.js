@@ -14,6 +14,9 @@ var mongoAccount = Mongoose.model('account');
 var mongoEquipmentType = Mongoose.model('equipmentType');
 var mongoEquipment = Mongoose.model('equipment');
 
+var sessionHandle = require('../libs/sessionHandle');
+var Log = require('../libs/log');
+
 router.use(function (req, res, next) {
   res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
   req.body = JSON.parse(Sanitizer.sanitize(JSON.stringify(MongoSanitize(req.body))));
@@ -22,20 +25,20 @@ router.use(function (req, res, next) {
   next();
 });
 
-router.get('/admin/:identifier', function(req, res, next) {
+router.get('/admin', sessionHandle.isLoogged, function(req, res, next) {
+
   if (!req.user) {
-    req.session.loginPath = null;
     console.log('no identifier');
     res.redirect('/login');
   }
 
   var accountPromise = new Promise(function (resolve, reject) {
-    var identifier = req.params.identifier || req.user.identifier;
+    var identifier = req.user.identifier;
     var role = req.params.role || req.user.role;
     var query = {'identifier': identifier, 'role': role};
     
     mongoAccount.findOne(query).exec()
-    .then(function (user) {    
+    .then(function (user) {
       if (!user || user.length === 0) {
         var message = 'No user found';
         reject(new Error(message));
@@ -49,15 +52,32 @@ router.get('/admin/:identifier', function(req, res, next) {
     });
   });
 
+  var getActitivity = function(user){
+    return new Promise(function(resolve, reject){
+      Log
+      .getLogs(10,0)
+      .getLogBySingleUser(user)
+      .then(function(data){
+        resolve({user:user,activity:data});
+      })
+      .catch(function(err){
+        reject({error:true, message:err});
+      });
+    });
+  };
+
   var onRender = function (data) {
+    var tempUser = req.user||{};
+    req.user={};
     return res.render('pages/dashboard/dashboard_admin', {
-      user : req.user || {},
-      //csrfToken: req.csrfToken(),
-      currentAccount: data,      
+      user : tempUser,
+      currentAccount: data.user,
+      activity:data.activity
     });
   };
 
   accountPromise
+  .then(getActitivity)
   .then(onRender)
   .catch(function (err) {
     console.log('ERROR:', err);
@@ -66,12 +86,11 @@ router.get('/admin/:identifier', function(req, res, next) {
   });
 });
 
-router.get('/admin/:identifier/admin-activity-block', function (req, res, next) {
+router.get('/admin/admin-activity-block', sessionHandle.isLoogged, function (req, res, next) {
 });
 
-router.get('/admin/:identifier/companies', function (req, res, next) {
+router.get('/admin/companies', sessionHandle.isLoogged, function (req, res, next) {
   if (!req.user) {
-    req.session.loginPath = null;
     console.log('No identifier found');
     res.redirect('/login');
   }
@@ -107,9 +126,10 @@ router.get('/admin/:identifier/companies', function (req, res, next) {
   });
 
   var onRender = function (data) {
+    var tempUser = req.user||{};
+    req.user={};
     return res.render('pages/company/company_admin', {
-      user: req.user || {},
-      //csrfToken: req.csrfToken()
+      user: tempUser,
       companies: data[0],
       branchCompanies: data[1]
     });
@@ -124,9 +144,8 @@ router.get('/admin/:identifier/companies', function (req, res, next) {
   });
 });
 
-router.get('/admin/:identifier/users', function (req, res, next) {
+router.get('/admin/users', sessionHandle.isLoogged, function (req, res, next) {
   if (!req.user) {
-    req.session.loginPath = null;
     console.log('No identifier');
     res.redirect('/login');
   }
@@ -208,9 +227,10 @@ router.get('/admin/:identifier/users', function (req, res, next) {
   });
 
   var onRender = function (data) {
+    var tempUser = req.user||{};
+    req.user={};
     return res.render('pages/account/account_admin', {
-      user : req.user || {},
-      //csrfToken: req.csrfToken()
+      user : tempUser,
       companies: data[0],
       accounts: data[1],
       roles: mongoAccount.schema.path('role').enumValues
@@ -226,9 +246,8 @@ router.get('/admin/:identifier/users', function (req, res, next) {
   });
 });
 
-router.get('/admin/:identifier/equipments', function (req, res, next) {
+router.get('/admin/equipments', sessionHandle.isLoogged, function (req, res, next) {
   if (!req.user) {
-    req.session.loginPath = null;
     console.log('No identifier');
     res.redirect('/login');
   }
@@ -304,9 +323,10 @@ router.get('/admin/:identifier/equipments', function (req, res, next) {
   });
 
   var onRender = function (data) {
+    var tempUser = req.user||{};
+    req.user={};
     return res.render('pages/equipment/equipment_admin', {
-      user : req.user || {},
-      //csrfToken: req.csrfToken()
+      user : tempUser,
       equipmentTypes: data[0],
       companies: data[1],
       equipments: data[2]
@@ -322,7 +342,7 @@ router.get('/admin/:identifier/equipments', function (req, res, next) {
   });
 });
 
-router.post('/entity', function (req, res, next) {
+router.post('/entity', sessionHandle.isLoogged, function (req, res, next) {
   if (!req.user || !req.user.username) {
     return res.json({error: true, message: 'No user found'});
   }
@@ -350,9 +370,20 @@ router.post('/entity', function (req, res, next) {
     var onCreateDocument = function (err, document) {        
       if (err) {
         console.log('ERROR:', err);
+        Log.error({
+          text: 'Excepcion! '.concat(err),
+          type:'create_account',
+          user: req.user._id,
+          model: err
+        });
         return res.json({error: true, message: err});
       }
-
+      Log.debug({
+        text: 'Creacion exitosa! '.concat('El Usuario ', req.user.name, ' creo la entidad ', document.name),
+        type:'create_entity',
+        user: req.user._id,
+        model: document
+      });
       return res.json({error: false, data: document});
     };
 
@@ -367,7 +398,7 @@ router.post('/entity', function (req, res, next) {
   });
 });
 
-router.put('/entity', function (req, res, next) {
+router.put('/entity', sessionHandle.isLoogged, function (req, res, next) {
   if (!req.user || !req.user.username) {
     return res.json({error: true, message: 'No user found'});
   }
@@ -403,14 +434,21 @@ router.put('/entity', function (req, res, next) {
 
     document.save();
 
+    Log.debug({
+      text: 'Actualizacion exitosa! '.concat('El Usuario ', req.user.name, ' actualizo la entidad ', document.name),
+      type:'update_entity',
+      user: req.user._id,
+      model: document
+    });
+
     return res.json({error: false, data: document});
   };
 
   mongoEntity.findOne(query, onUpdateDocument);
 });
 
-router.post('/account', function (req, res, next) {
-  if (!req.user || !req.user.username) {
+router.post('/account', sessionHandle.isLoogged, function (req, res, next) {
+  if (!req.user) {
     return res.json({error: true, message: 'No user found'});
   }
 
@@ -428,15 +466,27 @@ router.post('/account', function (req, res, next) {
       password: Utils.createHash(''.concat('mpro-', req.body.username.split('@')[0]), Bcrypt),
       email: req.body.username,
       role: req.body.role,
-      company: req.body.branchcompany === '0' ? req.body.company : req.body.branchcompany
+      company: req.body.branchcompany === '0' ? req.body.company : req.body.branchcompany,
+      image: req.body.image
     };
 
     var onCreateDocument = function (err, document) {        
       if (err) {
         console.log('ERROR:', err);
+        Log.error({
+          text: 'Excepcion! '.concat(err),
+          type:'create_account',
+          user: req.user._id,
+          model: err
+        });
         return res.json({error: true, message: err});
       }
-
+      Log.debug({
+        text: 'Creacion exitosa! '.concat('El Usuario ', req.user.name, ' creo al usuario ', document.name),
+        type:'create_account',
+        user: req.user._id,
+        model: document
+      });
       return res.json({error: false, data: document});
     };
 
@@ -451,7 +501,7 @@ router.post('/account', function (req, res, next) {
   });
 });
 
-router.put('/account', function (req, res, next) {
+router.put('/account', sessionHandle.isLoogged, function (req, res, next) {
   if (!req.user || !req.user.username) {
     return res.json({error: true, message: 'No user found'});
   }
@@ -479,13 +529,20 @@ router.put('/account', function (req, res, next) {
 
     document.save();
 
+    Log.debug({
+      text: 'Actualizacion exitosa! '.concat('El Usuario ', req.user.name, ' actualizo la cuenta de ', document.name),
+      type:'update_account',
+      user: req.user._id,
+      model: document
+    });
+
     return res.json({error: false, data: document});
   };
 		
   mongoAccount.findOne(query, onUpdateDocument);
 });
 
-router.post('/equipmentType', function (req, res, next) {
+router.post('/equipmentType', sessionHandle.isLoogged, function (req, res, next) {
   if (!req.user || !req.user.username) {
     return res.json({error: true, message: 'No user found'});
   }
@@ -507,9 +564,20 @@ router.post('/equipmentType', function (req, res, next) {
     var onCreateDocument = function (err, document) {        
       if (err) {
         console.log('ERROR:', err);
+        Log.error({
+          text: 'Excepcion! '.concat(err),
+          type:'create_equipmentType',
+          user: req.user._id,
+          model: err
+        });
         return res.json({error: true, message: err});
       }
-
+      Log.debug({
+        text: 'Creacion exitosa! '.concat('El Usuario ', req.user.name, ' creo el tipo de equipo ', document.name),
+        type:'create_equipmentType',
+        user: req.user._id,
+        model: document
+      });
       return res.json({error: false, data: document});
     };
 
@@ -524,7 +592,7 @@ router.post('/equipmentType', function (req, res, next) {
   });
 });
 
-router.put('/equipmentType', function (req, res, next) {
+router.put('/equipmentType', sessionHandle.isLoogged, function (req, res, next) {
   if (!req.user || !req.user.username) {
     return res.json({error: true, message: 'No user found'});
   }
@@ -552,13 +620,20 @@ router.put('/equipmentType', function (req, res, next) {
 
     document.save();
 
+    Log.debug({
+      text: 'Actualizacion exitosa! '.concat('El Usuario ', req.user.name, ' actualizo el tipo de equipo ', document.name),
+      type:'update_equipmentType',
+      user: req.user._id,
+      model: document
+    });
+
     return res.json({error: false, data: document});
   };
 		
   mongoEquipmentType.findOne(query, onUpdateDocument);
 });
 
-router.post('/equipment', function (req, res, next) {
+router.post('/equipment', sessionHandle.isLoogged, function (req, res, next) {
   if (!req.user || !req.user.username) {
     return res.json({error: true, message: 'No user found'});
   }
@@ -583,9 +658,20 @@ router.post('/equipment', function (req, res, next) {
     var onCreateDocument = function (err, document) {        
       if (err) {
         console.log('ERROR:', err);
+        Log.error({
+          text: 'Excepcion! '.concat(err),
+          type:'create_equipment',
+          user: req.user._id,
+          model: err
+        });
         return res.json({error: true, message: err});
       }
-
+      Log.debug({
+        text: 'Creacion exitosa! '.concat('El Usuario ', req.user.name, ' creo el equipo ', document.name),
+        type:'create_equipment',
+        user: req.user._id,
+        model: document
+      });
       return res.json({error: false, data: document});
     };
 
@@ -600,7 +686,7 @@ router.post('/equipment', function (req, res, next) {
   });
 });
 
-router.put('/equipment', function (req, res, next) {
+router.put('/equipment', sessionHandle.isLoogged, function (req, res, next) {
   if (!req.user || !req.user.username) {
     return res.json({error: true, message: 'No user found'});
   }
@@ -639,6 +725,13 @@ router.put('/equipment', function (req, res, next) {
     }
 
     document.save();
+
+    Log.debug({
+      text: 'Actualizacion exitosa! '.concat('El Usuario ', req.user.name, ' actualizo el equipo ', document.name),
+      type:'update_equipmentType',
+      user: req.user._id,
+      model: document
+    });
 
     return res.json({error: false, data: document});
   };

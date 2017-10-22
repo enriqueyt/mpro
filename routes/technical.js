@@ -11,6 +11,8 @@ var mongoAccount = Mongoose.model('account');
 var mongoEquipmentType = Mongoose.model('equipmentType');
 var mongoEquipment = Mongoose.model('equipment');
 
+var sessionHandle = require('../libs/sessionHandle');
+
 router.use(function (req, res, next) {
   res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
   req.body = JSON.parse(Sanitizer.sanitize(JSON.stringify(MongoSanitize(req.body))));
@@ -19,9 +21,8 @@ router.use(function (req, res, next) {
   next();
 });
 
-router.get('/technical/:identifier', function (req, res, next) { 
+router.get('/technical', sessionHandle.isLoogged, function (req, res, next) { 
   if (!req.user) {
-    req.session.loginPath = null;
     console.log('No identifier');
     res.redirect('/login');
   }
@@ -70,8 +71,10 @@ router.get('/technical/:identifier', function (req, res, next) {
   });
 
   var onRender = function (data) {
+    var tempuser = req.user||{};
+    req.user={};
     return res.render('pages/dashboard/dashboard_technician', {
-      user: req.user || {},
+      user: tempuser,
       currentAccount: data
     });
   };
@@ -85,9 +88,8 @@ router.get('/technical/:identifier', function (req, res, next) {
   });
 });
 
-router.get('/technical/:identifier/equipments', function (req, res, next) {
+router.get('/technical/equipments', sessionHandle.isLoogged, function (req, res, next) {
   if (!req.user) {
-    req.session.loginPath = null;
     console.log('No identifier');
     res.redirect('/login');
   }
@@ -152,9 +154,10 @@ router.get('/technical/:identifier/equipments', function (req, res, next) {
   };
 
   var onRender = function (data) {
+    var tempuser = req.user||{};
+    req.user={};
     return res.render('pages/equipment/equipment_technician', {
-      user : req.user || {},
-      //csrfToken: req.csrfToken()
+      user : tempuser,
       currentAccount: data[0],
       equipments: data[1]
     });
