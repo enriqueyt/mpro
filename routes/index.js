@@ -271,10 +271,10 @@ router.get('/equipmentTypesByCompany/:company', function (req, res, next) {
 
   equipmentTypesPromise
   .then(function (equipmentTypes) {
-    return res.json({error: false, data: equipmentTypes});
+    res.status(200).send({error: false, data: equipmentTypes});
   })
   .catch(function (err) {
-    return res.json({error: true, message: err});
+    res.status(500).send({error: true, message: err.message});
   });
 });
 
