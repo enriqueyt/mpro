@@ -5,6 +5,8 @@ var MongoSanitize = require('mongo-sanitize');
 var Csrf = require('csurf');
 var ObjectId = require('mongoose').Types.ObjectId; 
 
+var Activities = require('./technician/activities');
+
 var router = Express.Router();
 var csrfProtection = Csrf({cookie: true});
 var mongoAccount = Mongoose.model('account');
@@ -19,7 +21,7 @@ router.use(function (req, res, next) {
   next();
 });
 
-router.get('/technical/:identifier', function (req, res, next) { 
+router.get('/technician/:identifier', function (req, res, next) { 
   if (!req.user) {
     req.session.loginPath = null;
     console.log('No identifier');
@@ -85,7 +87,9 @@ router.get('/technical/:identifier', function (req, res, next) {
   });
 });
 
-router.get('/technical/:identifier/equipments', function (req, res, next) {
+router.get('/technician/:identifier/activities', Activities.getActivities);
+
+router.get('/technician/:identifier/equipments', function (req, res, next) {
   if (!req.user) {
     req.session.loginPath = null;
     console.log('No identifier');
@@ -139,7 +143,7 @@ router.get('/technical/:identifier/equipments', function (req, res, next) {
     var promise = new Promise(function (resolve, reject) {
       var query = {branchCompany: new ObjectId(user.company._id)};
 
-      mongoEquipment.find(query).populate('type').populate('userAssigned').exec()
+      mongoEquipment.find(query).populate('equipmentType').populate('userAssigned').exec()
       .then(function (equipments) {
         resolve([user, equipments]);
       })

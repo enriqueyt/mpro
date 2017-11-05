@@ -11,6 +11,8 @@ var csrfProtection = Csrf({ cookie: true });
 var mongoAccount = Mongoose.model('account');
 var mongoEntity = Mongoose.model('entity');
 var mongoEquipmentType = Mongoose.model('equipmentType');
+var mongoEquipment = Mongoose.model('equipment');
+var mongoMaintenanceActivity = Mongoose.model('maintenanceActivity');
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
@@ -33,7 +35,7 @@ router.get('/', function (req, res, next) {
   }
 });
 
-router.get('/home/:identifier/company/:id', function (req, res, next) {
+router.get('/home/:identifier/companies/:id', function (req, res, next) {
   if (!req.user) {
     req.session.loginPath = null;
     console.log('No identifier');
@@ -126,7 +128,7 @@ router.get('/home/:identifier/company/:id', function (req, res, next) {
   });
 });
 
-router.get('/home/:identifier/branch_company/:id', function (req, res, next) {
+router.get('/home/:identifier/branchCompanies/:id', function (req, res, next) {
   if (!req.user) {
     req.session.loginPath = null;
     console.log('No identifier');
@@ -188,7 +190,51 @@ router.get('/home/:identifier/branch_company/:id', function (req, res, next) {
   });
 });
 
-router.get('/get-branch-companies-by-company/:company', function (req, res, next) {
+router.get('/maintenanceActivitiesByEquipmentType/:equipmentType', function (req, res, next) {
+  var maintenanceActivitiesPromise = new Promise(function (resolve, reject) {
+    var query = {equipmentType: new ObjectId(req.params.equipmentType)};
+
+    mongoMaintenanceActivity.find(query).exec()
+    .then(function (maintenanceActivities) {
+      resolve(maintenanceActivities);
+    })
+    .catch(function (err) {
+      reject(err);
+    });
+  });
+
+  maintenanceActivitiesPromise
+  .then(function (maintenanceActivities) {
+    res.status(200).send({error: false, data: maintenanceActivities});
+  })
+  .catch(function (err) {
+    res.status(500).send({error: true, message: err.message});
+  });
+});
+
+router.get('/equipmentsByEquipmentType/:equipmentType', function (req, res, next) {
+  var equipmentsPromise = new Promise(function (resolve, reject) {
+    var query = {equipmentType: new ObjectId(req.params.equipmentType)};
+
+    mongoEquipment.find(query).exec()
+    .then(function (equipments) {
+      resolve(equipments);
+    })
+    .catch(function (err) {
+      reject(err);
+    });
+  });
+
+  equipmentsPromise
+  .then(function (equipments) {
+    res.status(200).send({error: false, data: equipments});
+  })
+  .catch(function (err) {
+    res.status(500).send({error: true, message: err.message});
+  });
+});
+
+router.get('/branchCompaniesByCompany/:company', function (req, res, next) {
   var branchCompaniesPromise = new Promise(function (resolve, reject) {
     var query = {type: 'branch_company', company: new ObjectId(req.params.company)};
 
@@ -210,7 +256,7 @@ router.get('/get-branch-companies-by-company/:company', function (req, res, next
   });
 });
 
-router.get('/get-equipment-types-by-company/:company', function (req, res, next) {
+router.get('/equipmentTypesByCompany/:company', function (req, res, next) {
   var equipmentTypesPromise = new Promise(function (resolve, reject) {
     var query = {company: new ObjectId(req.params.company)};
 
@@ -232,7 +278,7 @@ router.get('/get-equipment-types-by-company/:company', function (req, res, next)
   });
 });
 
-router.get('/get-technicians-by-company/:company', function (req, res, next) {
+router.get('/techniciansByCompany/:company', function (req, res, next) {
   var branchCompaniesPromise = new Promise(function (resolve, reject) {
     var query = {type: 'branch_company', company: new ObjectId(req.params.company)};
 
@@ -252,7 +298,7 @@ router.get('/get-technicians-by-company/:company', function (req, res, next) {
     }, []);
 
     var promise = new Promise(function (resolve, reject) {
-      var query = {role: 'technical', company: {$in: branchCompanyIds}};
+      var query = {role: 'technician', company: {$in: branchCompanyIds}};
 
       mongoAccount.find(query).exec()
       .then(function (accounts) {
@@ -276,9 +322,9 @@ router.get('/get-technicians-by-company/:company', function (req, res, next) {
   });
 });
 
-router.get('/get-technicians-by-branch-company/:branchCompany', function (req, res, next) {
+router.get('/techniciansByBranchCompany/:branchCompany', function (req, res, next) {
   var accountsPromise = new Promise(function (resolve, reject) {
-    var query = {role: 'technical', company: new ObjectId(req.params.branchCompany)};
+    var query = {role: 'technician', company: new ObjectId(req.params.branchCompany)};
 
     mongoAccount.find(query).exec()
     .then(function (accounts) {

@@ -3,8 +3,10 @@ var Sanitizer = require('sanitizer');
 var Mongoose = require('mongoose');
 var MongoSanitize = require('mongo-sanitize');
 var Csrf = require('csurf');
-var ObjectId = require('mongoose').Types.ObjectId; 
 var Functional = require('underscore');
+var ObjectId = require('mongoose').Types.ObjectId; 
+
+var Activities = require('./adminBranchCompany/activities');
 
 var router = Express.Router();
 var csrfProtection = Csrf({cookie: true});
@@ -87,6 +89,8 @@ router.get('/admin_branch_company/:identifier', function (req, res, next) {
   });
 });
 
+router.get('/admin_branch_company/:identifier/activities', Activities.getActivities);
+
 router.get('/admin_branch_company/:identifier/users', function (req, res, next) {
   if (!req.user) {
     req.session.loginPath = null;
@@ -139,7 +143,7 @@ router.get('/admin_branch_company/:identifier/users', function (req, res, next) 
 
   var onFetchAccounts = function (user) {
     var promise = new Promise(function (resolve, reject) {
-      var query = {role: 'technical', company: new ObjectId(user.company._id)};
+      var query = {role: 'technician', company: new ObjectId(user.company._id)};
 
       mongoAccount.find(query).populate('company').exec()
       .then(function (accounts) {
@@ -247,7 +251,7 @@ router.get('/admin_branch_company/:identifier/equipments', function (req, res, n
     var promise = new Promise(function (resolve, reject) {
       var query = {branchCompany: new ObjectId(data[0].company._id)};
 
-      mongoEquipment.find(query).populate('type').populate('userAssigned').exec()
+      mongoEquipment.find(query).populate('equipmentType').populate('userAssigned').exec()
       .then(function (equipments) {
         data.push(equipments);
         resolve(data);
@@ -262,7 +266,7 @@ router.get('/admin_branch_company/:identifier/equipments', function (req, res, n
 
   var onFetchAccounts = function (data) {
     var promise = new Promise(function (resolve, reject) {
-      var query = {role: 'technical', company: new ObjectId(data[0].company._id)};
+      var query = {role: 'technician', company: new ObjectId(data[0].company._id)};
 
       mongoAccount.find(query).exec()
       .then(function (accounts) {
