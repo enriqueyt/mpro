@@ -6,10 +6,10 @@ block content-mpro
       .col-md-12
         .row.dashboard-nav-row
           .col-md-3
-            a(href="/"+user.role+"/"+user.identifier)
+            a(href="/" + user.role + "/" + user.identifier + "/activities")
               h5 Actividades
           .col-md-3.nav-active
-            a(href="/"+user.role+"/"+user.identifier+"/equipments")
+            a(href="/" + user.role + "/" + user.identifier + "/equipments")
               h5 Equipos
         .row.information-company
           .col-md-12
@@ -43,9 +43,9 @@ block content-mpro
                           td=equipment.name
                           td=equipment.code
                           td=equipment.location
-                          td=equipment.type.name
+                          td=equipment.equipmentType.name
                           td
-                            a.btn.default.btn-xs.blue-stripe(href="/home/"+user.identifier+"/equipment/"+equipment._id) ver
+                            a.btn.default.btn-xs.blue-stripe(href="/home/" + user.identifier + "/equipment/" + equipment._id) Ver
                           td
                             i.fa.fa-trash(aria-hidden="true")
   script(src='../../javascripts/equipment/main.js')

@@ -6,16 +6,16 @@ block content-mpro
       .col-md-12
         .row.dashboard-nav-row
           .col-md-3
-            a(href="/"+user.role+"/"+user.identifier)
+            a(href="/" + user.role + "/" + user.identifier + "/activities")
               h5 Actividades
           .col-md-3
-            a(href="/"+user.role+"/"+user.identifier+"/companies")
+            a(href="/" + user.role + "/" + user.identifier + "/companies")
               h5 Empresas
           .col-md-3
-            a(href="/"+user.role+"/"+user.identifier+"/users")
+            a(href="/" + user.role + "/" + user.identifier + "/users")
               h5 Usuarios
           .col-md-3.nav-active
-            a(href="/"+user.role+"/"+user.identifier+"/equipments")
+            a(href="/" + user.role + "/" + user.identifier + "/equipments")
               h5 Equipos
         .row.information-company
           .col-md-12
@@ -45,7 +45,7 @@ block content-mpro
                           td=i+1
                           td=equipmentType.name
                           td
-                            a.btn.default.btn-xs.blue-stripe(href="/home/"+user.identifier+"/equipmentType/"+equipmentType._id) ver
+                            a.btn.default.btn-xs.blue-stripe(href="/home/" + user.identifier + "/equipmentType/" + equipmentType._id) ver
                           td
                             i.fa.fa-trash(aria-hidden="true")
             #equipment.tab-pane(role="tabpanel")
@@ -73,11 +73,11 @@ block content-mpro
                           td=equipment.name
                           td=equipment.code
                           td=equipment.location
-                          td=equipment.type.name
+                          td=equipment.equipmentType.name
                           td=equipment.branchCompany.name
                           td=equipment.userAssigned.name
                           td
-                            a.btn.default.btn-xs.blue-stripe(href="/home/"+user.identifier+"/equipment/"+equipment._id) ver
+                            a.btn.default.btn-xs.blue-stripe(href="/home/"+user.identifier+"/equipment/"+equipment._id) Ver
                           td
                             i.fa.fa-trash(aria-hidden="true")
   #addEquipmentModal.modal.fade(rol="dialog")
@@ -110,9 +110,9 @@ block content-mpro
                   each branchCompany in branchCompanies
                     option(value=branchCompany._id) #{branchCompany.name}
             .form-group.row
-              label.col-3.col-form-label(for="") Tipo
+              label.col-3.col-form-label(for="equipmentType") Tipo
               .col-9
-                select.form-control(id="type", name="type")
+                select.form-control(id="equipmentType", name="equipmentType")
                   option Seleccione
                   each equipmentType in equipmentTypes
                     option(value=equipmentType._id) #{equipmentType.name}

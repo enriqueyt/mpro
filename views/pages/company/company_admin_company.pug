@@ -6,16 +6,16 @@ block content-mpro
       .col-md-12
         .row.dashboard-nav-row
           .col-md-3
-            a(href="/"+user.role+"/"+user.identifier)
+            a(href="/" + user.role + "/" + user.identifier + "/activities")
               h5 Actividad
           .col-md-3.nav-active
-            a(href="/"+user.role+"/"+user.identifier+"/companies")
+            a(href="/" + user.role + "/" + user.identifier + "/companies")
               h5 Empresa
           .col-md-3
-            a(href="/"+user.role+"/"+user.identifier+"/users")
+            a(href="/" + user.role + "/" + user.identifier + "/users")
               h5 Usuarios
           .col-md-3
-            a(href="/"+user.role+"/"+user.identifier+"/equipments")
+            a(href="/" + user.role + "/" + user.identifier + "/equipments")
               h5 Equipos
         .row.information-company
           .col-md-12
@@ -26,9 +26,9 @@ block content-mpro
         .row.company-nav-row
           ul.nav.nav-tabs(role="tablist", id="tabCompany")
             li.nav-item
-              a.nav-link.active(data-toggle="tab", href="#branchcompany", role="tab", aria-controls="branchcompany") Sucursales
+              a.nav-link.active(data-toggle="tab", href="#branchCompany", role="tab", aria-controls="branchCompany") Sucursales
           .tab-content(style="width:100%")
-            #branchcompany.tab-pane.active(role="tabpanel")
+            #branchCompany.tab-pane.active(role="tabpanel")
               .row
                 .col-md-12
                  .btn-group
@@ -53,7 +53,7 @@ block content-mpro
                           td=branchCompany.phone
                           td=branchCompany.location
                           td
-                            a.btn.default.btn-xs.blue-stripe(href="/home/"+user.identifier+"/branch_company/"+branchCompany._id) ver
+                            a.btn.default.btn-xs.blue-stripe(href="/home/"+user.identifier+"/branchCompanies/"+branchCompany._id) ver
                           td
                             i.fa.fa-trash(aria-hidden="true")
   #addBranchCompanyModal.modal.fade(rol="dialog")

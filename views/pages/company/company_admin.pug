@@ -6,23 +6,23 @@ block content-mpro
       .col-md-12
         .row.dashboard-nav-row
           .col-md-3
-            a(href="/"+user.role+"/"+user.identifier)
+            a(href="/" + user.role + "/" + user.identifier + "/activities")
               h5 Actividades
           .col-md-3.nav-active
-            a(href="/"+user.role+"/"+user.identifier+"/companies")
+            a(href="/" + user.role + "/" + user.identifier + "/companies")
               h5 Empresas
           .col-md-3
-            a(href="/"+user.role+"/"+user.identifier+"/users")
+            a(href="/" + user.role + "/" + user.identifier + "/users")
               h5 Usuarios
           .col-md-3
-            a(href="/"+user.role+"/"+user.identifier+"/equipments")
+            a(href="/" + user.role + "/" + user.identifier + "/equipments")
               h5 Equipos
         .row.company-nav-row
           ul.nav.nav-tabs(role="tablist", id="tabCompany")
             li.nav-item
               a.nav-link.active(data-toggle="tab", href="#company", role="tab", aria-controls="company") Empresas
             li.nav-item
-              a.nav-link(data-toggle="tab", href="#branchcompany", role="tab", aria-controls="branchcompany") Sucursales
+              a.nav-link(data-toggle="tab", href="#branchCompany", role="tab", aria-controls="branchCompany") Sucursales
           .tab-content(style="width:100%")
             #company.tab-pane.active(role="tabpanel")
               .row
@@ -49,10 +49,10 @@ block content-mpro
                           td=company.phone
                           td=company.location
                           td
-                            a.btn.default.btn-xs.blue-stripe(href="/home/"+user.identifier+"/company/"+company._id) ver
+                            a.btn.default.btn-xs.blue-stripe(href="/home/"+user.identifier+"/companies/"+company._id) ver
                           td
                             i.fa.fa-trash(aria-hidden="true")
-            #branchcompany.tab-pane(role="tabpanel")
+            #branchCompany.tab-pane(role="tabpanel")
               .row
                 .col-md-12
                   .btn-group
@@ -79,7 +79,7 @@ block content-mpro
                           td=company.location
                           td=company.company.name
                           td
-                            a.btn.default.btn-xs.blue-stripe(href="/home/"+user.identifier+"/branch_company/"+company._id) ver
+                            a.btn.default.btn-xs.blue-stripe(href="/home/"+user.identifier+"/branchCompanies/"+company._id) ver
                           td
                             i.fa.fa-trash(aria-hidden="true")
   #addCompanyModal.modal.fade(rol="dialog")
