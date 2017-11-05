@@ -1,16 +1,8 @@
 var Mongoose = require('mongoose');
+var Utils = require('../libs/utils');
+
 var Schema = Mongoose.Schema;
 var ObjectId = Mongoose.Schema.Types.ObjectId;
-
-var createDefaultIdentifier = function () {
-  var code = 'mpro-';
-
-  for (var i = 0; i < 1; i += 1) {
-    code = code.concat(Math.random().toString(36).substring(10));
-  }
-
-  return code;
-}
 
 var account = new Schema(
 	{
@@ -32,11 +24,11 @@ var account = new Schema(
 		},
 		role: { 
 			type: String, 
-			enum: ['admin', 'admin_company', 'admin_branch_company', 'technical'] 
+			enum: ['admin', 'admin_company', 'admin_branch_company', 'technician'] 
 		},
 		identifier: {
 			type: String,
-			default: createDefaultIdentifier()
+			default: Utils.createUniqueId('mpro-')
 		},
 		company: {
 			type: Schema.Types.ObjectId,

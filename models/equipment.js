@@ -15,7 +15,7 @@ var equipment = new Schema(
     location: {
       type: String
     },
-    type: {
+    equipmentType: {
       type: Schema.Types.ObjectId,
       ref: 'equipmentType',
       required: true
@@ -31,8 +31,11 @@ var equipment = new Schema(
         imageUrl: String
       }
     ],
-    maintenances_date: [
-      Date
+    maintenanceActivityDates: [
+      {
+        date: Date,
+        identifier: String
+      }
     ],
     date: {
       type: Date,
