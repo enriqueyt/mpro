@@ -165,16 +165,16 @@ a.top-nav {
   border-radius: 50%;
 }
 
-.userName{
+.userName {
   margin-right: 2%
 }
 
-.nav-active{
+.nav-active {
   text-decoration: underline;
   color:#000;
 }
 
-.dashboard-nav-row{
+.dashboard-nav-row {
     background-color: #eaeaea;
     padding: 0.8% 0;
     vertical-align: middle;
@@ -182,17 +182,25 @@ a.top-nav {
 }
 
 .company-nav-row,
-.equipment-nav-row{
+.equipment-nav-row,
+.manageActivity-nav-row,
+.manageActivityModal-nav-row {
   padding: 0.8% 0;
     vertical-align: middle;
     margin-bottom: 0.2%;
 }
 
 .company-nav-row ul,
-.equipment-nav-row ul{
+.equipment-nav-row ul,
+.manageActivity-nav-row ul,
+.manageActivityModal-nav-row ul {
   width: 100%;
 };
 
-.information-company{
+.information-company {
   display: inline-block;
+}
+
+.item-deleted {
+  background-color: rgba(158, 158, 158, .5);
 }
