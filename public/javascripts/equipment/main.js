@@ -1,22 +1,26 @@
 function setDefaultDropDownListOption(containerName) {
-  var option = ''.concat('<option value="0">Seleccione</option>');
+  var option = ''.concat('<option>Seleccione</option>');
+  var container = $('select#'.concat(containerName));
 
-  $('#'.concat(containerName)).append(option);
+  container.append(option);
 
   return false;
 }
 
 function setDropDownListOptions(actionName, parameter, containerName) {
   var action = ''.concat('/', actionName ,'/', parameter);
+  var container = $('select#'.concat(containerName)); 
 
+  container.empty();
+  
   $.get(action, function (response) {
-    var options = ''.concat('<option value="0">Seleccione</option>');
+    var options = ''.concat('<option>Seleccione</option>');
 
     _.each(response.data, function (item, i) {
       options = options.concat('<option value="', item._id, '">', item.name, '</option>');
     });
 
-    $('#'.concat(containerName)).append(options);
+    container.append(options);
   });
 
   return false;
@@ -93,12 +97,12 @@ $(document).ready(function () {
 
     if (companyId === 'Seleccione') {
       setDefaultDropDownListOption('branchCompany');
-      setDefaultDropDownListOption('type');
+      setDefaultDropDownListOption('equipmentType');
       setDefaultDropDownListOption('account');
     }
     else {
-      setDropDownListOptions('get-branch-companies-by-company', companyId, 'branchCompany');
-      setDropDownListOptions('get-equipment-types-by-company', companyId, 'type');
+      setDropDownListOptions('branchCompaniesByCompany', companyId, 'branchCompany');
+      setDropDownListOptions('equipmentTypesByCompany', companyId, 'equipmentType');
     }
   });
 
@@ -113,7 +117,7 @@ $(document).ready(function () {
       setDefaultDropDownListOption('account');
     }
     else {
-      setDropDownListOptions('get-technicians-by-branch-company', branchCompanyId, 'account');
+      setDropDownListOptions('techniciansByBranchCompany', branchCompanyId, 'account');
     }
   });
 
