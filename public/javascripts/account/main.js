@@ -55,12 +55,12 @@ $(document).ready(function () {
   $('select#company').change(function (e) {
     e.preventDefault();
 
-    $('#branchcompany').empty();
+    $('#branchCompany').empty();
 
     if ($(this).find('option:selected').val() === 'Seleccione')
       return;
 
-    var action = ''.concat('/get-branch-companies-by-company/', $(this).find('option:selected').val());
+    var action = ''.concat('/branchCompaniesByCompany/', $(this).find('option:selected').val());
 
     $.get(action, function (data) {
       var options = ''.concat('<option value="0">Seleccione</option>');
@@ -69,7 +69,7 @@ $(document).ready(function () {
         options = options.concat('<option value="', item._id, '">', item.name, '</option>');
       });
 
-      $('#branchcompany').append(options);
+      $('#branchCompany').append(options);
     });
   });
 });
