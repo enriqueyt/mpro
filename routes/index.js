@@ -193,8 +193,9 @@ router.get('/home/:identifier/branchCompanies/:id', function (req, res, next) {
 router.get('/maintenanceActivitiesByEquipmentType/:equipmentType', function (req, res, next) {
   var maintenanceActivitiesPromise = new Promise(function (resolve, reject) {
     var query = {equipmentType: new ObjectId(req.params.equipmentType)};
+    var select = '_id name';
 
-    mongoMaintenanceActivity.find(query).exec()
+    mongoMaintenanceActivity.find(query, select).exec()
     .then(function (maintenanceActivities) {
       resolve(maintenanceActivities);
     })
@@ -215,8 +216,9 @@ router.get('/maintenanceActivitiesByEquipmentType/:equipmentType', function (req
 router.get('/equipmentsByEquipmentType/:equipmentType', function (req, res, next) {
   var equipmentsPromise = new Promise(function (resolve, reject) {
     var query = {equipmentType: new ObjectId(req.params.equipmentType)};
+    var select = '_id name';
 
-    mongoEquipment.find(query).exec()
+    mongoEquipment.find(query, select).exec()
     .then(function (equipments) {
       resolve(equipments);
     })
@@ -237,8 +239,9 @@ router.get('/equipmentsByEquipmentType/:equipmentType', function (req, res, next
 router.get('/branchCompaniesByCompany/:company', function (req, res, next) {
   var branchCompaniesPromise = new Promise(function (resolve, reject) {
     var query = {type: 'branch_company', company: new ObjectId(req.params.company)};
+    var select = '_id name';
 
-    mongoEntity.find(query).populate('company').exec()
+    mongoEntity.find(query, select).populate('company').exec()
     .then(function (branchCompanies) {
       resolve(branchCompanies);
     })
@@ -249,18 +252,19 @@ router.get('/branchCompaniesByCompany/:company', function (req, res, next) {
   
   branchCompaniesPromise
   .then(function (branchCompanies) {
-    return res.json({error: false, data: branchCompanies});
+    res.status(200).send({error: false, data: branchCompanies});
   })
   .catch(function (err) {
-    return res.json({error: true, message: err});
+    res.status(500).send({error: true, message: err.message});
   });
 });
 
 router.get('/equipmentTypesByCompany/:company', function (req, res, next) {
   var equipmentTypesPromise = new Promise(function (resolve, reject) {
     var query = {company: new ObjectId(req.params.company)};
+    var select = '_id name';
 
-    mongoEquipmentType.find(query).exec()
+    mongoEquipmentType.find(query, select).exec()
     .then(function (equipmentTypes) {
       resolve(equipmentTypes);
     })
@@ -299,8 +303,9 @@ router.get('/techniciansByCompany/:company', function (req, res, next) {
 
     var promise = new Promise(function (resolve, reject) {
       var query = {role: 'technician', company: {$in: branchCompanyIds}};
+      var select = '_id name';
 
-      mongoAccount.find(query).exec()
+      mongoAccount.find(query, select).exec()
       .then(function (accounts) {
         resolve(accounts);
       })
@@ -315,18 +320,19 @@ router.get('/techniciansByCompany/:company', function (req, res, next) {
   branchCompaniesPromise
   .then(onFetchAccounts)
   .then(function (accounts) {
-    return res.json({error: false, data: accounts});
+    res.status(200).send({error: false, data: accounts});
   })
   .catch(function (err) {
-    return res.json({error: true, message: err});
+    res.status(500).send({error: true, message: err.message});
   });
 });
 
 router.get('/techniciansByBranchCompany/:branchCompany', function (req, res, next) {
   var accountsPromise = new Promise(function (resolve, reject) {
     var query = {role: 'technician', company: new ObjectId(req.params.branchCompany)};
+    var select = '_id name';
 
-    mongoAccount.find(query).exec()
+    mongoAccount.find(query, select).exec()
     .then(function (accounts) {
       resolve(accounts);
     })
@@ -337,10 +343,10 @@ router.get('/techniciansByBranchCompany/:branchCompany', function (req, res, nex
 
   accountsPromise
   .then(function (accounts) {
-    return res.json({error: false, data: accounts});
+    res.status(200).send({error: false, data: accounts});
   })
   .catch(function (err) {
-    return res.json({error: true, message: err});
+    res.status(500).send({error: true, message: err.message});
   });
 });
 
