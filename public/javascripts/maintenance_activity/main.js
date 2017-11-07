@@ -1,3 +1,43 @@
+function setDefaultDropDownListOption(containerName) {
+  var container = $('select#'.concat(containerName));
+  var option = '';
+
+  container.empty();
+  
+  if (container.prop('multiple') === false) {
+    option = option.concat('<option>Seleccione</option>');
+  }
+
+  container.append(option);
+
+  return false;
+}
+
+function setDropDownListOptions(actionName, parameter, containerName) {
+  var action = ''.concat('/', actionName ,'/', parameter);
+  var container = $('select#'.concat(containerName)); 
+
+  container.empty();
+  
+  $.get(action, function (response) {
+    var options = '';
+    
+    if (container.prop('multiple') === false) {
+      options = options.concat('<option>Seleccione</option>');
+    }
+
+    _.each(response.data, function (item, i) {
+      options = options.concat('<option value="', item._id, '">', item.name, '</option>');
+    });
+
+    container.append(options);
+
+    return false;
+  });
+
+  return false;
+}
+
 function searchMaintenanceActivity(identifier) {
   var action = ''.concat('/maintenanceActivities/', identifier);
   
@@ -11,13 +51,15 @@ function searchMaintenanceActivity(identifier) {
       $('#updateMaintenanceActivityModal select#company').val(response.data.company._id).trigger('change');
     
       var interval = setInterval(function () {
-        if ($('#updateMaintenanceActivityModal select#equipmentType :selected') !== '0') {
+        if ($('#updateMaintenanceActivityModal select#equipmentType :selected').val() !== 'Seleccione') {
           clearInterval(interval);
         }
         if ($('#updateMaintenanceActivityModal select#equipmentType option').length > 1) {
           $('#updateMaintenanceActivityModal select#equipmentType').val(response.data.equipmentType._id);
         }
-      }, 250);  
+      
+        return false;
+      }, 250);
     }
     else {
       $('#updateMaintenanceActivityModal input#equipmentType').val(response.data.equipmentType.name);
@@ -31,7 +73,9 @@ function searchMaintenanceActivity(identifier) {
   })
   .fail(function (xhr, status, error) {
     var response = xhr.responseJSON;
+    
     console.log(JSON.stringify(response));
+    
     return false;
   });
 }
@@ -55,11 +99,14 @@ function deleteMaintenanceActivity(identifier) {
   var data = {status: false, deleted: true};
   var onSuccess = function (response) {
     window.location.reload(true);
+    
     return false;
   };
   var onFailure = function (xhr, status, error) {
     var response = xhr.responseJSON;
-    console.log(response)
+    
+    console.log(JSON.stringify(response));
+    
     return false;
   };
 
@@ -73,11 +120,14 @@ function restoreMaintenanceActivity(identifier) {
   var data = {status: true, deleted: false};
   var onSuccess = function (response) {
     window.location.reload(true);
+    
     return false;
   };
   var onFailure = function (xhr, status, error) {
     var response = xhr.responseJSON;
-    console.log(response)
+    
+    console.log(JSON.stringify(response));
+    
     return false;
   };
 
@@ -117,6 +167,8 @@ $(document).ready(function () {
       $($('#tabManageActivityModal a')[1]).click();
     }
     $('#manageActivityModal').modal('show');
+
+    return false;
   });
 
   $('#addMaintenanceActivityName').click(function (e) {
@@ -132,6 +184,8 @@ $(document).ready(function () {
     var container = $(this).parent().prev();
     
     container.after(newRow);
+
+    return false;
   });
 
   $('#removeMaintenanceActivityName').click(function (e) {
@@ -140,68 +194,49 @@ $(document).ready(function () {
     if (container.hasClass('added') === true) {
       container.remove();
     }
+
+    return false;
   });
 
   $('select#company').change(function (e) {
     e.preventDefault();
 
-    $('select#equipmentType').empty().append('<option>Seleccione</option>');
+    var companyId = $(this).find('option:selected').val();
 
-    if ($(this).find('option:selected').val() === 'Seleccione') {
-      return;
+    if (companyId === 'Seleccione') {
+        setDefaultDropDownListOption('equipmentType');
+        setDefaultDropDownListOption('maintenanceActivities');
+        setDefaultDropDownListOption('equipment');
+    }
+    else {
+      setDropDownListOptions('equipmentTypesByCompany', companyId, 'equipmentType');
     }
 
-    var action = ''.concat('/equipmentTypesByCompany/', $(this).find('option:selected').val());
-
-    $.get(action, function (response) {
-      var options = '';
-
-      _.each(response.data, function (item, i) {
-        options = options.concat('<option value="', item._id, '">', item.name, '</option>');
-      });
-
-      $('select#equipmentType').append(options);
-    });
+    return false;
   });
 
   $('select#equipmentType').change(function (e) {
     e.preventDefault();
-
-    $('select#maintenanceActivities').empty();
-    $('select#equipment').empty().append('<option>Seleccione</option>');
     
-    if ($(this).find('option:selected').val() === 'Seleccione') {
-      return;
+    var equipmentTypeId = $(this).find('option:selected').val();
+
+    if (equipmentTypeId === 'Seleccione') {
+      setDefaultDropDownListOption('maintenanceActivities');
+      setDefaultDropDownListOption('equipment');
+    }
+    else {
+      setDropDownListOptions('maintenanceActivitiesByEquipmentType', equipmentTypeId, 'maintenanceActivities');
+      setDropDownListOptions('equipmentsByEquipmentType', equipmentTypeId, 'equipment');
     }
 
-    var action = ''.concat('/maintenanceActivitiesByEquipmentType/', $(this).find('option:selected').val());
-    
-    $.get(action, function (response) {
-      var options = '';
-
-      _.each(response.data, function (item, i) {
-        options = options.concat('<option value="', item._id, '">', item.name, '</option>');
-      });
-
-      $('select#maintenanceActivities').append(options);
-    });
-
-    action = ''.concat('/equipmentsByEquipmentType/', $(this).find('option:selected').val());
-    
-    $.get(action, function (response) {
-      var options = '';
-
-      _.each(response.data, function (item, i) {
-        options = options.concat('<option value="', item._id, '">', item.name, '</option>');
-      });
-
-      $('select#equipment').append(options);
-    });
+    return false;
   });
 
   $('input[type=checkbox]#status').change(function (e) {
     e.preventDefault();
+
     $('input#statusValue').val($(this).prop('checked') ? 'Activo' : 'Inactivo');
+    
     return false;
   });
 
@@ -209,7 +244,7 @@ $(document).ready(function () {
     e.preventDefault();
 
     // Removes all required input warnings on modal
-    $(document).find('[name="description"]').remove();
+    $(document).find('[name="requireFieldMessage"]').remove();
 
     var form = document[$($(this).parents('form')).attr('name')];
     var data = {};
@@ -230,7 +265,7 @@ $(document).ready(function () {
             }
           }
           else {
-            control.after('<p style="color:red;" name="description">Campo requerido</p>');
+            control.after('<p style="color:red;" name="requireFieldMessage">Campo requerido</p>');
           }
         }
         else if (control.prop('tagName').toLowerCase() === 'select') {
@@ -240,7 +275,7 @@ $(document).ready(function () {
             complementaryInfo[control.attr('name')] = itemValue;
           }
           else {
-            control.after('<p style="color:red;" name="description">Campo requerido</p>');
+            control.after('<p style="color:red;" name="requireFieldMessage">Campo requerido</p>');
           }
         }
       }
@@ -255,7 +290,7 @@ $(document).ready(function () {
     });
 
     // Validates if there are not required input warnings on modal to make the request
-    if ($(form).find('[name="description"]').length === 0) {					
+    if ($(form).find('[name="requireFieldMessage"]').length === 0) {					
       var action = $($(this).parents('form')).attr('action');
 
       data['documents'] = JSON.stringify(collection);
@@ -263,28 +298,35 @@ $(document).ready(function () {
       $.post(action, data)
       .done(function (response) {		
         $('#manageActivityModal').modal('hide');
+        
         window.location.reload(true);
+        
+        return false;
       })
       .fail(function (xhr, status, error) {
         var response = xhr.responseJSON;
         var maintenanceActivityNames = $('.form-group input[name^="name"]');
 
-        $(document).find('[name="description"]').remove();
+        $(document).find('[name="requireFieldMessage"]').remove();
         
         _.each(maintenanceActivityNames, function(maintenanceActivityName, index) {
           if (response.results[index] === true) {
-            $(maintenanceActivityName).after('<p style="color:red;" name="description">La actividad ya existe</p>');
+            $(maintenanceActivityName).after('<p style="color:red;" name="requireFieldMessage">La actividad ya existe</p>');
           }
         });
+
+        return false;
       });
     }
+
+    return false;
   });
 
   $('#addMaintenanceActivityAttentionSubmit').click(function (e) {
     e.preventDefault();
 
     // Removes all required input warnings on modal
-    $(document).find('[name="description"]').remove();
+    $(document).find('[name="requireFieldMessage"]').remove();
 
     var form = document[$($(this).parents('form')).attr('name')];
     var data = {};
@@ -307,10 +349,10 @@ $(document).ready(function () {
           }
           else {
             if (control.parent().attr('class').indexOf('input-group') > -1) {
-              control.parent().after('<p style="color:red;" name="description">Campo requerido</p>');
+              control.parent().after('<p style="color:red;" name="requireFieldMessage">Campo requerido</p>');
             }
             else {
-              control.after('<p style="color:red;" name="description">Campo requerido</p>');
+              control.after('<p style="color:red;" name="requireFieldMessage">Campo requerido</p>');
             }
           }
         }
@@ -331,7 +373,7 @@ $(document).ready(function () {
             complementaryInfo[control.attr('name')] = itemValues;
           }
           else {
-            control.after('<p style="color:red;" name="description">Campo requerido</p>');
+            control.after('<p style="color:red;" name="requireFieldMessage">Campo requerido</p>');
           }
         }
       }
@@ -356,7 +398,7 @@ $(document).ready(function () {
     }, []);
 
     // Validates if there are not required input warnings on modal to make the request
-    if ($(form).find('[name="description"]').length === 0) {					
+    if ($(form).find('[name="requireFieldMessage"]').length === 0) {					
       var action = $($(this).parents('form')).attr('action');
 
       data['equipment'] = complementaryInfo.equipment;
@@ -365,11 +407,17 @@ $(document).ready(function () {
       $.post(action, data)
       .done(function (response) {
         $('#manageActivityModal').modal('hide');
+        
         window.location.reload(true);
+        
+        return false;
       })
       .fail(function (xhr, status, error) {
         var response = xhr.responseJSON;
+        
         console.log(JSON.stringify(response));
+        
+        return false;
       });
     }
   });
@@ -382,19 +430,23 @@ $(document).ready(function () {
     var data = {};
     var onSuccess = function (response) {
       $('#updateMaintenanceActivityModal').modal('hide');
+      
       window.location.reload(true);
+      
       return false;
     };
     var onFailure = function (xhr, status, error)  {
       var response = xhr.responseJSON;
+      
       console.log(JSON.stringify(response));
+      
       return false;
     };
 
     _.each(form, function (item) {
       var control = $(item);
 
-      if (control.attr('class').indexOf('form-control') > -1 || control.attr('class').indexOf('form-control-custom') || control.attr('type') === 'hidden') {
+      if (control.attr('class').indexOf('form-control') > -1 || control.attr('class').indexOf('form-control-custom') > -1 || control.attr('type') === 'hidden') {
         if (control.prop('tagName').toLowerCase() === 'input' || control.prop('tagName').toLowerCase() === 'textarea') {
           if (control.attr('type') === 'checkbox') {
             data[control.attr('name')] = control.prop('checked');
