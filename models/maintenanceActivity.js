@@ -49,7 +49,6 @@ maintenanceActivity.pre('save', function (next) {
       next();
     }
     else {
-      // console.log('Maintenance activity exists: ', self.name, self.company, self.equipmentType);
       next(new Error(
         'Maintenance activity exists - Name: '.concat(
           self.name, ' Company: ', self.company, ' Equipment Type: ', self.equipmentType)));

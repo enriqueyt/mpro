@@ -54,10 +54,20 @@ var equipment = new Schema(
 
 equipment.pre('save', function (next) {
   var self = this;
-  var model = self.model(self.constructor.modelName);    
-  console.log(model);
-  // Sends mail before equipment creation was made.
-  next();
+  var model = self.model(self.constructor.modelName);
+  var query = {name: self.name, code: self.code, equipmentType: self.equipmentType, branchCompany: self.branchCompany};
+
+  model.find(query, function (err, documents) {
+    if (documents.length === 0) {
+      next();
+    }
+    else {
+      next(new Error(
+        'Equipment exists - Name: '.concat(
+          self.name, ' Code: ', self.code, ' Equipment Type: ', self.equipmentType, ' Branch Company: ', self.branchCompany)
+      ));
+    }
+  });
 });
 
 module.exports = Mongoose.model('equipment', equipment);

@@ -45,7 +45,6 @@ maintenanceActivityAttention.pre('save', function (next) {
       next();
     }
     else {
-      // console.log('Maintenance activity attention exists: ', self.maintenanceActivity, self.equipment, self.date);
       next(new Error(
         'Maintenance activity attention exists - MaintenanceActivity: '.concat(
           self.maintenanceActivity, ' Equipment: ', self.equipment, ' Date: ', self.date)));

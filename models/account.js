@@ -1,8 +1,31 @@
 var Mongoose = require('mongoose');
+var Functional = require('underscore');
 var Utils = require('../libs/utils');
 
 var Schema = Mongoose.Schema;
 var ObjectId = Mongoose.Schema.Types.ObjectId;
+
+var roles = ['admin', 'adminCompany', 'adminBranchCompany', 'technician'];
+
+var roleValues = {
+	admin: 'Administrador',
+	adminCompany: 'Administrador Empresa',
+	adminBranchCompany: 'Administrador Sucursal',
+	technician: 'Técnico'
+};
+
+var getRoleValues = function () {
+	var values = Functional.reduce(roles, function (accumulator, role) {
+		accumulator.push({id: role, value: roleValues[role]});
+		return accumulator;
+	}, []);
+
+	return values;
+};
+
+var getRoleValue = function (role) {
+	return roleValues[role];
+};
 
 var account = new Schema(
 	{
@@ -24,7 +47,7 @@ var account = new Schema(
 		},
 		role: { 
 			type: String, 
-			enum: ['admin', 'admin_company', 'admin_branch_company', 'technician'] 
+			enum: roles
 		},
 		identifier: {
 			type: String,
@@ -54,12 +77,23 @@ var account = new Schema(
 	}
 );
 
+account.statics.getRoleValues = getRoleValues;
+
+account.statics.getRoleValue = getRoleValue;
+
 account.pre('save', function (next) {
   var self = this;
   var model = self.model(self.constructor.modelName);    
-  console.log(model);
-  // Sends mail before user creation was made.
-  next();
+	var query = {username: self.username};
+
+	model.find(query, function (err, documents) {
+		if (documents.length === 0) {
+			next();
+		}
+		else {
+			next(new Error('Account already exists - Username: '.concat(self.username)));
+		}
+	});
 });
 
 module.exports = Mongoose.model('account', account);
