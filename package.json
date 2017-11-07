@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "pm2 start ./bin/www",
-    "restart": "pm2 delete $(pm2 id www | grep -oP [0-9]+)",
+    "restart": "pm2 restart $(pm2 id www | grep -oP [0-9]+)",
 		"stop": "pm2 stop $(pm2 id www | grep -oP [0-9]+)",
     "remove": "pm2 delete $(pm2 id www | grep -oP [0-9]+)",
 		"test": "nodemon ./bin/www",
