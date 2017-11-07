@@ -188,7 +188,7 @@ block content-mpro
           button.close.fa.fa-close(type="button", style="color:white; opacity:1; text-shadow:1px 1px 1px #ccc; text-indent:0" data-dismiss="modal", aria-label="Close")
         .modal-body
           form(role="form", id="updateManintenanceActivity", name="updateManintenanceActivity", action="/maintenanceActivities", method="put")
-            input(type="hidden", id="maintenanceActivity", name="maintenanceActivity")
+            input.form-control(type="hidden", id="maintenanceActivity", name="maintenanceActivity")
             .form-group.row
               label.col-3.col-form-label(for="name") Nombre
               .col-9

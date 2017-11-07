@@ -25,7 +25,13 @@ block content-mpro
               a.nav-link(data-toggle="tab", href="#equipment", role="tab", aria-controls="equipment") Equipos
           .tab-content(style="width:100%")
             #equipmentType.tab-pane.active(role="tabpanel")
-              .row
+              .row.equipment-nav-row
+                .col-md-11.mt-2.mb-2.mx-auto
+                  .input-group
+                    input.form-control(type="text", id="equipmentTypeSearchInput", placeholder="Tipo de equipo...")
+                    span.input-group-btn
+                      button#equipmentTypeSearch.btn.btn-primary(type="button") Buscar
+              .row.equipment-nav-row
                 .col-md-12
                   .btn-group
                     button#addEquipmentType.btn.btn-primary(type="button", data-toggle="addEquipmentTypeModal", style="cursor:pointer; background-color:rgb(0,155,219)") Agregar Tipo de Equipo 
@@ -36,6 +42,7 @@ block content-mpro
                       th #
                       th Nombre
                       th Empresa
+                      th Status
                       th
                       th
                     tbody
@@ -45,11 +52,28 @@ block content-mpro
                           td=equipmentType.name
                           td=equipmentType.company.name
                           td
-                            a.btn.default.btn-xs.blue-stripe(href="/home/" + user.identifier + "/equipmentType/" + equipmentType._id) ver
+                            if equipmentType.status == true
+                              label.label-sm.label-success Activo
+                            else
+                              label.label-sm.label-default Inactivo
                           td
-                            i.fa.fa-trash(aria-hidden="true")
+                            if equipmentType.deleted == false
+                              a.btn.default.btn-xs.blue-stripe(onclick="searchEquipmentType('" + equipmentType._id + "')") Editar
+                            else
+                              label.label-sm.label-default Eliminado
+                          td
+                            if equipmentType.deleted == false
+                              i.fa.fa-trash(onclick="deleteEquipmentType('" + equipmentType._id + "')", aria-hidden="true")
+                            else
+                              i.fa.fa-undo(onclick="restoreEquipmentType('" + equipmentType._id + "')", aria-hidden="true")
             #equipment.tab-pane(role="tabpanel")
-              .row
+              .row.equipment-nav-row
+                .col-md-11.mt-2.mb-2.mx-auto
+                  .input-group
+                    input.form-control(type="text", id="equipmentSearchInput", placeholder="Equipo...")
+                    span.input-group-btn
+                      button#equipmentSearch.btn.btn-primary(type="button") Buscar
+              .row.equipment-nav-row
                 .col-md-12
                   .btn-group
                     button#addEquipment.btn.btn-primary(type="button", data-toggle="addEquipmentModal", style="cursor:pointer; background-color:rgb(0,155,219)") Agregar Equipo 
@@ -85,17 +109,15 @@ block content-mpro
   #addEquipmentTypeModal.modal.fade(rol="dialog")
     .modal-dialog(role="document")
       .modal-content
-        .modal-header
-          h5.modal-title Agregar Tipo de Equipo
-          button.close(type="button", data-dismiss="modal", aria-label="Close")
-            span(aria-hidden="true") &times;
+        .modal-header.bg-primary.text-white
+          h4.modal-title.font-weight-bold Agregar Tipo de Equipo
+          button.close.fa.fa-close(type="button", style="color:white; opacity:1; text-shadow:1px 1px 1px #ccc; text-indent:0" data-dismiss="modal", aria-label="Close")
         .modal-body
-          form(role="form", id="addEquipmentTypeForm", name="addEquipmentTypeForm", action="/equipmentType", method="post")
-            input(type="hidden", name="type", value="equipmentType")
+          form(role="form", id="addEquipmentTypeForm", name="addEquipmentTypeForm", action="/equipmentTypes", method="post")
             .form-group.row
               label.col-3.col-form-label(for="name") Nombre
               .col-9
-                input.form-control(type="text", id="name", name="name", plateholder="Nombre")
+                input.form-control(type="text", id="name", name="name", placeholder="Nombre")
             .form-group.row
               label.col-3.col-form-label(for="location") Descripción
               .col-9
@@ -113,21 +135,19 @@ block content-mpro
   #addEquipmentModal.modal.fade(rol="dialog")
     .modal-dialog(role="document")
       .modal-content
-        .modal-header
-          h5.modal-title Agregar Equipo
-          button.close(type="button", data-dismiss="modal", aria-label="Close")
-            span(aria-hidden="true") &times;
+        .modal-header.bg-primary.text-white
+          h4.modal-title.font-weight-bold Agregar Equipo
+          button.close.fa.fa-close(type="button", style="color:white; opacity:1; text-shadow:1px 1px 1px #ccc; text-indent:0" data-dismiss="modal", aria-label="Close")
         .modal-body
-          form(role="form", id="addEquipmentForm", name="addEquipmentForm", action="/equipment", method="post")
-            input(type="hidden", name="type", value="equipment")
+          form(role="form", id="addEquipmentForm", name="addEquipmentForm", action="/equipments", method="post")
             .form-group.row
               label.col-3.col-form-label(for="name") Nombre
               .col-9
-                input.form-control(type="text", id="name", name="name", plateholder="Nombre")
+                input.form-control(type="text", id="name", name="name", placeholder="Nombre")
             .form-group.row
               label.col-3.col-form-label(for="code") Código
               .col-9
-                input.form-control(type="text", id="code", name="code", plateholder="Código")
+                input.form-control(type="text", id="code", name="code", placeholder="Código")
             .form-group.row
               label.col-3.col-form-label(for="location") Ubicacion
               .col-9
@@ -145,7 +165,7 @@ block content-mpro
                 select.form-control(id="branchCompany", name="branchCompany")
                   option Seleccione
             .form-group.row
-              label.col-3.col-form-label(for="type") Tipo
+              label.col-3.col-form-label(for="equipmentType") Tipo
               .col-9
                 select.form-control(id="equipmentType", name="equipmentType")
                   option Seleccione
@@ -157,5 +177,39 @@ block content-mpro
             .col-12(style="text-align:right")
               button.btn.btn-secondary(type="button", data-dismiss="modal", style="margin-right:1%;") Cerrar
               button.btn.btn-primary.addEquipmentSubmit(type="submit") Crear
+  #updateEquipmentTypeModal.modal.fade(role="dialog")
+    .modal-dialog(role="document")
+      .modal-content
+        .modal-header.bg-primary.text-white
+          h4.modal-title.font-weight-bold Actualizar Tipo de Equipo
+          button.close.fa.fa-close(type="button", style="color:white; opacity:1; text-shadow:1px 1px 1px #ccc; text-indent:0" data-dismiss="modal", aria-label="Close")
+        .modal-body
+          form(role="form", id="updateEquipmentType", name="updateEquipmentType", action="/equipmentTypes", method="put")
+            input.form-control(type="hidden", id="equipmentType", name="equipmentType")
+            .form-group.row
+              label.col-3.col-form-label(for="name") Nombre
+              .col-9
+                input.form-control(type="text", id="name", name="name", placeholder="Nombre")
+            .form-group.row
+              label.col-3.col-form-label(for="location") Descripción 
+              .col-9
+                textarea.form-control(id="description", name="description", wrap="hard")
+            .form-group.row
+              label.col-3.col-form-label(for="company") Empresa
+              .col-9
+                select.form-control(id="company", name="company", disabled="true")
+                  option Seleccione
+                  each company in companies
+                    option(value=company._id) #{company.name}
+            .form-group.row
+              label.col-3.col-form-label(for="status") Estatus
+              .col-9
+                .input-group
+                  span.input-group-addon
+                    input.form-control-custom(type="checkbox", id="status", name="status")
+                  input.form-control(type="text", id="statusValue", name="statusValue", disabled="true")
+            .col-12(style="text-align:right")
+              button.btn.btn-secondary(type="button", data-dismiss="modal", style="margin-right:1%;") Cerrar
+              button#updateEquipmentTypeSubmit.btn.btn-primary(type="submit") Actualizar
   script(src='../../javascripts/equipment/main.js')
     

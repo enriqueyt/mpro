@@ -20,34 +20,37 @@ block content-mpro
             h4(style="display:inline-block") <b>#{currentAccount.company.company.name}</b>
             span Sucursal
             h4(style="display:inline-block") <b>#{currentAccount.company.name}</b>
-          .col-md-12
-            p 
-        .row.company-nav-row
+        .row.user-nav-row
+          .col-md-11.mt-2.mb-2.mx-auto
+            .input-group
+              input.form-control(type="text", id="userSearchInput", placeholder="Usuario...")
+              span.input-group-btn
+                button#userSearch.btn.btn-primary(type="button") Buscar
+        .row.user-nav-row
           .col-md-12
             .btn-group
               button#addAccount.btn.btn-primary(type="button", data-toggle="addAccountModal", style="cursor:pointer; background-color:rgb(0,155,219)") Agregar Usuario 
                 i.fa.fa-plus
           .col-md-12
             table.table
+              thead
+                th #
+                th Nombre
+                th username
+                th Correo
+                th Rol
+                th Fecha de ingreso
+                th Estatus
+                th
+                th 
               each account, i in accounts
-                if i==0
-                  thead
-                    th #
-                    th Nombre
-                    th username
-                    th Correo
-                    th Rol
-                    th Fecha de ingreso
-                    th Estatus
-                    th
-                    th 
                 tbody
                   tr
                     td=i+1
                     td=account.name
                     td=account.username
                     td=account.email
-                    td=account.role
+                    td=account.roleValue
                     td=account.date
                     td
                       if account.status==true
@@ -55,31 +58,30 @@ block content-mpro
                       else
                         label.label-sm.label-default Inactivo
                     td
-                      a.btn.default.btn-xs.blue-stripe(href="/account/"+account.identifier) ver
+                      a.btn.default.btn-xs.blue-stripe(href="/accounts/" + account.identifier) Ver
                     td
                       i.fa.fa-trash(aria-hidden="true")
   #addAccountModal.modal.fadde(role="dialog")
     .modal-dialog(role="document")
       .modal-content
-        .modal-header
-          h5.modal-title Agregar Usuario
-          button.close(type="button", data-dismiss="modal", aria-label="Close")
-            span(aria-hidden="true") &times;
+        .modal-header.bg-primary.text-white
+          h4.modal-title.font-weight-bold Agregar Usuario
+          button.close.fa.fa-close(type="button", style="color:white; opacity:1; text-shadow:1px 1px 1px #ccc; text-indent:0" data-dismiss="modal", aria-label="Close")
         .modal-body
           #warningAccountForm.alert.alert-warning.alert-dismissible(role="alert",, style="display:none;")
             button.close(type="button", data-dismiss="alert", aria-label="Close")
               span(aria-hidden="true")
             strong Hey! 
           #content(style="display:inline-block")
-          form(role="form", id="addAccountForm", name="addAccountForm", action="/account", method="post")
+          form(role="form", id="addAccountForm", name="addAccountForm", action="/accounts", method="post")
             .form-group.row
               label.col-3.col-form-label(for="name") Nombre
               .col-9
-                input.form-control(type="text", id="name", name="name", plateholder="Nombre", required="true")
+                input.form-control(type="text", id="name", name="name", placeholder="Nombre", required="true")
             .form-group.row
               label.col-3.col-form-label(for="email") Correo
               .col-9
-                input.form-control(type="email", id="username", name="username", plateholder="Correo", required="true" )
+                input.form-control(type="email", id="username", name="username", placeholder="Correo", required="true" )
             .form-group.row
               label.col-3.col-form-label(for="role") Role
               .col-9
@@ -87,12 +89,15 @@ block content-mpro
                   option Seleccione
                   each role in roles
                     option(value=role, selected="true") #{role}
-            input(type="hidden", name="company", value=currentAccount.company.company._id)
-            input(type="hidden", name="branchcompany", value=currentAccount.company._id)
+            input.form-control(type="hidden", name="company", value=currentAccount.company.company._id)
+            input.form-control(type="hidden", name="branchCompany", value=currentAccount.company._id)
             .form-group.row
               label.col-3.col-form-label(for="status") Estatus
               .col-9
-              input.form-control(type="checkbox", id="status", name="status")
+                .input-group
+                  span.input-group-addon
+                    input.form-control-custom(type="checkbox", id="status", name="status")
+                  input.form-control(type="text", id="statusValue", name="statusValue", disabled="true")
             .col-12(style="text-align:right")
               button.btn.btn-secondary(type="button", data-dismiss="modal", style="margin-right:1%;") Cerrar
               button.btn.btn-primary.addAccountSubmit(type="submit") Crear

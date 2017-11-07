@@ -25,7 +25,13 @@ block content-mpro
               a.nav-link.active(data-toggle="tab", href="#equipment", role="tab", aria-controls="equipment") Equipos
           .tab-content(style="width:100%")
             #equipment.tab-pane.active(role="tabpanel")
-              .row
+              .row.equipment-nav-row
+                .col-md-11.mt-2.mb-2.mx-auto
+                  .input-group
+                    input.form-control(type="text", id="userSearchInput", placeholder="Usuario...")
+                    span.input-group-btn
+                      button#equipmentSearch.btn.btn-primary(type="button") Buscar
+              .row.equipment-nav-row
                 .col-md-12
                   table.table
                     thead

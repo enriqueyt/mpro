@@ -28,7 +28,13 @@ block content-mpro
               a.nav-link.active(data-toggle="tab", href="#equipment", role="tab", aria-controls="equipment") Equipos
           .tab-content(style="width:100%")
             #equipment.tab-pane.active(role="tabpanel")
-              .row
+              .row.equipment-nav-row
+                .col-md-11.mt-2.mb-2.mx-auto
+                  .input-group
+                    input.form-control(type="text", id="userSearchInput", placeholder="Usuario...")
+                    span.input-group-btn
+                      button#equipmentSearch.btn.btn-primary(type="button") Buscar
+              .row.equipment-nav-row
                 .col-md-12
                   .btn-group
                     button#addEquipment.btn.btn-primary(type="button", data-toggle="addEquipmentModal", style="cursor:pointer; background-color:rgb(0,155,219)") Agregar Equipo 
@@ -60,21 +66,19 @@ block content-mpro
   #addEquipmentModal.modal.fade(rol="dialog")
     .modal-dialog(role="document")
       .modal-content
-        .modal-header
-          h5.modal-title Agregar Equipo
-          button.close(type="button", data-dismiss="modal", aria-label="Close")
-            span(aria-hidden="true") &times;
+        .modal-header.bg-primary.text-white
+          h4.modal-title.font-weight-bold Agregar Equipo
+          button.close.fa.fa-close(type="button", style="color:white; opacity:1; text-shadow:1px 1px 1px #ccc; text-indent:0" data-dismiss="modal", aria-label="Close")
         .modal-body
           form(role="form", id="addEquipmentForm", name="addEquipmentForm", action="/equipment", method="post")
-            input(type="hidden", name="type", value="equipment")
             .form-group.row
               label.col-3.col-form-label(for="name") Nombre
               .col-9
-                input.form-control(type="text", id="name", name="name", plateholder="Nombre")
+                input.form-control(type="text", id="name", name="name", placeholder="Nombre")
             .form-group.row
               label.col-3.col-form-label(for="code") Código
               .col-9
-                input.form-control(type="text", id="code", name="code", plateholder="Código")
+                input.form-control(type="text", id="code", name="code", placeholder="Código")
             .form-group.row
               label.col-3.col-form-label(for="location") Ubicacion
               .col-9
