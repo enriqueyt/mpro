@@ -18,6 +18,8 @@ var mongoEquipment = Mongoose.model('equipment');
 var mongoMaintenanceActivity = Mongoose.model('maintenanceActivity');
 var mongoMaintenanceActivityAttention = Mongoose.model('maintenanceActivityAttention');
 
+var DATE_FORMAT = 'DD/MM/YYYY';
+
 router.use(function (req, res, next) {
   res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
   req.body = JSON.parse(Sanitizer.sanitize(JSON.stringify(MongoSanitize(req.body))));
@@ -98,7 +100,7 @@ router.get('/admin/:identifier/companies', function (req, res, next) {
   });
 
   var branchCompaniesPromise = new Promise(function (resolve, reject) {
-    var query = {type: 'branch_company'};
+    var query = {type: 'branchCompany'};
 
     mongoEntity.find(query).populate('company').exec()
     .then(function (branchCompanies) {
@@ -142,7 +144,7 @@ router.get('/admin/:identifier/users', function (req, res, next) {
 
   var populateAccountCompanyPromise = function (account) {
     var promise = new Promise(function (resolve, reject) {
-      if (account.role === 'admin_branch_company' || account.role === 'technician') {
+      if (account.role === 'adminBranchCompany' || account.role === 'technician') {
         mongoAccount.populate(account, {path: 'company.company', model: 'entity'}, function (err, account) {
           if (err) {
             reject(err);
@@ -175,14 +177,19 @@ router.get('/admin/:identifier/users', function (req, res, next) {
   var accountsPromise = new Promise(function (resolve, reject) {
     var query = {};
 
-    mongoAccount.find(query).populate('company').exec()
+    mongoAccount.find(query).populate('company').lean().exec()
     .then(function (users) {
       if (!users || users.length === 0) {
         var message = 'No user found';
         reject(new Error(message));
       }
 
-      var accounts = users;
+      var accounts = Functional.map(users, function (user) {
+        user.date = Utils.formatDate(user.date, DATE_FORMAT);
+        user.roleValue = mongoAccount.getRoleValue(user.role);
+        return user;
+      });
+
       var identifier = req.params.identifier || req.user.identifier;
       var currentAccount = Functional.find(accounts, function (account) {
         return account.identifier === identifier;
@@ -217,7 +224,7 @@ router.get('/admin/:identifier/users', function (req, res, next) {
       //csrfToken: req.csrfToken()
       companies: data[0],
       accounts: data[1],
-      roles: mongoAccount.schema.path('role').enumValues
+      roles: mongoAccount.getRoleValues()
     });
   };
 
@@ -507,7 +514,7 @@ router.post('/maintenanceActivityAttentions', function (req, res, next) {
       var onCreateDocument = function (err, document) {        
         if (err) {
           console.log('ERROR on Create:', err.message);
-          resolve({error: true, message: err.message});
+          resolve({error: true, code: 500, message: err.message});
         };
   
         resolve({error: false, data: document});
@@ -526,7 +533,7 @@ router.post('/maintenanceActivityAttentions', function (req, res, next) {
       var onRemoveDocument = function (err, document) {
         if (err) {
           console.log('ERROR on RollBack:', err.message);
-          reject({error: true, message: err.message});
+          reject({error: true, code: 500, message: err.message});
         };
   
         resolve({error: false, data: document});
@@ -641,48 +648,43 @@ router.post('/maintenanceActivityAttentions', function (req, res, next) {
   });
 });
 
-router.post('/entity', function (req, res, next) {
+router.post('/entities', function (req, res, next) {
   if (!req.user || !req.user.username) {
-    return res.json({error: true, message: 'No user found'});
+    res.status(401).send({error: true, message: 'No user found'});
   }
 
-  var query = {name: req.body.name, email: req.body.email};
-
-  mongoEntity.find(query).exec()
-  .then(function (data) {
-    if (data.length > 0) {
-      return res.json({error: true, message: 'Document already exists'});        
-    }
-
-    var document = {
+  var saveEntityPromise = new Promise(function (resolve, reject) {
+    var entity = {
       name: req.body.name,
       email: req.body.email,
       phone: req.body.phone,
       location: req.body.location,        
       type: req.body.type
     };
-
-    if (typeof req.body.company !== 'undefined') {
-      document.company = req.body.company;
-    }
-
+  
     var onCreateDocument = function (err, document) {        
       if (err) {
-        console.log('ERROR:', err);
-        return res.json({error: true, message: err});
-      }
+        console.log('ERROR on Create:', err.message);
+        reject({error: true, code: 500, message: err.message});
+      };
 
-      return res.json({error: false, data: document});
+      resolve({error: false, data: document});
     };
-
-    var newEntity = new mongoEntity(document);
   
+    var newEntity = new mongoEntity(entity);
+
     newEntity.save(onCreateDocument);
-  })
+  });
+
+  var onFinish = function (data) {
+    res.status(200).send(data);
+  };
+
+  saveAccountPromise
+  .then(onFinish)
   .catch(function (err) {
-    console.log('ERROR:', err);
-    res.redirect('/');
-    return;
+    console.log('ERROR:', err.message);
+    res.status(err.code).send(err.message);
   });
 });
 
@@ -728,48 +730,49 @@ router.put('/entity', function (req, res, next) {
   mongoEntity.findOne(query, onUpdateDocument);
 });
 
-router.post('/account', function (req, res, next) {
+router.post('/accounts', function (req, res, next) {
   if (!req.user || !req.user.username) {
-    return res.json({error: true, message: 'No user found'});
+    res.status(401).send({error: true, message: 'No user found'});
   }
 
-  var query = {username: req.body.username};
-
-  mongoAccount.findOne(query).exec()
-  .then(function (data) {  
-    if (data !== null) {
-      return res.json({error: true, message: 'Document already exists'});
-    }
-
-    var document = {
+  var saveAccountPromise = new Promise(function (resolve, reject) {
+    var account = {
       name: req.body.name,
       username: req.body.username,
       password: Utils.createHash(''.concat('mpro-', req.body.username.split('@')[0]), Bcrypt),
       email: req.body.username,
       role: req.body.role,
-      company: req.body.branchcompany === '0' ? req.body.company : req.body.branchcompany
+      status: req.body.status,
+      company: req.body.branchCompany === undefined ? req.body.company : req.body.branchCompany
     };
-
+  
     var onCreateDocument = function (err, document) {        
       if (err) {
-        console.log('ERROR:', err);
-        return res.json({error: true, message: err});
-      }
+        console.log('ERROR on Create:', err.message);
+        reject({error: true, code: 500, message: err.message});
+      };
 
-      return res.json({error: false, data: document});
+      resolve({error: false, data: document});
     };
-
-    var newAccount = new mongoAccount(document);
+  
+    var newAccount = new mongoAccount(account);
 
     newAccount.save(onCreateDocument);
-  })
+  });
+
+  var onFinish = function (data) {
+    res.status(200).send(data);
+  };
+
+  saveAccountPromise
+  .then(onFinish)
   .catch(function (err) {
-    console.log('ERROR:', err);
-    res.redirect('/');
-    return;
+    console.log('ERROR:', err.message);
+    res.status(err.code).send(err.message);
   });
 });
 
+// TODO: Update
 router.put('/account', function (req, res, next) {
   if (!req.user || !req.user.username) {
     return res.json({error: true, message: 'No user found'});
@@ -804,122 +807,147 @@ router.put('/account', function (req, res, next) {
   mongoAccount.findOne(query, onUpdateDocument);
 });
 
-router.post('/equipmentType', function (req, res, next) {
+router.post('/equipmentTypes', function (req, res, next) {
   if (!req.user || !req.user.username) {
-    return res.json({error: true, message: 'No user found'});
+    res.status(401).send({error: true, message: 'No user found'});
   }
 
-  var query = {name: req.body.name, company: req.body.company};
-
-  mongoEquipmentType.findOne(query).exec()
-  .then(function (data) {  
-    if (data !== null) {
-      return res.json({error: true, message: 'Document already exists'});
-    }
-
-    var document = {
+  var saveEquipmentTypePromise = new Promise(function (resolve, reject) {
+    var equipmentType = {
       name: req.body.name,
       description: req.body.description,
       company: req.body.company
     };
-
+  
     var onCreateDocument = function (err, document) {        
       if (err) {
-        console.log('ERROR:', err);
-        return res.json({error: true, message: err});
-      }
+        console.log('ERROR on Create:', err.message);
+        reject({error: true, code: 500, message: err.message});
+      };
 
-      return res.json({error: false, data: document});
+      resolve({error: false, data: document});
     };
-
-    var newEquipmentType = new mongoEquipmentType(document);
+  
+    var newEquipmentType = new mongoEquipmentType(equipmentType);
 
     newEquipmentType.save(onCreateDocument);
-  })
+  });
+
+  var onFinish = function (data) {
+    res.status(200).send(data);
+  };
+
+  saveEquipmentTypePromise
+  .then(onFinish)
   .catch(function (err) {
-    console.log('ERROR:', err);
-    res.redirect('/');
-    return;
+    console.log('ERROR:', err.message);
+    res.status(err.code).send(err.message);
   });
 });
 
-router.put('/equipmentType', function (req, res, next) {
+router.get('/equipmentTypes/:equipmentType', function (req, res, next) {
   if (!req.user || !req.user.username) {
-    return res.json({error: true, message: 'No user found'});
+    res.status(401).send({error: true, message: 'No user found'});
   }
 
-  var ObjectId = Mongoose.Schema.Types.ObjectId;
-  var query = {'_id': new ObjectId(req.body._id)};			
-  var option = {upsert: true};
+  var query = {'_id': req.params.equipmentType};
 
-  var onUpdateDocument = function (err, document) {
-    if (err || !document) {
-      return res.json({error: true, message: 'Document does not exist'});
-    }
-    
-    if (typeof req.body.name !== 'undefined') {
-      document.name = req.body.name;
-    }
-
-    if (typeof req.body.description !== 'undefined') {
-      document.description = req.body.description;
-    }
-
-    if (typeof req.body.company !== 'undefined') {
-      document.company = req.body.company;
-    }
-
-    document.save();
-
-    return res.json({error: false, data: document});
-  };
-		
-  mongoEquipmentType.findOne(query, onUpdateDocument);
+  mongoEquipmentType.findOne(query).populate('company').exec()
+  .then(function (document) {
+    res.status(200).send({error: false, data: document});
+  })
+  .catch(function (err) {
+    res.status(500).send({error: true, message: 'Unexpected error was occurred'});
+  });
 });
 
-router.post('/equipment', function (req, res, next) {
+router.put('/equipmentTypes/:equipmentType', function (req, res, next) {
   if (!req.user || !req.user.username) {
-    return res.json({error: true, message: 'No user found'});
+    return res.status(401).send({error: true, message: 'No user found'});
   }
 
-  var query = {code: req.body.code};
+  var query = {'_id': req.body.equipmentType};			
+  var option = {upsert: true};
+  var setValues = {};
 
-  mongoEquipment.findOne(query).exec()
-  .then(function (data) {  
-    if (data !== null) {
-      return res.json({error: true, message: 'Document already exists'});
+  if (typeof req.body.name !== 'undefined') {
+    setValues.name = req.body.name;
+  }
+
+  if (typeof req.body.description !== 'undefined') {
+    setValues.description = req.body.description;
+  }
+
+  if (typeof req.body.company !== 'undefined') {
+    setValues.company = req.body.company;
+  }
+
+  if (typeof req.body.status !== 'undefined') {
+    setValues.status = req.body.status;
+  }
+
+  if (typeof req.body.deleted !== 'undefined') {
+    setValues.deleted = req.body.deleted;
+  }
+
+  var onUpdateDocument = function (err, document) {
+    if (err) {
+      res.status(500).send({error: true, message: 'Unexpected error was occurred'});
+    }
+    
+    if (!document) {
+      res.status(404).send({error: true, message: 'Document does not exist'});
     }
 
-    var document = {
+    res.status(200).send({error: false, data: document});
+  };
+
+  mongoEquipmentType.findOneAndUpdate(query, {$set: setValues}, option, onUpdateDocument);
+});
+
+router.post('/equipments', function (req, res, next) {
+  if (!req.user || !req.user.username) {
+    res.status(401).send({error: true, message: 'No user found'});
+  }
+
+  var saveEquipmentPromise = new Promise(function (resolve, reject) {
+    var equipment = {
       name: req.body.name,
       code: req.body.code,
       location: req.body.location,
       branchCompany: req.body.branchCompany,
-      type: req.body.type,
+      equipmentType: req.body.equipmentType,
       userAssigned: req.body.account
     };
 
     var onCreateDocument = function (err, document) {        
       if (err) {
-        console.log('ERROR:', err);
-        return res.json({error: true, message: err});
-      }
+        console.log('ERROR on Create:', err.message);
+        reject({error: true, code: 500, message: err.message});
+      };
 
-      return res.json({error: false, data: document});
+      resolve({error: false, data: document});
     };
 
-    var newEquipment = new mongoEquipment(document);
-
+    var newEquipment = new mongoEquipment(equipment);
+  
     newEquipment.save(onCreateDocument);
-  })
+  });
+
+  var onFinish = function (data) {
+    res.status(200).send(data);
+  };
+
+  saveEquipmentPromise
+  .then(onFinish)
   .catch(function (err) {
-    console.log('ERROR:', err);
-    res.redirect('/');
-    return;
+    console.log('ERROR:', err.message);
+    res.status(err.code).send(err.message);
   });
 });
 
-router.put('/equipment', function (req, res, next) {
+// TODO: Update
+router.put('/equipments', function (req, res, next) {
   if (!req.user || !req.user.username) {
     return res.json({error: true, message: 'No user found'});
   }

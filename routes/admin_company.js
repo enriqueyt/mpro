@@ -6,6 +6,8 @@ var Csrf = require('csurf');
 var Functional = require('underscore');
 var ObjectId = require('mongoose').Types.ObjectId;
 
+var Utils = require('../libs/utils');
+
 var Activities = require('./adminCompany/activities');
 
 var router = Express.Router();
@@ -15,6 +17,8 @@ var mongoEntity = Mongoose.model('entity');
 var mongoEquipmentType = Mongoose.model('equipmentType');
 var mongoEquipment = Mongoose.model('equipment');
 
+var DATE_FORMAT = 'DD/MM/YYYY';
+
 router.use(function (req, res, next) {
   res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
   req.body = JSON.parse(Sanitizer.sanitize(JSON.stringify(MongoSanitize(req.body))));
@@ -23,7 +27,7 @@ router.use(function (req, res, next) {
   next();
 });
 
-router.get('/admin_company/:identifier', function (req, res, next) {
+router.get('/adminCompany/:identifier', function (req, res, next) {
   if (!req.user) {
     req.session.loginPath = null;
     console.log('No identifier found');
@@ -67,16 +71,16 @@ router.get('/admin_company/:identifier', function (req, res, next) {
   });
 });
 
-router.get('/admin_company/:identifier/activities', Activities.getActivities);
+router.get('/adminCompany/:identifier/activities', Activities.getActivities);
 
-router.get('/admin_company/:identifier/companies', function (req, res, next) {
+router.get('/adminCompany/:identifier/companies', function (req, res, next) {
   if (!req.user) {
     req.session.loginPath = null;
     console.log('No identifier found');
     res.redirect('/login');
   }
 
-  if (req.user.role !== 'admin_company') {
+  if (req.user.role !== 'adminCompany') {
     var message = 'Just for main administrators';
     throw new Error(message);
     return;
@@ -104,7 +108,7 @@ router.get('/admin_company/:identifier/companies', function (req, res, next) {
 
   var onFetchBranchCompanies = function (user) {
     var promise = new Promise(function (resolve, reject) {
-      var query = {type: 'branch_company', company: new ObjectId(user.company._id)};
+      var query = {type: 'branchCompany', company: new ObjectId(user.company._id)};
 
       mongoEntity.find(query).exec()
       .then(function (branchCompanies) {
@@ -137,7 +141,7 @@ router.get('/admin_company/:identifier/companies', function (req, res, next) {
   });
 });
 
-router.get('/admin_company/:identifier/users', function (req, res, next) {
+router.get('/adminCompany/:identifier/users', function (req, res, next) {
   if (!req.user) {
     req.session.loginPath = null;
     console.log('No identifier');
@@ -166,7 +170,7 @@ router.get('/admin_company/:identifier/users', function (req, res, next) {
   
   var onFetchBranchCompanies = function (user) {
     var promise = new Promise(function (resolve, reject) {
-      var query = {type: 'branch_company', company: new ObjectId(user.company._id)} 
+      var query = {type: 'branchCompany', company: new ObjectId(user.company._id)} 
     
       mongoEntity.find(query).exec()
       .then(function (branchCompanies) {
@@ -190,8 +194,14 @@ router.get('/admin_company/:identifier/users', function (req, res, next) {
     var promise = new Promise(function (resolve, reject) {
       var query = {company: {$in: branchCompanyIds}};
 
-      mongoAccount.find(query).populate('company').exec()
+      mongoAccount.find(query).populate('company').lean().exec()
       .then(function (accounts) {
+        accounts = Functional.map(accounts, function (account) {
+          account.date = Utils.formatDate(account.date, DATE_FORMAT);
+          account.roleValue = mongoAccount.getRoleValue(account.role);
+          return account;
+        });
+
         data.push(accounts);
         resolve(data);
       })
@@ -206,7 +216,7 @@ router.get('/admin_company/:identifier/users', function (req, res, next) {
   var onRender = function (data) {
     var roleEnumValues = mongoAccount.schema.path('role').enumValues;
     var roles = Functional.filter(roleEnumValues, function (roleEnumValue) {
-      return roleEnumValue !== 'admin' && roleEnumValue !== 'admin_company';
+      return roleEnumValue !== 'admin' && roleEnumValue !== 'adminCompany';
     });
 
     return res.render('pages/account/account_admin_company', {
@@ -230,7 +240,7 @@ router.get('/admin_company/:identifier/users', function (req, res, next) {
   });
 });
 
-router.get('/admin_company/:identifier/equipments', function (req, res, next) {
+router.get('/adminCompany/:identifier/equipments', function (req, res, next) {
   if (!req.user) {
     req.session.loginPath = null;
     console.log('No identifier');
@@ -275,7 +285,7 @@ router.get('/admin_company/:identifier/equipments', function (req, res, next) {
 
   var onFetchBranchCompanies = function (data) {
     var promise = new Promise(function (resolve, reject) {
-      var query = {type: 'branch_company', company: new ObjectId(data[0].company._id)} 
+      var query = {type: 'branchCompany', company: new ObjectId(data[0].company._id)} 
     
       mongoEntity.find(query).exec()
       .then(function (branchCompanies) {

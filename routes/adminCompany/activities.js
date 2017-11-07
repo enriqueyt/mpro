@@ -18,7 +18,7 @@ exports.getActivities = function (req, res, next) {
     res.redirect('/login');
   }
 
-  if (req.user.role !== 'admin_company') {
+  if (req.user.role !== 'adminCompany') {
     var message = 'Just for main administrators';
     throw new Error(message);
     return;

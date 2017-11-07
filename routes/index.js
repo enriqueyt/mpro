@@ -68,7 +68,7 @@ router.get('/home/:identifier/companies/:id', function (req, res, next) {
 
   var onFetchBranchCompanies = function (data) {
     var promise = new Promise(function (resolve, reject) {
-      var query = {type: 'branch_company', company: new ObjectId(data[0]._id)};
+      var query = {type: 'branchCompany', company: new ObjectId(data[0]._id)};
       
       mongoEntity.find(query).exec()
       .then(function (branchCompanies) {
@@ -136,7 +136,7 @@ router.get('/home/:identifier/branchCompanies/:id', function (req, res, next) {
   }
 
   var branchCompanyPromise = new Promise(function (resolve, reject) {
-    var query = {_id: req.params.id, type: 'branch_company' };
+    var query = {_id: req.params.id, type: 'branchCompany' };
   
     mongoEntity.findOne(query).exec()
     .then(function (branchCompany) {
@@ -238,11 +238,12 @@ router.get('/equipmentsByEquipmentType/:equipmentType', function (req, res, next
 
 router.get('/branchCompaniesByCompany/:company', function (req, res, next) {
   var branchCompaniesPromise = new Promise(function (resolve, reject) {
-    var query = {type: 'branch_company', company: new ObjectId(req.params.company)};
+    var query = {type: 'branchCompany', company: new ObjectId(req.params.company)};
     var select = '_id name';
 
     mongoEntity.find(query, select).populate('company').exec()
     .then(function (branchCompanies) {
+      console.log(branchCompanies)
       resolve(branchCompanies);
     })
     .catch(function (err) {
@@ -284,7 +285,7 @@ router.get('/equipmentTypesByCompany/:company', function (req, res, next) {
 
 router.get('/techniciansByCompany/:company', function (req, res, next) {
   var branchCompaniesPromise = new Promise(function (resolve, reject) {
-    var query = {type: 'branch_company', company: new ObjectId(req.params.company)};
+    var query = {type: 'branchCompany', company: new ObjectId(req.params.company)};
 
     mongoEntity.find(query).exec()
     .then(function (branchCompanies) {
@@ -350,7 +351,7 @@ router.get('/techniciansByBranchCompany/:branchCompany', function (req, res, nex
   });
 });
 
-router.get('/account/:identifier', function (req, res, next) {
+router.get('/accounts/:identifier', function (req, res, next) {
   if (!req.user) {
     req.session.loginPath = null;
     console.log('no identifier');
