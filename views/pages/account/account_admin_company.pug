@@ -94,7 +94,7 @@ block content-mpro
                 select.form-control(id="role", name="role", required="true")
                   option Seleccione
                   each role in roles
-                    option(value=role) #{role}
+                    option(value=role.id) #{role.value}
             input.form-control(type="hidden", name="company", value=currentAccount.company._id)
             .form-group.row
               label.col-3.col-form-label(for="branchCompany") Sucursal
