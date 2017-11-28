@@ -3,136 +3,209 @@ var moment = require('moment');
 var ObjectId = Mongoose.Schema.Types.ObjectId;
 var logModel = Mongoose.model('log');
 var accountModel = Mongoose.model('account');
+var entityModel = Mongoose.model('entity');
 var _ = require('underscore');
 var log = {};
 
-log.debug = function(obj, done){
-    obj.level='debug';
-    onCreateLog(obj)
-    .then(done)
-    .catch(done);
+log.debug = function(obj){
+    return leaveLog('debug', obj);
 };
 
-log.info = function(obj, done){
-    obj.level='info';
-    onCreateLog(obj)
-    .then(function(data){
-        done(data);
-    });
+log.info = function(obj){
+    return leaveLog('info', obj);
 };
 
-log.error = function(obj, done){
-    obj.level='error';
-    onCreateLog(obj)
-    .then(function(data){
-        done(data);
+log.error = function(obj){
+    return leaveLog('error', obj);
+};
+
+var leaveLog = function(type, obj){
+    return new Promise(function(resolve, reject){
+        obj.level=type;
+        onCreateLog(obj).then(resolve).catch(reject);
     });
 };
 
 log.getLogs = function(total, skip){
-    
-    var accountPromise = new Promise(function(reject, resolve){
-        var query = {company:new ObjectId(user.company)};
-        accountModel
-            .find(query, {_id:1})
-            .then(function(accounts){
-                resolve(accounts);
+
+    var accountByCompanyPromise = function(user){
+        return new Promise(function(resolve, reject){
+            var query = {company:user.company._id};
+                          
+            accountModel
+                .find(query)
+                .then(function(data){
+                    resolve(data)
+                })
+                .catch(reject);
+        });
+    };
+
+    var branchEntityByEntity = function(user){
+        return new Promise(function(resolve, reject){
+            var query = {company:user.company._id};         
+            entityModel
+                .find(query)
+                .then(function(data){            
+                    var arr=[];
+                    data.forEach(function(v,k){
+                        arr.push(v._id);
+                    });
+                    resolve([arr, user]);
+                })
+                .catch(reject);
+        });
+    };
+
+    var accountsByBranchCompany = function(obj){
+        return new Promise(function(resolve, reject){
+            var query = [{ 
+                $match : {
+                    'company' : { $in:obj[0] }
+                }
+            }];
+
+            accountModel
+                .aggregate(query)
+                .exec()
+                .then(function(data){
+                    resolve([data, obj[1]])
+                })
+                .catch(reject);
+        });
+    };
+
+    var getLogsByUsersId = function(ids){
+        return new Promise(function(resolve, reject){
+
+            var users = ids.map(function(o){return Mongoose.Types.ObjectId(o._id);});
+            
+            var query = {user: {$in: users}};
+
+            logModel.find(query).exec()
+            .then(function(data){
+                resolve(data);
             })
             .catch(function(err){
-                reject(err);
+                reject(data);
             });
-    });
+        });
+    };
 
-    var getLogBySingleUser = function(user){
+    var accountsByCompany = function(data){
+        return new Promise(function(resolve, reject){
+            accountByCompanyPromise(data[1])
+            .then(getArrQuery)
+            .then(getLogsByUsersId)
+            .then(function(data){
+                console.log('accountsByCompany - accountByCompanyPromise - getLogsByUsersId')
+                console.log(data.length)
+                return resolve(data);
+            })
+            .catch(reject);
+        });
+
+        var getArrQuery = function(data){
+            return new Promise(function(resolve, reject){
+                var arr=[], aux=[];
+                
+                if(accounts.length>0){
+                    aux=accounts.concat(data[0]);
+                    aux.forEach(function(account){
+                        if(account){
+                            arr.push(account._id);
+                        }
+                    }, this);
+                    return resolve(arr);
+                }
+                return reject([]);
+            });
+        }
+    };
+
+    var onFetchLogBySingleUser = function(user){
         return new Promise(function(resolve, reject){
             var query = {user:user._id};
             logModel
                 .find(query)
                 .sort({date:-1})
                 .exec()
-                .then(function(logs){
-                    resolve(logs);
-                })
-                .catch(function(err){
-                    reject(err);
-                });
+                .then(resolve)
+                .catch(reject);
         });
     };
 
-    var getLogsByUsersId = function(ids){
-        return new Promise(function(reject, resolve){
-            var query = [{ 
-				$match : {
-					'_id' :{$in:ids}
-				}
-			}];
-            
+    var onFilterLogsByBranchCompany = function(user){
+        return new Promise(function(resolve, reject){
+            accountByCompanyPromise(user)            
+            .then(function(accounts){
+                var arr=[];
+                accounts.forEach(function(account){
+                    if(account){
+                        arr.push(account._id);
+                    }
+                }, this);
+                getLogsByUsersId(arr)
+                .then(function(data){
+                    resolve(data);
+                });
+            })
+            .catch(function(err){
+                reject(err);
+            });
+        });
+    };
+
+    var onFilterLogsByCompany = function(user){
+        return new Promise(function(resolve, reject){
+            branchEntityByEntity(user)
+            .then(accountsByBranchCompany)
+            .then(accountsByCompany)
+            .then(function(data){
+                return resolve(data);
+            })
+            .catch(function(data){
+                return reject(data);
+            });
+        });
+    };
+
+    var onFetchAllLogs = function(){
+        return new Promise(function(resolve, reject){
             logModel
-                .aggregate(query)
-                .exec()
-                .then(function(logs){
-                    resolve(logs);
-                })
-                .catch(function(err){
-                    reject(err);
-                });
-
+            .find({})
+            .sort({date:-1})
+            .exec()
+            .then(function(logs){
+                resolve(logs);
+            })
+            .catch(function(err){
+                reject(err);
+            });
         });
     };
 
-    var getLogByBranchCompany = function(){
-        
-        return new Promise(function(reject, resolve){
-            accountPromise
-                .then(function(accounts){
-                    var arr=[];
-                    accounts.forEach(function(account) {
-                        if(account)
-                            arr.push(account._id);
-                    }, this);
-                    getLogsByUsersId(arr).then(resolve);
-                })
-                .catch(function(err){
-                    reject(err);
-                });
+    var onFetchByRole = function(user){
+        return new Promise(function(resolve, reject){
+            switch(user.role){
+                case 'admin':
+                    onFetchAllLogs().then(resolve).catch(reject);
+                    break;
+                case 'admin_company':
+                    onFilterLogsByCompany(user).then(resolve).catch(reject);
+                    break;
+                case 'admin_branch_company':
+                    onFilterLogsByBranchCompany(user).then(resolve).catch(reject);
+                    break;
+                case 'technical':
+                    onFetchLogBySingleUser(user).then(resolve).catch(reject);
+                    break;
+            };
         });
-
-    };
-
-    var getLogsByCompany = function(){
-        return new Promise(function(reject, resolve){
-            accountPromise
-                .then(function(accounts){
-                    var companyIds = _.groupBy(accounts, function(account){
-                        return account.company;
-                    });
-                    console.log(companyIds);
-                })
-                .catch(function(err){
-                    reject(err);
-                });
-        });
-    };
-
-    var getLogsByRole = function(user, done){
-        switch(user.role){
-            case 'admin':
-                break;
-            case 'admin_company':
-                break;
-            case 'admin_branch_company':
-                getLogByBranchCompany(user).then(done);
-                break;
-            case 'technical':
-                getLogBySingleUser(user).then(done);
-                break;
-        };
     };
 
     return {
-        getLogBySingleUser: getLogBySingleUser,
-        getLogByBranchCompany: getLogByBranchCompany,
-        getLogsByCompany: getLogsByCompany
+        onFetchByRole:onFetchByRole
     }
 };
 

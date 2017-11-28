@@ -4,20 +4,20 @@ block content-mpro
   .container-fluid
     .row
       .col-md-12
-        .row.dashboard-nav-row
+        .row#headerNav.dashboard-nav-row
           .col-md-3
             a(href="/"+user.role)
-              h5 Actividades
+              | Actividades
           .col-md-3
             a(href="/"+user.role+"/companies")
-              h5 Empresas
+              | Empresas
           .col-md-3.nav-active
             a(href="/"+user.role+"/users")
-              h5 Usuarios
+              | Usuarios
           .col-md-3
             a(href="/"+user.role+"/equipments")
-              h5 Equipos
-        .row.company-nav-row
+              | Equipos
+        .row.company-nav-row.container-fluid
           .col-md-12
             .btn-group
               button#addAccount.btn.btn-primary(type="button", data-toggle="addAccountModal", style="cursor:pointer; background-color:rgb(0,155,219)") Agregar Usuario 
@@ -45,7 +45,7 @@ block content-mpro
                     td=account.username
                     td=account.email
                     td=account.role
-                    if account.role=="admin"
+                    if account.role=="admin" 
                       td
                       td
                     else if account.role=="admin_company"

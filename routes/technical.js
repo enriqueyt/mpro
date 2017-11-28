@@ -12,6 +12,7 @@ var mongoEquipmentType = Mongoose.model('equipmentType');
 var mongoEquipment = Mongoose.model('equipment');
 
 var sessionHandle = require('../libs/sessionHandle');
+var Log = require('../libs/log');
 
 router.use(function (req, res, next) {
   res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
@@ -21,7 +22,7 @@ router.use(function (req, res, next) {
   next();
 });
 
-router.get('/technical', sessionHandle.isLoogged, function (req, res, next) { 
+router.get('/technical', sessionHandle.isLogged, function (req, res, next) { 
   if (!req.user) {
     console.log('No identifier');
     res.redirect('/login');
@@ -70,16 +71,29 @@ router.get('/technical', sessionHandle.isLoogged, function (req, res, next) {
     });
   });
 
+  var onFetchActivities = function(user){
+    return new Promise(function(resolve, reject){
+      Log.getLogs(10,0).onFetchByRole(user)
+      .then(function(data){
+        resolve({user:user,activity:data});
+      })
+      .catch(reject);
+
+    });
+  };
+
   var onRender = function (data) {
     var tempuser = req.user||{};
     req.user={};
     return res.render('pages/dashboard/dashboard_technician', {
       user: tempuser,
-      currentAccount: data
+      currentAccount: data.user,
+      activity:data.activity
     });
   };
   
   accountPromise
+  .then(onFetchActivities)
   .then(onRender)
   .catch(function (err) {
     console.log('Error:', err);
@@ -88,7 +102,7 @@ router.get('/technical', sessionHandle.isLoogged, function (req, res, next) {
   });
 });
 
-router.get('/technical/equipments', sessionHandle.isLoogged, function (req, res, next) {
+router.get('/technical/equipments', sessionHandle.isLogged, function (req, res, next) {
   if (!req.user) {
     console.log('No identifier');
     res.redirect('/login');

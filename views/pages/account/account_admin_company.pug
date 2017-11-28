@@ -4,26 +4,26 @@ block content-mpro
   .container-fluid
     .row
       .col-md-12
-        .row.dashboard-nav-row
+        .row#headerNav.dashboard-nav-row
           .col-md-3
             a(href="/"+user.role)
-              h5 Actividades
+              | Actividades
           .col-md-3
             a(href="/"+user.role+"/companies")
-              h5 Sucursales
+              | Sucursales
           .col-md-3.nav-active
             a(href="/"+user.role+"/users")
-              h5 Usuarios
+              | Usuarios
           .col-md-3
             a(href="/"+user.role+"/equipments")
-              h5 Equipos
+              | Equipos
         .row.information-company
           .col-md-12
             span Empresa a la que colabora 
             h4(style="display:inline-block") <b>#{currentAccount.company.name}</b>
           .col-md-12
             p 
-        .row.company-nav-row
+        .row.company-nav-row.container-fluid
           .col-md-12
             .btn-group
               button#addAccount.btn.btn-primary(type="button", data-toggle="addAccountModal", style="cursor:pointer; background-color:rgb(0,155,219)") Agregar Usuario 

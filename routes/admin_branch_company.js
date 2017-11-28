@@ -13,6 +13,7 @@ var mongoEquipmentType = Mongoose.model('equipmentType');
 var mongoEquipment = Mongoose.model('equipment');
 
 var sessionHandle = require('../libs/sessionHandle');
+var Log = require('../libs/log');
 
 router.use(function (req, res, next) {
   res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
@@ -22,7 +23,7 @@ router.use(function (req, res, next) {
   next();
 });
 
-router.get('/admin_branch_company', sessionHandle.isLoogged, function (req, res, next) {
+router.get('/admin_branch_company', sessionHandle.isLogged, function (req, res, next) {
   if (!req.user) {
     console.log('No identifier');
     res.redirect('/login');
@@ -70,17 +71,30 @@ router.get('/admin_branch_company', sessionHandle.isLoogged, function (req, res,
       reject(err);
     });
   });
+
+  var onFetchActivities = function(user){
+    return new Promise(function(resolve, reject){
+      Log.getLogs(10,0).onFetchByRole(user)
+      .then(function(data){
+        resolve({user:user,activity:data});
+      })
+      .catch(reject);
+
+    });
+  };
   
   var onRender = function (data) {
     var tempuser = req.user||{};
     req.user={};
     return res.render('pages/dashboard/dashboard_admin_branch_company', {
       user: tempuser,
-      currentAccount: data
+      currentAccount: data.user,
+      activity:data.activity
     });
   };
 
   accountPromise
+  .then(onFetchActivities)
   .then(onRender)
   .catch(function (err) {
     console.log('Error:', err);
@@ -89,7 +103,7 @@ router.get('/admin_branch_company', sessionHandle.isLoogged, function (req, res,
   });
 });
 
-router.get('/admin_branch_company/users', sessionHandle.isLoogged, function (req, res, next) {
+router.get('/admin_branch_company/users', sessionHandle.isLogged, function (req, res, next) {
   if (!req.user) {
     console.log('No identifier');
     res.redirect('/login');
@@ -179,7 +193,7 @@ router.get('/admin_branch_company/users', sessionHandle.isLoogged, function (req
   });
 });
 
-router.get('/admin_branch_company/equipments', sessionHandle.isLoogged, function (req, res, next) {
+router.get('/admin_branch_company/equipments', sessionHandle.isLogged, function (req, res, next) {
   if (!req.user) {
     console.log('No identifier');
     res.redirect('/login');

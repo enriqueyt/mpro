@@ -24,43 +24,57 @@ router.use(function (req, res, next) {
   next();
 });
 
-router.get('/admin_company', sessionHandle.isLoogged, function (req, res, next) {
+router.get('/admin_company', sessionHandle.isLogged, function (req, res, next) {
+
   if (!req.user) {
     console.log('No identifier');
     res.redirect('/login');
   }
 
-  var accountPromise = new Promise(function (resolve, reject) {
-    var identifier = req.params.identifier || req.user.identifier;
-    var role = req.params.role || req.user.role;
-    var query = {'identifier': identifier, 'role': role};
-    
-    mongoAccount.findOne(query).populate('company').exec()
-    .then(function (user) {    
-      if (!user || user.length === 0) {
-        var message = 'No user found';
-        reject(new Error(message));
-      }
-      else {
-        resolve(user);
-      }
-    })
-    .catch(function (err) {
-      reject(err);
+  var accountPromise = function(user){
+        return new Promise(function (resolve, reject) {
+      var identifier = user.identifier;
+      var role = user.role;
+      var query = {'identifier': identifier, 'role': role};
+
+      mongoAccount.findOne(query)
+        .populate({
+          path:'company',
+          Model:'entity',
+          populate:{
+            path:'company',
+            Model:'entity'
+          }
+        })
+        .exec()
+        .then(resolve)
+        .catch(reject);
     });
-  });
+  };
+
+  var onFetchActivities = function(user){
+    return new Promise(function(resolve, reject){
+      Log.getLogs(10,0).onFetchByRole(user)
+      .then(function(data){
+        resolve({user:user,activity:data});
+      })
+      .catch(reject);
+
+    });
+  };
 
   var onRender = function (data) {
     var tempuser = req.user;
     req.user={};
     return res.render('pages/dashboard/dashboard_admin_company', {
       user: tempuser || {},
-      //csrfToken: req.csrfToken(),
-      currentAccount: data   
+      currentAccount: data.user,
+      activity:data.activity
     });
   };
 
-  accountPromise
+  accountPromise(req.user)
+  .then(onFetchActivities)
   .then(onRender)
   .catch(function (err) {
     console.log('ERROR:', err);
@@ -69,7 +83,7 @@ router.get('/admin_company', sessionHandle.isLoogged, function (req, res, next) 
   });
 });
 
-router.get('/admin_company/companies', sessionHandle.isLoogged, function (req, res, next) {
+router.get('/admin_company/companies', sessionHandle.isLogged, function (req, res, next) {
   if (!req.user) {
     console.log('No identifier');
     res.redirect('/login');
@@ -138,7 +152,7 @@ router.get('/admin_company/companies', sessionHandle.isLoogged, function (req, r
   });
 });
 
-router.get('/admin_company/users', sessionHandle.isLoogged, function (req, res, next) {
+router.get('/admin_company/users', sessionHandle.isLogged, function (req, res, next) {
   if (!req.user) {
     req.session.loginPath = null;
     console.log('No identifier');
@@ -233,7 +247,7 @@ router.get('/admin_company/users', sessionHandle.isLoogged, function (req, res, 
   });
 });
 
-router.get('/admin_company/equipments', sessionHandle.isLoogged, function (req, res, next) {
+router.get('/admin_company/equipments', sessionHandle.isLogged, function (req, res, next) {
   if (!req.user) {
     req.session.loginPath = null;
     console.log('No identifier');

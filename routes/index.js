@@ -13,6 +13,7 @@ var mongoEntity = Mongoose.model('entity');
 var mongoEquipmentType = Mongoose.model('equipmentType');
 
 var sessionHandle = require('../libs/sessionHandle');
+var Log = require('../libs/log');
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
@@ -35,7 +36,7 @@ router.get('/', function (req, res, next) {
   }
 });
 
-router.get('/home/company/:id', sessionHandle.isLoogged, function (req, res, next) {
+router.get('/home/company/:id', sessionHandle.isLogged, function (req, res, next) {
   if (!req.user) {
     req.session.loginPath = null;
     console.log('No identifier');
@@ -43,9 +44,15 @@ router.get('/home/company/:id', sessionHandle.isLoogged, function (req, res, nex
   }
 
   var companyPromise = new Promise(function (resolve, reject) {
-    var query = {_id: req.params.id, type: 'company'};
 
-    mongoEntity.findOne(query).exec()
+    var query = {_id:req.params.id, type: 'company'}; 
+
+    mongoEntity.find(query)
+    .populate({
+      path:'company',
+      Model:'entity'
+    })
+    .exec()
     .then(function (company) {
       if (!company || company.length === 0) {
         var message = 'No company found';
@@ -57,9 +64,25 @@ router.get('/home/company/:id', sessionHandle.isLoogged, function (req, res, nex
         if (req.user.role === 'admin') {
           identifiers.push(company._id);
         }
-
         resolve([company, identifiers]);
       }
+    })
+    .catch(function (err) {
+      reject(err);
+    });
+  });
+
+  var companiesForAdminPromise = new Promise(function (resolve, reject) {
+    var query = {type: 'company'};
+
+    mongoEntity.find(query)
+    .populate({
+      path:'company',
+      Model:'entity'
+    })
+    .exec()
+    .then(function (companies) {
+      resolve(companies.slice());
     })
     .catch(function (err) {
       reject(err);
@@ -108,9 +131,10 @@ router.get('/home/company/:id', sessionHandle.isLoogged, function (req, res, nex
     return promise;
   }
 
-  var onRender = function (data) {
+  var onRender = function (data) {    
     return res.render('pages/entity', {
       user: req.user || {},
+      currentAccount:req.user,
       entity: data[0] || [],
       entitiesRelated: data[2] || [],
       accounts: data[3]
@@ -128,7 +152,7 @@ router.get('/home/company/:id', sessionHandle.isLoogged, function (req, res, nex
   });
 });
 
-router.get('/home/branch_company/:id', sessionHandle.isLoogged, function (req, res, next) {
+router.get('/home/branch_company/:id', sessionHandle.isLogged, function (req, res, next) {
   if (!req.user) {
     req.session.loginPath = null;
     console.log('No identifier');
@@ -171,12 +195,34 @@ router.get('/home/branch_company/:id', sessionHandle.isLoogged, function (req, r
     return promise;
   };
 
+  var onFetchBranch
+
   var onRender = function (data) {
+    var roleEnumValues = mongoAccount.schema.path('role').enumValues;
+
+    var roles = Functional.filter(roleEnumValues, function (roleEnumValue) {
+      if(req.user.role=='admin'){
+        return roleEnumValue;
+      }
+      else if(req.user.role=='admin_company'){
+        return roleEnumValue !== 'admin' && roleEnumValue !== 'admin_company';
+      }
+      else if(req.user.role=='admin_branch_company'){
+        return roleEnumValue !== 'admin' && roleEnumValue !== 'admin_company' && roleEnumValue !== 'admin_branch_company';
+      }
+      else{
+        return req.user.role==roleEnumValue;
+      }
+    });
+
     return res.render('pages/entity', {
       user: req.user || {},
       entity: data[0] || [],
       entitiesRelated: [],
-      accounts: data[1]
+      accounts: data[1],
+      currentAccount: req.user,
+      roles:roles,
+      branchCompanies:[req.user.company]
     });
   };
 
@@ -300,7 +346,7 @@ router.get('/get-technicians-by-branch-company/:branchCompany', function (req, r
   });
 });
 
-router.get('/account', sessionHandle.isLoogged, function (req, res, next) {
+router.get('/account', sessionHandle.isLogged, function (req, res, next) {
   if (!req.user) {
     req.session.loginPath = null;
     console.log('no identifier');

@@ -25,8 +25,8 @@ router.use(function (req, res, next) {
   next();
 });
 
-router.get('/admin', sessionHandle.isLoogged, function(req, res, next) {
-
+router.get('/admin', sessionHandle.isLogged, function(req, res, next) {
+  
   if (!req.user) {
     console.log('no identifier');
     res.redirect('/login');
@@ -52,17 +52,15 @@ router.get('/admin', sessionHandle.isLoogged, function(req, res, next) {
     });
   });
 
-  var getActitivity = function(user){
+  var onFetchActivities = function(user){
+    
     return new Promise(function(resolve, reject){
-      Log
-      .getLogs(10,0)
-      .getLogBySingleUser(user)
+      Log.getLogs(10,0).onFetchByRole(user)
       .then(function(data){
         resolve({user:user,activity:data});
       })
-      .catch(function(err){
-        reject({error:true, message:err});
-      });
+      .catch(reject);
+
     });
   };
 
@@ -77,7 +75,7 @@ router.get('/admin', sessionHandle.isLoogged, function(req, res, next) {
   };
 
   accountPromise
-  .then(getActitivity)
+  .then(onFetchActivities)
   .then(onRender)
   .catch(function (err) {
     console.log('ERROR:', err);
@@ -86,10 +84,10 @@ router.get('/admin', sessionHandle.isLoogged, function(req, res, next) {
   });
 });
 
-router.get('/admin/admin-activity-block', sessionHandle.isLoogged, function (req, res, next) {
+router.get('/admin/admin-activity-block', sessionHandle.isLogged, function (req, res, next) {
 });
 
-router.get('/admin/companies', sessionHandle.isLoogged, function (req, res, next) {
+router.get('/admin/companies', sessionHandle.isLogged, function (req, res, next) {
   if (!req.user) {
     console.log('No identifier found');
     res.redirect('/login');
@@ -144,7 +142,7 @@ router.get('/admin/companies', sessionHandle.isLoogged, function (req, res, next
   });
 });
 
-router.get('/admin/users', sessionHandle.isLoogged, function (req, res, next) {
+router.get('/admin/users', sessionHandle.isLogged, function (req, res, next) {
   if (!req.user) {
     console.log('No identifier');
     res.redirect('/login');
@@ -178,7 +176,12 @@ router.get('/admin/users', sessionHandle.isLoogged, function (req, res, next) {
   var companiesPromise = new Promise(function (resolve, reject) {
     var query = {type: 'company'};
 
-    mongoEntity.find(query).exec()
+    mongoEntity.find(query)
+    .populate({
+      path:'company',
+      Model:'entity'
+    })
+    .exec()
     .then(function (companies) {
       resolve(companies.slice());
     })
@@ -190,7 +193,17 @@ router.get('/admin/users', sessionHandle.isLoogged, function (req, res, next) {
   var accountsPromise = new Promise(function (resolve, reject) {
     var query = {};
 
-    mongoAccount.find(query).populate('company').exec()
+    mongoAccount
+    .find(query)
+    .populate({
+      path:'company',
+      Model:'entity',
+      populate:{
+        path:'company',
+        Model:'entity'
+      }
+    })
+    .exec()
     .then(function (users) {
       if (!users || users.length === 0) {
         var message = 'No user found';
@@ -246,7 +259,7 @@ router.get('/admin/users', sessionHandle.isLoogged, function (req, res, next) {
   });
 });
 
-router.get('/admin/equipments', sessionHandle.isLoogged, function (req, res, next) {
+router.get('/admin/equipments', sessionHandle.isLogged, function (req, res, next) {
   if (!req.user) {
     console.log('No identifier');
     res.redirect('/login');
@@ -342,7 +355,7 @@ router.get('/admin/equipments', sessionHandle.isLoogged, function (req, res, nex
   });
 });
 
-router.post('/entity', sessionHandle.isLoogged, function (req, res, next) {
+router.post('/entity', sessionHandle.isLogged, function (req, res, next) {
   if (!req.user || !req.user.username) {
     return res.json({error: true, message: 'No user found'});
   }
@@ -398,13 +411,13 @@ router.post('/entity', sessionHandle.isLoogged, function (req, res, next) {
   });
 });
 
-router.put('/entity', sessionHandle.isLoogged, function (req, res, next) {
+router.put('/entity', sessionHandle.isLogged, function (req, res, next) {
   if (!req.user || !req.user.username) {
     return res.json({error: true, message: 'No user found'});
   }
 
   var ObjectId = Mongoose.Schema.Types.ObjectId;
-  var query = {'_id' : new ObjectId(req.body._id)};			
+  var query = {'_id' : req.body._id};
   var option = {upsert: true};
 		
   var onUpdateDocument = function (err, document) {
@@ -441,13 +454,13 @@ router.put('/entity', sessionHandle.isLoogged, function (req, res, next) {
       model: document
     });
 
-    return res.json({error: false, data: document});
+    return res.json({error: false, data: req.body});
   };
 
-  mongoEntity.findOne(query, onUpdateDocument);
+  mongoEntity.findOne(query, option, onUpdateDocument);
 });
 
-router.post('/account', sessionHandle.isLoogged, function (req, res, next) {
+router.post('/account', sessionHandle.isLogged, function (req, res, next) {
   if (!req.user) {
     return res.json({error: true, message: 'No user found'});
   }
@@ -501,7 +514,7 @@ router.post('/account', sessionHandle.isLoogged, function (req, res, next) {
   });
 });
 
-router.put('/account', sessionHandle.isLoogged, function (req, res, next) {
+router.put('/account', sessionHandle.isLogged, function (req, res, next) {
   if (!req.user || !req.user.username) {
     return res.json({error: true, message: 'No user found'});
   }
@@ -542,7 +555,7 @@ router.put('/account', sessionHandle.isLoogged, function (req, res, next) {
   mongoAccount.findOne(query, onUpdateDocument);
 });
 
-router.post('/equipmentType', sessionHandle.isLoogged, function (req, res, next) {
+router.post('/equipmentType', sessionHandle.isLogged, function (req, res, next) {
   if (!req.user || !req.user.username) {
     return res.json({error: true, message: 'No user found'});
   }
@@ -592,7 +605,7 @@ router.post('/equipmentType', sessionHandle.isLoogged, function (req, res, next)
   });
 });
 
-router.put('/equipmentType', sessionHandle.isLoogged, function (req, res, next) {
+router.put('/equipmentType', sessionHandle.isLogged, function (req, res, next) {
   if (!req.user || !req.user.username) {
     return res.json({error: true, message: 'No user found'});
   }
@@ -633,7 +646,7 @@ router.put('/equipmentType', sessionHandle.isLoogged, function (req, res, next) 
   mongoEquipmentType.findOne(query, onUpdateDocument);
 });
 
-router.post('/equipment', sessionHandle.isLoogged, function (req, res, next) {
+router.post('/equipment', sessionHandle.isLogged, function (req, res, next) {
   if (!req.user || !req.user.username) {
     return res.json({error: true, message: 'No user found'});
   }
@@ -686,7 +699,7 @@ router.post('/equipment', sessionHandle.isLoogged, function (req, res, next) {
   });
 });
 
-router.put('/equipment', sessionHandle.isLoogged, function (req, res, next) {
+router.put('/equipment', sessionHandle.isLogged, function (req, res, next) {
   if (!req.user || !req.user.username) {
     return res.json({error: true, message: 'No user found'});
   }

@@ -40,19 +40,25 @@ module.exports = function (passport) {
         return res.redirect('/login/failed-login');
       }
       var account = data.data;
-
-      sessionHandle
-      .createSession(account, function(err, data){
-        req.session._id=data.session;
+      
+      var newSession = sessionHandle.createSession(account);
+      
+      newSession
+      .then(function(data){
+        req.session._id=data[1].session;
         var obj={
-          text: 'Inicio de sesion! '.concat('El Usuario ', account.name, ' inicio de sesion ', data.session),
+          text: 'Inicio de sesion! '.concat('El Usuario ', account.name, ' inicio de sesion ', data[1].session),
           type:'create_session',
           user: account._id,
-          model: JSON.stringify(data)
+          model: JSON.stringify(data[1])
         };
-        Log.debug(obj, function(o){
+        Log.debug(obj)
+        .then(function(data){
           return res.redirect('/'.concat(account.role));
         });     
+      })
+      .catch(function(err){
+        console.log(err)
       });
 
     })(req, res, next);
@@ -75,7 +81,7 @@ module.exports = function (passport) {
     }
   });
 
-  Router.get('/logout', sessionHandle.isLoogged, function (req, res) {
+  Router.get('/logout', sessionHandle.isLogged, function (req, res) {
     
     var endSession = function(data){
       if(!data){
@@ -100,7 +106,8 @@ module.exports = function (passport) {
     req.body = {
       name: req.params.email.split('@')[0],
       email: req.params.email,
-      role: 'admin'
+      role: 'admin',
+      image:'https://octodex.github.com/images/octobiwan.jpg"'
     };
 
     var user = {
