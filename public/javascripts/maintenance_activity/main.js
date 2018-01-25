@@ -78,6 +78,8 @@ function searchMaintenanceActivity(identifier) {
     
     return false;
   });
+
+  return false;
 }
 
 function updateMaintenanceActivity(action, data, onSuccess, onFailure) {

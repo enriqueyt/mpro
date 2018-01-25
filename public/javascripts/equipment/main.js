@@ -66,7 +66,7 @@ function searchEquipmentType(identifier) {
   });
 }
 
-function updateEquipmentType(action, data, onSuccess, onFailure) {
+function updateRequest(action, data, onSuccess, onFailure) {
   $.ajax({
     url: action,
     method: 'PUT',
@@ -96,7 +96,7 @@ function deleteEquipmentType(identifier) {
     return false;
   };
 
-  updateEquipmentType(action, data, onSuccess, onFailure);
+  updateRequest(action, data, onSuccess, onFailure);
 
   return false;
 }
@@ -117,7 +117,92 @@ function restoreEquipmentType(identifier) {
     return false;
   };
 
-  updateEquipmentType(action, data, onSuccess, onFailure);
+  updateRequest(action, data, onSuccess, onFailure);
+
+  return false;
+}
+
+function searchNextMaintenanceActivityAttention(identifier) {
+  var action = ''.concat('/maintenanceActivityAttentions/', identifier, '/next');
+  
+  $.get(action)
+  .done(function (response) {
+    console.log(response)
+
+    $('#updateMaintenanceActivityAttentionModal span#date').text(response.data.date);
+    $('#updateMaintenanceActivityAttentionGroup input#maintenanceActivityDate').val(response.data.maintenanceActivityDate);
+
+    if (response.data.enableStart === true) {
+      $('#updateMaintenanceActivityAttentionGroup span#notStarted').show();
+      $('#updateMaintenanceActivityAttentionGroup button#startAttentionSubmit').show();
+    }
+    else if (response.data.enableFinish === true) {
+      $('#updateMaintenanceActivityAttentionGroup span#inProgress').show();
+      $('#updateMaintenanceActivityAttentionGroup button#finishAttentionSubmit').show();
+      $('#updateMaintenanceActivityAttention button#updateMaintenanceActivityAttentionSubmit').show();
+    }
+    else {
+      $('#updateMaintenanceActivityAttentionGroup span#finished').show();
+    }
+
+    $('#updateMaintenanceActivityAttention .form-group').remove();
+
+    var html = _.reduce(
+      response.data.maintenanceActivityAttentions, 
+      function (accumulator, maintenanceActivityAttention) {
+        accumulator += 
+          '<div class="form-group row">' +
+            '<div class="col-12">' +
+              '<div class="input-group">' +
+                '<span class="input-group-addon">' +
+                  '<input class="form-control-custom" type="checkbox" id="' + maintenanceActivityAttention._id + '" ' + (response.data.enableFinish === true ? '' : 'disabled') + ' />' +
+                '</span>' +
+                '<input class="form-control" style="z-index: 1 !important;" type="text" value="' + maintenanceActivityAttention.maintenanceActivity.name + '" disabled />' +
+              '</div>' +
+            '</div>' +
+          '</div>';
+        return accumulator;
+      }, 
+      "");
+
+    $('#updateMaintenanceActivityAttention').prepend(html);
+
+    _.each(response.data.maintenanceActivityAttentions, function (maintenanceActivityAttention) {
+      if (maintenanceActivityAttention.checked == true) {
+        $('#updateMaintenanceActivityAttention .form-group input#'.concat(maintenanceActivityAttention._id)).prop('checked', true);
+      }
+    });
+
+    $('#updateMaintenanceActivityAttention input[type=checkbox]').change(function (e) {
+      e.preventDefault();
+  
+      var value = true;
+
+      if (typeof $(this).prop('changed') === 'undefined') {
+        $(this).prop('changed', true);
+      }
+      else {
+        value = $(this).prop('changed');
+
+        $(this).prop('changed', !value);
+      }
+  
+      return false;
+    });
+    
+    $('#updateMaintenanceActivityAttentionModal').modal('show');
+
+    return false;
+  })
+  .fail(function (xhr, status, error) {
+    var response = xhr.responseJSON;
+    
+    $.notify('El equipo no posee mantenimientos por atender', 'warn');
+    
+    console.log(JSON.stringify(response));
+    
+    return false;
+  });
 
   return false;
 }
@@ -278,7 +363,102 @@ $(document).ready(function () {
       }
     });
 
-    updateEquipmentType(action, data, onSuccess, onFailure);
+    updateRequest(action, data, onSuccess, onFailure);
+
+    return false;
+  });
+
+  $('#startAttentionSubmit, #finishAttentionSubmit').click(function (e) {
+    e.preventDefault();
+
+    var form = document[$($(this).parents('form')).attr('name')];
+    var action = $($(this).parents('form')).attr('action').concat('/', $(form).find('input[type=hidden]').val());
+    var data = {};
+    var onSuccess = function (response) {
+      if (typeof data.started !== 'undefined') {
+        $('#updateMaintenanceActivityAttentionGroup button#startAttentionSubmit').hide();
+        $('#updateMaintenanceActivityAttentionGroup button#finishAttentionSubmit').show();
+        $('#updateMaintenanceActivityAttentionGroup span#notStarted').hide();
+        $('#updateMaintenanceActivityAttentionGroup span#inProgress').show();
+        $('#updateMaintenanceActivityAttention button#updateMaintenanceActivityAttentionSubmit').show();
+        $('#updateMaintenanceActivityAttention .form-group input[type=checkbox]').attr('disabled', false);
+      }
+      else if (typeof data.finished !== 'undefined') {
+        $('#updateMaintenanceActivityAttentionGroup button#finishAttentionSubmit').hide();
+        $('#updateMaintenanceActivityAttentionGroup span#inProgress').hide();
+        $('#updateMaintenanceActivityAttentionGroup span#finished').show();
+        $('#updateMaintenanceActivityAttention button#updateMaintenanceActivityAttentionSubmit').hide();
+        $('#updateMaintenanceActivityAttention .form-group input[type=checkbox]').attr('disabled', true);
+      }
+
+      return false;
+    };
+    var onFailure = function (xhr, status, error)  {
+      var response = xhr.responseJSON;
+      
+      console.log(JSON.stringify(response));
+      
+      return false;
+    };
+
+    if (/^start/.test($(this).attr('id')) === true) {
+      data['started'] = true;
+    }
+    else if (/^finish/.test($(this).attr('id')) === true) {
+      data['finished'] = true;
+    }
+
+    updateRequest(action, data, onSuccess, onFailure);
+
+    return false;
+  });
+
+  $('#updateMaintenanceActivityAttentionSubmit').click(function (e) {
+    e.preventDefault();
+    
+    var form = document[$($(this).parents('form')).attr('name')];
+    var baseAction = $($(this).parents('form')).attr('action');
+    var data = {};
+    var onSuccess = function (response) {
+      var selector = '#updateMaintenanceActivityAttention .form-group input#'.concat(response.data._id);
+      $(selector).notify('La selección ha sido actualizada', {
+        className: 'success',
+        elementPosition: 'right middle'
+      });
+      $(selector).prop('changed', false);
+
+      return false;
+    };
+    var onFailure = function (xhr, status, error)  {
+      var response = xhr.responseJSON;
+      
+      if (status === 500) {
+        var selector = '#updateMaintenanceActivityAttention .form-group input#'.concat(response.document);
+        var value = $(selector).prop('checked');
+
+        $(selector).prop('checked', !value);
+      }
+      
+      console.log(JSON.stringify(response));
+      
+      return false;
+    };
+
+    _.each(form, function (item) {
+      var control = $(item);
+      var action = '';
+
+      if (control.attr('class').indexOf('form-control-custom') > -1) {
+        if (control.prop('tagName').toLowerCase() === 'input') {
+          if (control.attr('type') === 'checkbox' && control.prop('changed') === true) {
+            data['checked'] = control.prop('checked');
+            action = baseAction.concat('/', control.attr('id'));
+
+            updateRequest(action, data, onSuccess, onFailure);
+          }
+        }
+      }
+    });
 
     return false;
   });
