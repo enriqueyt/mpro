@@ -204,3 +204,8 @@ a.top-nav {
 .item-deleted {
   background-color: rgba(158, 158, 158, .5);
 }
+
+/* Notify.js */
+body .notifyjs-wrapper {
+  z-index: 2 !important;
+ }
