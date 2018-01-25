@@ -135,7 +135,7 @@ block content-mpro
                           option Seleccione
                           each equipmentType in equipmentTypes
                             option(value=equipmentType._id) #{equipmentType.name}
-                    input(type="hidden", name="company", value=currentAccount.company._id)
+                    input.form-control(type="hidden", name="company", value=currentAccount.company._id)
                   .col-12(style="text-align:right")
                     button.btn.btn-secondary(type="button", data-dismiss="modal", style="margin-right:1%;") Cerrar
                     button#addMaintenanceActivitySubmit.btn.btn-primary(type="submit") Crear
@@ -166,7 +166,7 @@ block content-mpro
                           input.form-control(type="text", id="dates", name="dates", readonly="true")
                           .input-group-addon
                             span.fa.fa-th
-                    input(type="hidden", name="company", value=currentAccount.company._id)
+                    input.form-control(type="hidden", name="company", value=currentAccount.company._id)
                   .col-12(style="text-align:right")
                     button.btn.btn-secondary(type="button", data-dismiss="modal", style="margin-right:1%;") Cerrar
                     button#addMaintenanceActivityAttentionSubmit.btn.btn-primary(type="submit") Crear
@@ -178,7 +178,7 @@ block content-mpro
           button.close.fa.fa-close(type="button", style="color:white; opacity:1; text-shadow:1px 1px 1px #ccc; text-indent:0" data-dismiss="modal", aria-label="Close")
         .modal-body
           form(role="form", id="updateManintenanceActivity", name="updateManintenanceActivity", action="/maintenanceActivities", method="put")
-            input(type="hidden", id="maintenanceActivity", name="maintenanceActivity")
+            input.form-control(type="hidden", id="maintenanceActivity", name="maintenanceActivity")
             .form-group.row
               label.col-3.col-form-label(for="name") Nombre
               .col-9
@@ -201,7 +201,7 @@ block content-mpro
                   span.input-group-addon
                     input.form-control-custom(type="checkbox", id="status", name="status")
                   input.form-control(type="text", id="statusValue", name="statusValue", disabled="true")
-            input(type="hidden", name="company", value=currentAccount.company._id)
+            input.form-control(type="hidden", name="company", value=currentAccount.company._id)
             .col-12(style="text-align:right")
               button.btn.btn-secondary(type="button", data-dismiss="modal", style="margin-right:1%;") Cerrar
               button#updateMaintenanceActivitySubmit.btn.btn-primary(type="submit") Actualizar
