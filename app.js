@@ -28,6 +28,7 @@ require('./models/equipment');
 require('./models/maintenanceActivity');
 require('./models/maintenanceActivityAttention');
 
+var api = require('./routes/api');
 var index = require('./routes/index');
 var initPassport = require('./config/passport')(Passport);
 var authentication = require('./routes/authentication')(Passport);
@@ -68,6 +69,7 @@ app.use(Passport.session());
 
 //app.use(csrf({cookie: true}));
 
+app.use('/', api);
 app.use('/', index);
 app.use('/', authentication);
 app.use('/', admin);
