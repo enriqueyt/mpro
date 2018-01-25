@@ -34,7 +34,16 @@ var equipment = new Schema(
     maintenanceActivityDates: [
       {
         date: Date,
-        identifier: String
+        identifier: String,
+        started: {
+          type: Boolean,
+          default: false
+        },
+        finished: {
+          type: Boolean,
+          default: false
+        },
+        finishedDate: Date
       }
     ],
     date: {
