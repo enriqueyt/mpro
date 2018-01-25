@@ -1,28 +1,9 @@
-var Express = require('express');
-var Sanitizer = require('sanitizer');
 var Mongoose = require('mongoose');
-var MongoSanitize = require('mongo-sanitize');
-var Csrf = require('csurf');
-var ObjectId = require('mongoose').Types.ObjectId; 
 
-var Activities = require('./profileResources/technician/activities');
-var Equipments = require('./profileResources/technician/equipments');
-
-var router = Express.Router();
-var csrfProtection = Csrf({cookie: true});
 var mongoAccount = Mongoose.model('account');
-var mongoEquipmentType = Mongoose.model('equipmentType');
 var mongoEquipment = Mongoose.model('equipment');
 
-router.use(function (req, res, next) {
-  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
-  req.body = JSON.parse(Sanitizer.sanitize(JSON.stringify(MongoSanitize(req.body))));
-  req.params = JSON.parse(Sanitizer.sanitize(JSON.stringify(MongoSanitize(req.params))));
-  req.query = JSON.parse(Sanitizer.sanitize(JSON.stringify(MongoSanitize(req.query))));
-  next();
-});
-
-router.get('/technician/:identifier', function (req, res, next) { 
+exports.getEquipmentsViewData = function (req, res, next) {
   if (!req.user) {
     req.session.loginPath = null;
     console.log('No identifier');
@@ -48,9 +29,9 @@ router.get('/technician/:identifier', function (req, res, next) {
     var identifier = req.params.identifier || req.user.identifier;
     var role = req.params.role || req.user.role;
     var query = {'identifier': identifier, 'role': role};
-
+  
     mongoAccount.findOne(query).populate('company').exec()
-    .then(function (user) {    
+    .then(function (user) {
       if (!user || user.length === 0) {
         var message = 'No user found';
         reject(new Error(message));
@@ -72,24 +53,37 @@ router.get('/technician/:identifier', function (req, res, next) {
     });
   });
 
+  var onFetchEquipments = function (user) {
+    var promise = new Promise(function (resolve, reject) {
+      var query = {branchCompany: user.company._id};
+
+      mongoEquipment.find(query).populate('equipmentType').populate('userAssigned').exec()
+      .then(function (equipments) {
+        resolve([user, equipments]);
+      })
+      .catch(function (err) {
+        reject(err);
+      });
+    });
+    
+    return promise;
+  };
+
   var onRender = function (data) {
-    return res.render('pages/dashboard/dashboard_technician', {
-      user: req.user || {},
-      currentAccount: data
+    return res.render('pages/equipment/equipment_technician', {
+      user : req.user || {},
+      //csrfToken: req.csrfToken()
+      currentAccount: data[0],
+      equipments: data[1]
     });
   };
-  
+
   accountPromise
+  .then(onFetchEquipments)
   .then(onRender)
   .catch(function (err) {
-    console.log('Error:', err);
+    console.log('ERROR:', err);
     res.redirect('/');
     return;
   });
-});
-
-router.get('/technician/:identifier/activities', Activities.getActivitiesViewData);
-
-router.get('/technician/:identifier/equipments', Equipments.getEquipmentsViewData);
-
-module.exports = router;
+};

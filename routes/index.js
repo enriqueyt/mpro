@@ -216,9 +216,9 @@ router.get('/maintenanceActivitiesByEquipmentType/:equipmentType', function (req
 router.get('/equipmentsByEquipmentType/:equipmentType', function (req, res, next) {
   var equipmentsPromise = new Promise(function (resolve, reject) {
     var query = {equipmentType: new ObjectId(req.params.equipmentType)};
-    var select = '_id name';
+    var projection = '_id name'; // TODO: Change to JSON string for readability
 
-    mongoEquipment.find(query, select).exec()
+    mongoEquipment.find(query, projection).exec()
     .then(function (equipments) {
       resolve(equipments);
     })

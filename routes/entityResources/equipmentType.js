@@ -1,0 +1,139 @@
+var Mongoose = require('mongoose');
+
+var mongoEquipmentType = Mongoose.model('equipmentType');
+
+/* ########################################################################## */
+/* CREATE RESOURCES                                                           */
+/* ########################################################################## */
+
+exports.createEquipmentType = function (req, res, next) {
+  if (!req.user || !req.user.username) {
+    res.status(401).send({error: true, message: 'No user found'});
+  }
+
+  var saveEquipmentTypePromise = new Promise(function (resolve, reject) {
+    var equipmentType = {
+      name       : req.body.name,
+      description: req.body.description,
+      company    : req.body.company
+    };
+  
+    var onCreateDocument = function (err, document) {        
+      if (err) {
+        reject({error: true, code: 500, message: err.message});
+      };
+
+      resolve({error: false, data: document});
+    };
+  
+    var newEquipmentType = new mongoEquipmentType(equipmentType);
+
+    newEquipmentType.save(onCreateDocument);
+  });
+
+  var onFinish = function (data) {
+    res.status(200).send(data);
+  };
+
+  saveEquipmentTypePromise
+  .then(onFinish)
+  .catch(function (err) {
+    res.status(err.code).send(err.message);
+  });
+};
+
+/* ########################################################################## */
+/* READ RESOURCES                                                             */
+/* ########################################################################## */
+
+exports.getEquipmentTypes = function (req, res, next) {
+  if (!req.user || !req.user.username) {
+    res.status(401).send({error: true, message: 'No user found'});
+  }
+
+  var page = req.params.page || 0;
+  var quantity = req.params.quantity || 0;
+  var query = {};
+
+  if (typeof req.params.search !== 'undefined') {
+    var searchPattern = req.params.search;
+
+    query = {$or: [{name: searchPattern}, {description: searchPattern}]};
+  }
+
+  mongoEquipmentType.find(query).populate('company').skip(page * quantity).limit(page).exec()
+  .then(function (equipmentTypes) {
+    res.status(200).send({error: false, data: equipmentTypes});
+  })
+  .catch(function (err) {
+    res.status(500).send({error: true, message: 'Unexpected error was occurred'});
+  });
+};
+
+exports.getEquipmentType = function (req, res, next) {
+  if (!req.user || !req.user.username) {
+    res.status(401).send({error: true, message: 'No user found'});
+  }
+
+  var query = {'_id': req.params.equipmentType};
+
+  mongoEquipmentType.findOne(query).populate('company').exec()
+  .then(function (equipmentType) {
+    res.status(200).send({error: false, data: equipmentType});
+  })
+  .catch(function (err) {
+    res.status(500).send({error: true, message: 'Unexpected error was occurred'});
+  });
+};
+
+/* ########################################################################## */
+/* UPDATE RESOURCES                                                           */
+/* ########################################################################## */
+
+exports.updateEquipmentType = function (req, res, next) {
+  if (!req.user || !req.user.username) {
+    res.status(401).send({error: true, message: 'No user found'});
+  }
+
+  var query = {'_id': req.params.equipmentType};			
+  var option = {new: true};
+  var setValues = {};
+
+  if (typeof req.body.name !== 'undefined') {
+    setValues['name'] = req.body.name;
+  }
+
+  if (typeof req.body.description !== 'undefined') {
+    setValues['description'] = req.body.description;
+  }
+
+  if (typeof req.body.company !== 'undefined') {
+    setValues['company'] = req.body.company;
+  }
+
+  if (typeof req.body.status !== 'undefined') {
+    setValues['status'] = req.body.status;
+  }
+
+  if (typeof req.body.deleted !== 'undefined') {
+    setValues['deleted'] = req.body.deleted;
+  }
+
+  var onUpdateDocument = function (err, document) {
+    if (err) {
+      res.status(500).send({error: true, message: 'Unexpected error was occurred'});
+    }
+    
+    if (!document) {
+      res.status(404).send({error: true, message: 'Document does not exist'});
+    }
+
+    res.status(200).send({error: false, data: document});
+  };
+
+  mongoEquipmentType.findOneAndUpdate(query, {$set: setValues}, option, onUpdateDocument);
+};
+
+/* ########################################################################## */
+/* DELETE RESOURCES                                                           */
+/* ########################################################################## */

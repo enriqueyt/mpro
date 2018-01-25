@@ -1,8 +1,7 @@
 var Mongoose = require('mongoose');
 var Functional = require('underscore');
-var ObjectId = require('mongoose').Types.ObjectId; 
 
-var Utils = require('../../libs/utils');
+var Utils = require('../../../libs/utils');
 
 var mongoAccount = Mongoose.model('account');
 var mongoEquipmentType = Mongoose.model('equipmentType');
@@ -11,7 +10,7 @@ var mongoMaintenanceActivityAttention = Mongoose.model('maintenanceActivityAtten
 
 var DATE_FORMAT = 'DD/MM/YYYY';
 
-exports.getActivities = function (req, res, next) {
+exports.getActivitiesViewData = function (req, res, next) {
   if (!req.user) {
     req.session.loginPath = null;
     console.log('No identifier found');
@@ -46,7 +45,7 @@ exports.getActivities = function (req, res, next) {
 
   var onFetchEquipmentTypes = function (user) {
     var promise = new Promise(function (resolve, reject) {
-      var query = {company: new ObjectId(user.company._id)};
+      var query = {company: user.company._id};
 
       mongoEquipmentType.find(query).exec()
       .then(function (equipmentTypes) {
@@ -62,7 +61,7 @@ exports.getActivities = function (req, res, next) {
 
   var onFetchMaintenanceActivities = function (data) {
     var promise = new Promise(function (resolve, reject) {
-      var query = {company: new ObjectId(data[0].company._id)};
+      var query = {company: data[0].company._id};
 
       mongoMaintenanceActivity.find(query).populate('equipmentType').exec()
       .then(function (maintenanceActivities) {

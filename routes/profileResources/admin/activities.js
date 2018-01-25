@@ -1,7 +1,7 @@
 var Mongoose = require('mongoose');
 var Functional = require('underscore');
 
-var Utils = require('../../libs/utils');
+var Utils = require('../../../libs/utils');
 
 var mongoEntity = Mongoose.model('entity');
 var mongoMaintenanceActivity = Mongoose.model('maintenanceActivity');
@@ -9,7 +9,7 @@ var mongoMaintenanceActivityAttention = Mongoose.model('maintenanceActivityAtten
 
 var DATE_FORMAT = 'DD/MM/YYYY';
 
-exports.getActivities = function (req, res, next) {
+exports.getActivitiesViewData = function (req, res, next) {
   if (!req.user) {
     req.session.loginPath = null;
     console.log('No identifier found');
