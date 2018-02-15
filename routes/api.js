@@ -94,6 +94,10 @@ router.get(
   '/maintenanceActivityAttentions/:equipment/next',
   MaintenanceActivityAttention.getNextMaintenanceActivityAttention);
 
+router.get(
+  '/maintenanceActivityAttentions/activityDate/:identifier',
+  MaintenanceActivityAttention.getMaintenanceActivityAttentionByActivityDate);
+
 router.put(
   '/maintenanceActivityAttentions/:maintenanceActivityAttention',
   MaintenanceActivityAttention.updateMaintenanceActivityAttention
