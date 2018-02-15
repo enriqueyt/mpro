@@ -141,7 +141,10 @@ function searchNextMaintenanceActivityAttention(identifier) {
       $('#updateMaintenanceActivityAttentionGroup button#finishAttentionSubmit').show();
       $('#updateMaintenanceActivityAttention button#updateMaintenanceActivityAttentionSubmit').show();
     }
-    else {
+    else if (response.data.started === false) {
+      $('#updateMaintenanceActivityAttentionGroup span#toAttend').show();
+    }
+    else if (response.data.finished === true) {
       $('#updateMaintenanceActivityAttentionGroup span#finished').show();
     }
 
@@ -199,6 +202,66 @@ function searchNextMaintenanceActivityAttention(identifier) {
     
     $.notify('El equipo no posee mantenimientos por atender', 'warn');
     
+    console.log(JSON.stringify(response));
+    
+    return false;
+  });
+
+  return false;
+}
+
+function searchMaintenanceActivityAttention(identifier) {
+  var action = ''.concat('/maintenanceActivityAttentions/activityDate/', identifier);
+  
+  $.get(action)
+  .done(function (response) {
+    console.log(response)
+
+    $('#maintenanceActivityAttentionModal span#date').text(response.data.date);
+    $('#maintenanceActivityAttentionGroup input#maintenanceActivityDate').val(response.data.maintenanceActivityDate);
+
+    if (response.data.finished === true) {
+      $('#maintenanceActivityAttentionGroup span#finished').show();
+    }
+    else if (response.data.finished === false) {
+      $('#maintenanceActivityAttentionGroup span#notFinished').show();
+    }
+
+    $('#maintenanceActivityAttention .form-group').remove();
+
+    var html = _.reduce(
+      response.data.maintenanceActivityAttentions, 
+      function (accumulator, maintenanceActivityAttention) {
+        accumulator += 
+          '<div class="form-group row">' +
+            '<div class="col-12">' +
+              '<div class="input-group">' +
+                '<span class="input-group-addon">' +
+                  '<input class="form-control-custom" type="checkbox" id="' + maintenanceActivityAttention._id + '" ' + (response.data.enableFinish === true ? '' : 'disabled') + ' />' +
+                '</span>' +
+                '<input class="form-control" style="z-index: 1 !important;" type="text" value="' + maintenanceActivityAttention.maintenanceActivity.name + '" disabled />' +
+              '</div>' +
+            '</div>' +
+          '</div>';
+        return accumulator;
+      }, 
+      "");
+
+    $('#maintenanceActivityAttention').prepend(html);
+
+    _.each(response.data.maintenanceActivityAttentions, function (maintenanceActivityAttention) {
+      if (maintenanceActivityAttention.checked == true) {
+        $('#maintenanceActivityAttention .form-group input#'.concat(maintenanceActivityAttention._id)).prop('checked', true);
+      }
+    });
+
+    $('#maintenanceActivityAttentionModal').modal('show');
+
+    return false;
+  })
+  .fail(function (xhr, status, error) {
+    var response = xhr.responseJSON;
+
     console.log(JSON.stringify(response));
     
     return false;
@@ -409,6 +472,23 @@ $(document).ready(function () {
     }
 
     updateRequest(action, data, onSuccess, onFailure);
+
+    return false;
+  });
+
+  $('#updateMaintenanceActivityAttention input[type=checkbox]').change(function (e) {
+    e.preventDefault();
+
+    var value = true;
+
+    if (typeof $(this).prop('changed') === 'undefined') {
+      $(this).prop('changed', true);
+    }
+    else {
+      value = $(this).prop('changed');
+
+      $(this).prop('changed', !value);
+    }
 
     return false;
   });
