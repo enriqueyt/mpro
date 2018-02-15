@@ -9,6 +9,8 @@ var Utils = require('../libs/utils');
 var Router = Express.Router();
 var CsrfProtection = Csrf({ cookie: true });
 var Account = Mongoose.model('account');
+var sessionHandle = require('../libs/sessionHandle');
+var Log = require('../libs/log');
 
 module.exports = function (passport) { 
 
@@ -21,8 +23,7 @@ module.exports = function (passport) {
   });
 
   Router.get('/login', function (req, res) {
-    res.render('pages/login', { 
-      //csrfToken: req.csrfToken(),
+    res.render('pages/login', {
       user: req.user || {}
     });
   });
@@ -34,26 +35,32 @@ module.exports = function (passport) {
     
     req.body.username = req.body.username.toLowerCase();
 
-    passport.authenticate('login', function (data) {        
+    passport.authenticate('login', function (data) {
       if (data.error) { 
         return res.redirect('/login/failed-login');
       }
-
-      var _doc = data.data;
-      console.log(_doc);
-
-      req.logIn(_doc, function (err) {
-        if (err) {
-          return next(err); 
-        }
-
-        if (req.session.loginPath) {
-          return res.redirect(req.session.loginPath);
-        }
-        else {
-          return res.redirect(''.concat(_doc.role, '/', _doc.identifier));
-        }
+      var account = data.data;
+      
+      var newSession = sessionHandle.createSession(account);
+      
+      newSession
+      .then(function(data){
+        req.session._id=data[1].session;
+        var obj={
+          text: 'Inicio de sesion! '.concat('El Usuario ', account.name, ' inicio de sesion ', data[1].session),
+          type:'create_session',
+          user: account._id,
+          model: JSON.stringify(data[1])
+        };
+        Log.debug(obj)
+        .then(function(data){
+          return res.redirect('/'.concat(account.role));
+        });     
+      })
+      .catch(function(err){
+        console.log(err)
       });
+
     })(req, res, next);
   });
 
@@ -63,31 +70,44 @@ module.exports = function (passport) {
         var message  = 'Usuario o contraseña errada. Favor intente nuevamente';
       }
       res.render('pages/login', { 
-        user: req.user || {}, 
-        //csrfToken: req.csrfToken(),
+        user: req.user || {},
         showMessage: message
       });
     }
     else {
       res.render('pages/login', { 
-        user: req.user || {}, 
-        csrfToken: req.csrfToken() 
+        user: req.user || {}
       });
     }
   });
 
-  Router.get('/logout', function (req, res) {
-    req.session.loginPath = null;
-    req.logout();
-    res.redirect('/login');
-    return;
+  Router.get('/logout', sessionHandle.isLogged, function (req, res) {
+    
+    var endSession = function(data){
+      if(!data){
+        Log.debug({
+          text: 'Fin de sesion! '.concat('El Usuario ', req.user.name, ' finalizo sesion '),
+          type:'update_session',
+          user: req.user._id    
+        });
+        req.session._id = null;
+        req.user=null;
+        req.logout();
+        res.redirect('/login');
+        return;
+      }
+    };
+
+    sessionHandle.endSession(req.session._id, endSession);
+
   });
 
   Router.get('/addMyAccount/:email', function (req, res, next) {
     req.body = {
       name: req.params.email.split('@')[0],
       email: req.params.email,
-      role: 'admin'
+      role: 'admin',
+      image:'https://octodex.github.com/images/octobiwan.jpg"'
     };
 
     var user = {
@@ -112,7 +132,7 @@ module.exports = function (passport) {
 
         newUser.name = req.body.name;
         newUser.username = user.username;
-        newUser.password = Utils.createHash(user.password, Bcrypt);					
+        newUser.password = Utils.createHash(user.password);
         newUser.email = req.body.email;
         newUser.role = req.body.role;
 

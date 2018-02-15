@@ -4,26 +4,26 @@ block content-mpro
   .container-fluid
     .row
       .col-md-12
-        .row.dashboard-nav-row
+        .row#headerNav.dashboard-nav-row
           .col-md-3
-            a(href="/"+user.role+"/"+user.identifier)
-              h5 Actividades
+            a(href="/"+user.role)
+              | Actividades
           .col-md-3
-            a(href="/"+user.role+"/"+user.identifier+"/companies")
-              h5 Sucursales
+            a(href="/"+user.role+"/companies")
+              | Sucursales
           .col-md-3.nav-active
-            a(href="/"+user.role+"/"+user.identifier+"/users")
-              h5 Usuarios
+            a(href="/"+user.role+"/users")
+              | Usuarios
           .col-md-3
-            a(href="/"+user.role+"/"+user.identifier+"/equipments")
-              h5 Equipos
+            a(href="/"+user.role+"/equipments")
+              | Equipos
         .row.information-company
           .col-md-12
             span Empresa a la que colabora 
             h4(style="display:inline-block") <b>#{currentAccount.company.name}</b>
           .col-md-12
             p 
-        .row.company-nav-row
+        .row.company-nav-row.container-fluid
           .col-md-12
             .btn-group
               button#addAccount.btn.btn-primary(type="button", data-toggle="addAccountModal", style="cursor:pointer; background-color:rgb(0,155,219)") Agregar Usuario 
@@ -61,7 +61,7 @@ block content-mpro
                       else
                         label.label-sm.label-default Inactivo
                     td
-                      a.btn.default.btn-xs.blue-stripe(href="/account/"+account.identifier) ver
+                      a.btn.default.btn-xs.blue-stripe(href="/account") ver
                     td
                       i.fa.fa-trash(aria-hidden="true")
   #addAccountModal.modal.fadde(role="dialog")
@@ -72,7 +72,7 @@ block content-mpro
           button.close(type="button", data-dismiss="modal", aria-label="Close")
             span(aria-hidden="true") &times;
         .modal-body
-          #warningAccountForm.alert.alert-warning.alert-dismissible(role="alert",, style="display:none;")
+          #warningAccountForm.alert.alert-warning.alert-dismissible(role="alert", style="display:none;")
             button.close(type="button", data-dismiss="alert", aria-label="Close")
               span(aria-hidden="true")
             strong Hey! 

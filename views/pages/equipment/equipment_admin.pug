@@ -4,20 +4,20 @@ block content-mpro
   .container-fluid
     .row
       .col-md-12
-        .row.dashboard-nav-row
+        .row#headerNav.dashboard-nav-row
           .col-md-3
-            a(href="/"+user.role+"/"+user.identifier)
-              h5 Actividades
+            a(href="/"+user.role)
+              | Actividades
           .col-md-3
-            a(href="/"+user.role+"/"+user.identifier+"/companies")
-              h5 Empresas
+            a(href="/"+user.role+"/companies")
+              | Empresas
           .col-md-3
-            a(href="/"+user.role+"/"+user.identifier+"/users")
-              h5 Usuarios
+            a(href="/"+user.role+"/users")
+              | Usuarios
           .col-md-3.nav-active
-            a(href="/"+user.role+"/"+user.identifier+"/equipments")
-              h5 Equipos
-        .row.equipment-nav-row
+            a(href="/"+user.role+"/equipments")
+              | Equipos
+        .row.equipment-nav-row.container-fluid
           ul.nav.nav-tabs(role="tablist", id="tabEquipment")
             li.nav-item
               a.nav-link.active(data-toggle="tab", href="#equipmentType", role="tab", aria-controls="equipmentType") Tipo de Equipo

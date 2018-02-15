@@ -4,26 +4,26 @@ block content-mpro
   .container-fluid
     .row
       .col-md-12
-        .row.dashboard-nav-row
+        .row#headerNav.dashboard-nav-row
           .col-md-3
-            a(href="/"+user.role+"/"+user.identifier)
-              h5 Actividad
+            a(href="/"+user.role)
+              | Actividad
           .col-md-3.nav-active
-            a(href="/"+user.role+"/"+user.identifier+"/companies")
-              h5 Empresa
+            a(href="/"+user.role+"/companies")
+              | Empresa
           .col-md-3
-            a(href="/"+user.role+"/"+user.identifier+"/users")
-              h5 Usuarios
+            a(href="/"+user.role+"/users")
+              | Usuarios
           .col-md-3
-            a(href="/"+user.role+"/"+user.identifier+"/equipments")
-              h5 Equipos
+            a(href="/"+user.role+"/equipments")
+              | Equipos
         .row.information-company
           .col-md-12
             span Empresa a la que colabora 
             h4(style="display:inline-block") <b>#{currentAccount.company.name}</b>
           .col-md-12
             p 
-        .row.company-nav-row
+        .row.company-nav-row.container-fluid
           ul.nav.nav-tabs(role="tablist", id="tabCompany")
             li.nav-item
               a.nav-link.active(data-toggle="tab", href="#branchcompany", role="tab", aria-controls="branchcompany") Sucursales
@@ -53,7 +53,7 @@ block content-mpro
                           td=branchCompany.phone
                           td=branchCompany.location
                           td
-                            a.btn.default.btn-xs.blue-stripe(href="/home/"+user.identifier+"/branch_company/"+branchCompany._id) ver
+                            a.btn.default.btn-xs.blue-stripe(href="/home/branch_company/"+branchCompany._id) ver
                           td
                             i.fa.fa-trash(aria-hidden="true")
   #addBranchCompanyModal.modal.fade(rol="dialog")

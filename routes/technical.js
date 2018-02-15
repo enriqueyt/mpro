@@ -11,6 +11,9 @@ var mongoAccount = Mongoose.model('account');
 var mongoEquipmentType = Mongoose.model('equipmentType');
 var mongoEquipment = Mongoose.model('equipment');
 
+var sessionHandle = require('../libs/sessionHandle');
+var Log = require('../libs/log');
+
 router.use(function (req, res, next) {
   res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
   req.body = JSON.parse(Sanitizer.sanitize(JSON.stringify(MongoSanitize(req.body))));
@@ -19,9 +22,8 @@ router.use(function (req, res, next) {
   next();
 });
 
-router.get('/technical/:identifier', function (req, res, next) { 
+router.get('/technical', sessionHandle.isLogged, function (req, res, next) { 
   if (!req.user) {
-    req.session.loginPath = null;
     console.log('No identifier');
     res.redirect('/login');
   }
@@ -69,14 +71,29 @@ router.get('/technical/:identifier', function (req, res, next) {
     });
   });
 
+  var onFetchActivities = function(user){
+    return new Promise(function(resolve, reject){
+      Log.getLogs(10,0).onFetchByRole(user)
+      .then(function(data){
+        resolve({user:user,activity:data});
+      })
+      .catch(reject);
+
+    });
+  };
+
   var onRender = function (data) {
+    var tempuser = req.user||{};
+    req.user={};
     return res.render('pages/dashboard/dashboard_technician', {
-      user: req.user || {},
-      currentAccount: data
+      user: tempuser,
+      currentAccount: data.user,
+      activity:data.activity
     });
   };
   
   accountPromise
+  .then(onFetchActivities)
   .then(onRender)
   .catch(function (err) {
     console.log('Error:', err);
@@ -85,9 +102,8 @@ router.get('/technical/:identifier', function (req, res, next) {
   });
 });
 
-router.get('/technical/:identifier/equipments', function (req, res, next) {
+router.get('/technical/equipments', sessionHandle.isLogged, function (req, res, next) {
   if (!req.user) {
-    req.session.loginPath = null;
     console.log('No identifier');
     res.redirect('/login');
   }
@@ -152,9 +168,10 @@ router.get('/technical/:identifier/equipments', function (req, res, next) {
   };
 
   var onRender = function (data) {
+    var tempuser = req.user||{};
+    req.user={};
     return res.render('pages/equipment/equipment_technician', {
-      user : req.user || {},
-      //csrfToken: req.csrfToken()
+      user : tempuser,
       currentAccount: data[0],
       equipments: data[1]
     });

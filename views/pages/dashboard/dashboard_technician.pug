@@ -4,13 +4,13 @@ block content-mpro
   .container-fluid
     .row
       .col-md-12
-        .row.dashboard-nav-row
-          .col-md-4
-            a(href="/"+user.role+"/"+user.identifier)
-              h5 Actividades
+        .row#headerNav.dashboard-nav-row
+          .col-md-4.nav-active
+            a(href="/"+user.role)
+              | Actividades
           .col-md-3
-            a(href="/"+user.role+"/"+user.identifier+"/equipments")
-              h5 Equipos
+            a(href="/"+user.role+"/equipments")
+              | Equipos
         .row.information-company
           .col-md-12
             span Empresa a la que colabora 
@@ -19,5 +19,32 @@ block content-mpro
             h4(style="display:inline-block") <b>#{currentAccount.company.name}</b>
           .col-md-12
             p 
-        #tabcontent
+        .container-fluid#tabcontent
+          .row
+            .col-md-12
+              table#myActivityTable(class="table table-striped table-bordered")
+                thead
+                  tr
+                    th Tipo
+                    th Accion
+                    th Descripcion
+                    th Fecha
+                tbody
+                  each act,i in activity
+                    tr
+                      td #{act.level}
+                      td #{act.type}
+                      td #{act.text}
+                      td #{act.date}
+  script(type='text/javascript').
+    $(document).ready(function(){
+      if('!{Object.keys(user).length > 0}' === 'true' && '!{user.username}' === '!{currentAccount.username}') {				
+        $('#myActivityTable').DataTable({
+            "paging":   true,
+            "ordering": true,
+            "pagingType": "full_numbers",
+            "lengthMenu": [[ 50, 100, 500, -1], [50, 100, 500, "All"]]
+        });
+      }
+    })
   script(src='../../javascripts/dashboard/main.js')

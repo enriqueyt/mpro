@@ -5,5 +5,6 @@ $(document).ready(function () {
     $.get(action, function (response) {
       $('#tabcontent').html(response);
     });
+    
   }
 });
