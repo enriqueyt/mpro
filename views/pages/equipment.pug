@@ -1,0 +1,143 @@
+extends ../layout
+block content-mpro
+  include ../partials/header.pug
+  .container-fluid
+    .row
+      .col-md-12
+        .row
+          .col-md-4
+            .portlet.light.equipment-sidebar-portlet
+              .equipment-picture
+                img.img-responsive(src='/images/avatar.png', alt='')                            
+              .equipment-title
+                .equipment-title-name
+                  h3 !{equipment.name}
+                .equipment-title-name
+                  h3 !{equipment.code}
+                .equipment-title-type
+                  h4 !{equipment.equipmentType.name}
+                  label(for="location")
+                  textarea !{equipment.location}
+                .equipment-title-user
+                  h4 !{equipment.userAssigned.name}
+              .equipment-menu
+                ul.nav
+                  li
+                    a(href='#')
+                      i.icon-home
+                      | Inicio
+                  li
+                    a(href="/" + user.role + "/" + user.identifier + "/activities")
+                      i.icon-settings
+                      | Actividades
+                  li
+                    a(href="/" + user.role + "/" + user.identifier + "/companies")
+                      i.icon-check
+                      | Empresa
+                  li
+                    a(href="/" + user.role + "/" + user.identifier + "/users")
+                      i.icon-check
+                      | Usuarios
+                  li
+                    a(href="/" + user.role + "/" + user.identifier + "/equipments")
+                      i.icon-check
+                      | Equipos
+          .col-md-8
+            .container
+              .portlet.light
+                .portlet-title
+                  .caption
+                    i.fa.fa-cogs.font-blue-sharp
+                    span.caption-subject.font-green-sharp.bold.uppercase
+                    | Atención: !{nextMaintenanceActivityAttention ? nextMaintenanceActivityAttention.date : "Por Programar"}
+                .portlet-body
+                  if nextMaintenanceActivityAttention
+                    form(role="form", id="updateMaintenanceActivityAttentionGroup", name="updateMaintenanceActivityAttentionGroup", action="/equipments/maintenanceActivityDates", method="put")
+                      .form-group.row
+                        .col-md-12(style="text-align:left")
+                          h4.font-weight-bold Estado: 
+                            nbsp
+                            span(style=(nextMaintenanceActivityAttention.started == false ? "display:block;" : "display:none;"), id="toAttend") Por Atender
+                            span(style=(nextMaintenanceActivityAttention.enableStart == true ? "display:block;" : "display:none;"), id="notStarted") No Iniciado
+                            span(style=(nextMaintenanceActivityAttention.enableFinish == true ? "display:block;" : "display:none;"), id="inProgress") En Progreso
+                            span(style=(nextMaintenanceActivityAttention.finished == true ? "display:block;" : "display:none;"), id="finished") Finalizado
+                        if user.role == 'technician'
+                          .col-md-12(style="text-align:right")
+                            input.form-control(type="hidden", id="maintenanceActivityDate", name="maintenanceActivityDate", value=nextMaintenanceActivityAttention.maintenanceActivityDate)
+                            button#startAttentionSubmit.btn.btn-primary(type="submit", style=(nextMaintenanceActivityAttention.enableStart == true ? "display:block; " : "display:none; ") + "cursor:pointer; background-color:rgb(0,155,219)") Iniciar
+                            button#finishAttentionSubmit.btn.btn-primary(type="submit", style=(nextMaintenanceActivityAttention.enableFinish == true ? "display:block; " : "display:none; ") + "cursor:pointer; background-color:rgb(0,155,219)") Finalizar
+                    form(role="form", id="updateMaintenanceActivityAttention", name="updateMaintenanceActivityAttention", action="/maintenanceActivityAttentions", method="put")
+                      each maintenanceActivityAttention in nextMaintenanceActivityAttention.maintenanceActivityAttentions
+                        .form-group.row
+                          .col-md-12
+                            .input-group
+                              span.input-group-addon
+                                input.form-control-custom(type="checkbox", id=maintenanceActivityAttention._id, disabled=(user.role == 'technician' && nextMaintenanceActivityAttention.enableFinish == true ? false : true), checked=(maintenanceActivityAttention.checked == true ? "checked" : undefined))
+                              input.form-control(type="text", style="z-index: 1 !important", value=maintenanceActivityAttention.maintenanceActivity.name, disabled="true")
+                      if user.role == 'technician'
+                        .row
+                          .col-12(style="text-align:right")
+                            button#updateMaintenanceActivityAttentionSubmit.btn.btn-primary(type="submit", style=(nextMaintenanceActivityAttention.enableFinish == true ? "display:block;" : "display:none;")) Guardar
+            .container
+              .portlet.light
+                .portlet-title
+                  .caption
+                    i.fa.fa-cogs.font-blue-sharp
+                    span.caption-subject.font-green-sharp.bold.uppercase
+                    | Atenciones Previas
+                .portlet-body
+                  if maintenanceActivityDates.attended.length > 0
+                    table.table
+                      thead
+                        th #
+                        th Fecha
+                        th
+                      tbody
+                        each maintenanceActivityDate, i in maintenanceActivityDates.attended
+                          tr
+                            td=i + 1
+                            td=maintenanceActivityDate.date
+                            td
+                              a.btn.default.btn-xs.blue-stripe(onclick="searchMaintenanceActivityAttention('" + maintenanceActivityDate.identifier + "')") Ver
+            .container
+              .portlet.light
+                .portlet-title
+                  .caption
+                    i.fa.fa-cogs.font-blue-sharp
+                    span.caption-subject.font-green-sharp.bold.uppercase
+                    | Atencion Próximas
+                .portlet-body
+                  if maintenanceActivityDates.toAttend.length > 0
+                    table.table
+                      thead
+                        th #
+                        th Fecha
+                        th
+                      tbody
+                        each maintenanceActivityDate, i in maintenanceActivityDates.toAttend
+                          tr
+                            td=i + 1
+                            td=maintenanceActivityDate.date
+                            td
+                              a.btn.default.btn-xs.blue-stripe(onclick="searchMaintenanceActivityAttention('" + maintenanceActivityDate.identifier + "')") Ver
+
+  #maintenanceActivityAttentionModal.modal.fade(role="dialog")
+    .modal-dialog(role="document")
+      .modal-content
+        .modal-header.bg-primary.text-white
+          h4.modal-title.font-weight-bold Atención de Equipo 
+            nbsp
+            span#date
+          button.close.fa.fa-close(type="button", style="color:white; opacity:1; text-shadow:1px 1px 1px #ccc; text-indent:0" data-dismiss="modal", aria-label="Close")
+        .modal-body
+          form(role="form", id="maintenanceActivityAttentionGroup", name="maintenanceActivityAttentionGroup", action="", method="")
+            .form-group.row
+              .col-md-6(style="text-align:left")
+                h4.font-weight-bold Estado: 
+                  nbsp
+                  span(style="display:none;", id="toAttend") Por Atender
+                  span(style="display:none;", id="finished") Finalizado
+                  span(style="display:none;", id="notFinished") No Finalizado
+          form(role="form", id="maintenanceActivityAttention", name="maintenanceActivityAttention", action="", method="")
+          
+  script(src='../../../javascripts/equipment/main.js')
