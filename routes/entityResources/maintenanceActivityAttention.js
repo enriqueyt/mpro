@@ -263,6 +263,8 @@ exports.getNextMaintenanceActivityAttention = function (req, res, next) {
             result['enableFinish'] = false;
           }
 
+          result['started'] = maintenanceActivityDate.started,
+          result['finished'] = maintenanceActivityDate.finished;
           result['maintenanceActivityDate'] = maintenanceActivityDate._id;
           result['date'] = Utils.formatDate(maintenanceActivityDate.date, DATE_FORMAT);
           result['maintenanceActivityAttentions'] = maintenanceActivityAttentions;
@@ -287,6 +289,69 @@ exports.getNextMaintenanceActivityAttention = function (req, res, next) {
 
   maintenanceActivityDatesPromise
   .then(getNextMaintenanceActivityDate)
+  .then(getMaintenanceAttention)
+  .then(onFinish)
+  .catch(function (err) {
+    console.log('ERROR:', err.message);
+    res.status(err.code).send(err.message);
+  });
+};
+
+exports.getMaintenanceActivityAttentionByActivityDate = function (req, res, next) {
+  if (!req.user || !req.user.username) {
+    res.status(401).send({error: true, message: 'No user found'});
+  }
+
+  var maintenanceActivityDatePromise = new Promise(function (resolve, reject) {
+    var query = {'maintenanceActivityDates.identifier': req.params.identifier};
+    var projection = {'_id': 0, 'maintenanceActivityDates.$': 1};
+
+    mongoEquipment.findOne(query).select(projection).exec()
+    .then(function (data) {
+      resolve(data.maintenanceActivityDates[0]);
+    })
+    .catch(function (err) {
+      reject({error: true, code: 500, message: err.message});
+    })
+  });
+
+  var getMaintenanceAttention = function (maintenanceActivityDate) {
+    var promise = new Promise(function (resolve, reject) {
+      if (typeof maintenanceActivityDate !== 'undefined') {
+        var query = {identifier: maintenanceActivityDate.identifier};
+  
+        mongoMaintenanceActivityAttention
+        .find(query)
+        .populate({path: 'maintenanceActivity', select: {_id: 0, name: 1}})
+        .exec()
+        .then(function (maintenanceActivityAttentions) {
+          var result = {};
+
+          result['started'] = maintenanceActivityDate.started,
+          result['finished'] = maintenanceActivityDate.finished;
+          result['maintenanceActivityDate'] = maintenanceActivityDate._id;
+          result['date'] = Utils.formatDate(maintenanceActivityDate.date, DATE_FORMAT);
+          result['maintenanceActivityAttentions'] = maintenanceActivityAttentions;
+          
+          resolve({error: false, data: result});
+        })
+        .catch(function (err) {
+          reject({error: true, code: 500, message: err.message});
+        });
+      }
+      else {
+        reject({error: true, code: 404, message: 'No document found'});
+      }
+    });
+  
+    return promise;
+  };
+
+  var onFinish = function (data) {
+    res.status(200).send(data);
+  };  
+
+  maintenanceActivityDatePromise
   .then(getMaintenanceAttention)
   .then(onFinish)
   .catch(function (err) {
