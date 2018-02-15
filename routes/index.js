@@ -6,6 +6,8 @@ var Csrf = require('csurf');
 var ObjectId = require('mongoose').Types.ObjectId;
 var Functional = require('underscore');
 
+var Utils = require('../libs/utils');
+
 var router = Express.Router();
 var csrfProtection = Csrf({ cookie: true });
 var mongoAccount = Mongoose.model('account');
@@ -13,6 +15,11 @@ var mongoEntity = Mongoose.model('entity');
 var mongoEquipmentType = Mongoose.model('equipmentType');
 var mongoEquipment = Mongoose.model('equipment');
 var mongoMaintenanceActivity = Mongoose.model('maintenanceActivity');
+var mongoMaintenanceActivityAttention = Mongoose.model('maintenanceActivityAttention');
+
+var DATE_FORMAT = 'DD/MM/YYYY';
+
+var util = require('util');
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
@@ -185,6 +192,168 @@ router.get('/home/:identifier/branchCompanies/:id', function (req, res, next) {
   .then(onRender)
   .catch(function (err) {
     console.log('ERROR:', err);
+    res.redirect('/');
+    return;
+  });
+});
+
+router.get('/home/:identifier/equipment/:id', function (req, res, next) {
+  if (!req.user) {
+    req.session.loginPath = null;
+    console.log('No identifier');
+    res.redirect('/login');
+  }
+
+  var equipmentPromise = new Promise(function (resolve, reject) {
+    var query = {_id: req.params.id};
+
+    mongoEquipment
+    .findOne(query)
+    .populate({path: 'branchCompany', select: {_id: 0, name: 1}})
+    .populate({path: 'equipmentType', select: {_id: 0, name: 1}})
+    .populate({path: 'userAssigned', select: {_id: 0, name: 1}})
+    .lean()
+    .exec()
+    .then(function (equipment) {
+      if (!equipment || equipment.length === 0) {
+        var message = 'No equipment found';
+        reject(new Error(message));
+      }
+      else {
+        resolve(equipment);
+      }
+    })
+  });
+
+  var classifyMaintenanceActivityDates = function (equipment) {
+    var currentDate = Date.now();
+    var maintenanceActivityDatesClassified = {
+      attended: [],
+      nextToAttend: null,
+      toAttend: []
+    };
+
+    equipment['maintenanceActivityDates'] = equipment.maintenanceActivityDates.sort(function (a, b) {
+      return (new Date(b.date)).getTime() < (new Date(a.date)).getTime();
+    });
+
+    maintenanceActivityDatesClassified = Functional.reduce(equipment.maintenanceActivityDates, function(accumulator, maintenanceActivityDate) {
+      var date = Utils.getEndDate(maintenanceActivityDate.date);
+
+      if (accumulator.nextToAttend === null) {
+        if (date.getTime() < currentDate) {
+          accumulator['attended'].push(maintenanceActivityDate);  
+        }
+        else {
+          accumulator['nextToAttend'] = maintenanceActivityDate;  
+        }
+      }
+      else {
+        accumulator['toAttend'].push(maintenanceActivityDate);
+      }
+
+      return accumulator;
+    }, maintenanceActivityDatesClassified);
+
+    return [equipment, maintenanceActivityDatesClassified];
+  };
+
+  var getNextMaintenanceAttention = function (data) {
+    var enableStart = function (maintenanceActivityDate) {
+      var enable = false;
+      var currentDate = Date.now();
+      var rangeDates = Utils.getLimitDates(maintenanceActivityDate.date);
+
+      if (maintenanceActivityDate.started === false && 
+        rangeDates.min.getTime() <= currentDate && 
+        currentDate <= rangeDates.max.getTime()) {
+        enable = true;
+      }
+
+      return enable;
+    };
+
+    var enableFinish = function (maintenanceActivityDate) {
+      var enable = false;
+
+      if (maintenanceActivityDate.started === true &&
+        typeof maintenanceActivityDate.finishedDate === 'undefined') {
+        enable = true;
+      }
+
+      return enable;
+    };
+
+    var formatDates = function (maintenanceActivityDates) {
+      return Functional.map(maintenanceActivityDates, function (maintenanceActivityDate) {
+        return maintenanceActivityDate['date'] = Utils.formatDate(maintenanceActivityDate.date, DATE_FORMAT);
+      });
+    }
+
+    var promise = new Promise(function (resolve, reject) {
+      if (typeof data[1].nextToAttend !== null) {
+        var query = {identifier: data[1].nextToAttend.identifier};
+  
+        mongoMaintenanceActivityAttention
+        .find(query)
+        .populate({path: 'maintenanceActivity', select: {_id: 0, name: 1}})
+        .exec()
+        .then(function (maintenanceActivityAttentions) {
+          var result = {};
+
+          if (enableStart(data[1].nextToAttend) === true) {
+            result['enableStart'] = true;
+            result['enableFinish'] = false;
+          }
+          else if (enableFinish(data[1].nextToAttend) === true) {
+            result['enableStart'] = false;
+            result['enableFinish'] = true;
+          }
+          else {
+            result['enableStart'] = false;
+            result['enableFinish'] = false;
+          }
+
+          result['maintenanceActivityDate'] = data[1].nextToAttend._id;
+          result['date'] = Utils.formatDate(data[1].nextToAttend.date, DATE_FORMAT);
+          result['maintenanceActivityAttentions'] = maintenanceActivityAttentions;
+          
+          delete data[1].nextToAttend;
+
+          formatDates(data[1].attended);
+          formatDates(data[1].toAttend);
+
+          data.push(result);
+          resolve(data);
+        })
+        .catch(function (err) {
+          reject({error: true, code: 500, message: err.message});
+        });
+      }
+      else {
+        data.push(null);
+        resolve(data);
+      }
+    });
+  
+    return promise;
+  };
+
+  var onRender = function (data) {
+    return res.render('pages/equipment', {
+      user: req.user || {},
+      equipment: data[0],
+      maintenanceActivityDates: data[1],
+      nextMaintenanceActivityAttention: data[2]
+    });
+  };
+
+  equipmentPromise
+  .then(classifyMaintenanceActivityDates)
+  .then(getNextMaintenanceAttention)
+  .then(onRender)
+  .catch(function (err) {
+    console.log('ERROR: ', err);
     res.redirect('/');
     return;
   });
