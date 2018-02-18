@@ -8,34 +8,34 @@ block content-mpro
           .col-md-4
             .portlet.light.profile-sidebar-portlet
               .profile-userpic
-                img.img-responsive(src='/images/avatar.png', alt='')                            
-              .profile-usertitle
+                img.img-responsive(src='/images/company.png', alt='')                            
+              .profile-usertitle(style="text-align:left;padding-left:3px;")
                 .profile-usertitle-name
-                  h3 !{entity.name}
+                  h3#entityName !{entity.name}
                 .profile-usertitle-job
-                  h4 !{entity.email}
+                  h4#entityEmail !{entity.email}
                   label(for="location")
-                  textarea !{entity.location}
+                  textarea#entityLocation !{entity.location}
               .profile-userbuttons
-                button.btn.btn-circle.blue-haze.btn-sm(type='button') activo
+                button#editEntity.btn.btn-circle.blue.btn-sm(type='button') Editar
               .profile-usermenu
                 ul.nav
-                  li.active
+                  li
                     a(href='#')
-                    i.icon-home
-                    | Inicio
+                      i.icon-home
+                      | Inicio
                   li
-                    a(href="/"+user.role+"/"+user.identifier)
-                    i.icon-settings
-                    | Actividades
+                    a(href="/"+user.role)
+                      i.icon-settings
+                      | Actividades
                   li
-                    a(href="/"+user.role+"/"+user.identifier+"/company")
-                    i.icon-check
-                    | Empresa
+                    a(href="/"+user.role+"/companies")
+                      i.icon-check
+                      | Empresas
                   li
-                    a(href="/"+user.role+"/"+user.identifier+"/users")
-                    i.icon-check
-                    | Usuarios
+                    a(href="/"+user.role+"/users")
+                      i.icon-check
+                      | Usuarios
           .col-md-8
             .container
               .portlet.light
@@ -66,7 +66,7 @@ block content-mpro
                       .col-md-6
                       .col-md-6(style="text-align:right")
                         .btn-group
-                          button.btn.btn-primary Agregar 
+                          //-button#addAccount.btn.btn-primary(type="button", data-toggle="addAccountModal", style="cursor:pointer; background-color:rgb(0,155,219)") Agregar Usuario 
                             i.fa.fa-plus
                   table.table#accounts
                     thead
@@ -108,7 +108,7 @@ block content-mpro
                         .col-md-6
                         .col-md-6(style="text-align:right")
                           .btn-group
-                            button.btn.btn-primary Agregar 
+                            //-button.btn.btn-primary Agregar 
                               i.fa.fa-plus
                     table.table#branchcompanies
                       thead
@@ -154,4 +154,41 @@ block content-mpro
                         td=item.location
                         td
                           i.fa.fa-trash(aria-hidden="true")
-  script(src='../javascripts/account/main.js')
+  #editEntityModal.modal.fade(rol="dialog")
+    .modal-dialog(role="document")
+      .modal-content
+        .modal-header
+          h5.modal-title Editar Empresa
+          button.close(type="button", data-dismiss="modal", aria-label="Close")
+            span(aria-hidden="true") &times;
+        .modal-body
+          form(role="form", id="editComapnyForm", name="editComapnyForm", action="/entity", method="put")
+            input(type="hidden", name="type", value="company")
+            input(type="hidden", name="_id", value=entity._id)
+            .form-group.row
+              label.col-3.col-form-label(for="name") Nombre
+              .col-9
+                input.form-control(type="text", id="name", name="name", value=entity.name, plateholder="Nombre")
+            .form-group.row
+              label.col-3.col-form-label(for="email") Correo
+              .col-9
+                input.form-control(type="email", id="email", value=entity.email, name="email", plateholder="Correo")
+            .form-group.row
+              label.col-3.col-form-label(for="phone") Telefono
+              .col-9
+                input.form-control(type="phone", id="phone", name="phone", value=entity.phone, plateholder="Telefono")
+            .form-group.row
+              label.col-3.col-form-label(for="location") Ubicacion
+              .col-9
+                textarea.form-control(id="location", name="location", wrap="hard")
+                  | #{entity.location}
+            .col-12(style="text-align:right")
+              button.btn.btn-secondary(type="button", data-dismiss="modal", style="margin-right:1%;") Cerrar
+              button.btn.btn-primary.editEntitySubmit(type="submit") Actualizar
+  script(src='../../javascripts/account/main.js')
+  script(type="text/javascript").
+    $(document).ready(function(){
+      $('button#editEntity').click(function(){
+        $('#editEntityModal').modal('show');
+      });      
+    });

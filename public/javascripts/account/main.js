@@ -14,7 +14,7 @@ function setDefaultDropDownListOption(containerName) {
 }
 
 function setDropDownListOptions(actionName, parameter, containerName) {
-  var action = ''.concat('/', actionName ,'/', parameter);
+  var action = ''.concat(actionName ,'/', parameter);
   var container = $('select#'.concat(containerName)); 
 
   container.empty();
@@ -39,6 +39,7 @@ function setDropDownListOptions(actionName, parameter, containerName) {
 }
 
 $(document).ready(function () {
+
   $('#addAccount').click(function (e) {
     $('#addAccountModal').modal('show');
     $('input[type=checkbox]#status').trigger('change');
@@ -55,7 +56,7 @@ $(document).ready(function () {
       setDefaultDropDownListOption('branchCompany');
     }
     else {
-      setDropDownListOptions('branchCompaniesByCompany', companyId, 'branchCompany');
+      setDropDownListOptions('/entities/branchCompanies/company', companyId, 'branchCompany');
     }
 
     return false;
@@ -71,7 +72,7 @@ $(document).ready(function () {
 
   $('.addAccountSubmit').click(function (e) {
     e.preventDefault();
-
+    var data={}, _this=this;
     $('#warningAccountForm').css({display: 'none'});
     $('#warningAccountForm #content').empty();
     $(document).find('[name="requireFieldMessage"]').remove();
@@ -110,17 +111,38 @@ $(document).ready(function () {
     if (!$(form).find('[name="requireFieldMessage"]').length > 0) {
       var action = $($(this).parents('form')).attr('action');
 
-      $.post(action, data, function (response) {						
+      var request = $.ajax({
+        url: action,
+        method: 'PUT',
+        data: data
+      });
+       
+      request.done(function (response) {
         if (!response.error) {
-          $('#addAccountModal').modal('hide');
-          window.location.reload(true);
-        }
-        else {
-          $('#warningAccountForm').css({display: ''});
-          $('#warningAccountForm #content').append(response.message);
+          var obj = response.data;   
+          
+          if (obj) {
+            if (obj.name !== $.trim($('#entityName').val())) {
+              $('#entityName').text(obj.name);
+            }
+            
+            if (obj.email !== $.trim($('#entityEmail').val())) {
+              $('#entityEmail').text(obj.email);
+            }
+            
+            if (obj.location !== $.trim($('#entityLocation').val())) {
+              $('#entityLocation').val(obj.location);
+            }           
+          }
+
+          $('#editEntityModal, #addBranchCompanyModal').modal('hide');
         }
 
         return false;
+      });
+       
+      request.fail(function(j, error) {
+        console.log("Fail on update: " + error);
       });
     }
 

@@ -21,12 +21,14 @@ var db = Mongoose.connection;
 db.on('error', console.error.bind(console, 'Database connection error:'));
 db.once('open', console.error.bind(console, 'Connected to MongDB'));
 
+require('./models/session');
 require('./models/account');
 require('./models/entity');
 require('./models/equipmentType');
 require('./models/equipment');
 require('./models/maintenanceActivity');
 require('./models/maintenanceActivityAttention');
+require('./models/log');
 
 var api = require('./routes/api');
 var index = require('./routes/index');

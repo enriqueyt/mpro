@@ -3,22 +3,18 @@ var Sanitizer = require('sanitizer');
 var Mongoose = require('mongoose');
 var MongoSanitize = require('mongo-sanitize');
 var Csrf = require('csurf');
-var Functional = require('underscore');
-var ObjectId = require('mongoose').Types.ObjectId;
 
-var Utils = require('../libs/utils');
+var Log = require('../libs/log');
+var SessionHandle = require('../libs/sessionHandle');
 
 var Activities = require('./profileResources/adminCompany/activities');
+var Companies = require('./profileResources/adminCompany/companies');
+var Users = require('./profileResources/adminCompany/users');
 var Equipments = require('./profileResources/adminCompany/equipments');
 
 var router = Express.Router();
 var csrfProtection = Csrf({cookie: true});
 var mongoAccount = Mongoose.model('account');
-var mongoEntity = Mongoose.model('entity');
-var mongoEquipmentType = Mongoose.model('equipmentType');
-var mongoEquipment = Mongoose.model('equipment');
-
-var DATE_FORMAT = 'DD/MM/YYYY';
 
 router.use(function (req, res, next) {
   res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
@@ -28,133 +24,28 @@ router.use(function (req, res, next) {
   next();
 });
 
-router.get('/adminCompany/:identifier', function (req, res, next) {
+router.get('/adminCompany', SessionHandle.isLogged, function (req, res, next) {
   if (!req.user) {
-    req.session.loginPath = null;
-    console.log('No identifier found');
-    res.redirect('/login');
-  }
-
-  var accountPromise = new Promise(function (resolve, reject) {
-    var identifier = req.params.identifier || req.user.identifier;
-    var role = req.params.role || req.user.role;
-    var query = {'identifier': identifier, 'role': role};
-    
-    mongoAccount.findOne(query).populate('company').exec()
-    .then(function (user) {    
-      if (!user || user.length === 0) {
-        var message = 'No user found';
-        reject(new Error(message));
-      }
-      else {
-        resolve(user);
-      }
-    })
-    .catch(function (err) {
-      reject(err);
-    });
-  });
-
-  var onRender = function (data) {
-    return res.render('pages/dashboard/dashboard_admin_company', {
-      user: req.user || {},
-      //csrfToken: req.csrfToken(),
-      currentAccount: data   
-    });
-  };
-
-  accountPromise
-  .then(onRender)
-  .catch(function (err) {
-    console.log('ERROR:', err);
-    res.redirect('/');
-    return;
-  });
-});
-
-router.get('/adminCompany/:identifier/activities', Activities.getActivitiesViewData);
-
-router.get('/adminCompany/:identifier/companies', function (req, res, next) {
-  if (!req.user) {
-    req.session.loginPath = null;
-    console.log('No identifier found');
-    res.redirect('/login');
-  }
-
-  if (req.user.role !== 'adminCompany') {
-    var message = 'Just for main administrators';
-    throw new Error(message);
-    return;
-  }
-
-  var accountPromise = new Promise(function (resolve, reject) {
-    var identifier = req.params.identifier || req.user.identifier;
-    var role = req.params.role || req.user.role;
-    var query = {'identifier': identifier, 'role': role};
-  
-    mongoAccount.findOne(query).populate('company').exec()
-    .then(function (user) {
-      if (!user || user.length === 0) {
-        var message = 'No user found';
-        reject(new Error(message));
-      }
-      else {
-        resolve(user);
-      }
-    })
-    .catch(function (err) {
-      reject(err);
-    });
-  });
-
-  var onFetchBranchCompanies = function (user) {
-    var promise = new Promise(function (resolve, reject) {
-      var query = {type: 'branchCompany', company: new ObjectId(user.company._id)};
-
-      mongoEntity.find(query).exec()
-      .then(function (branchCompanies) {
-        resolve([user, branchCompanies]);
-      })
-      .catch(function (err) {
-        reject(err);
-      });
-    });
-
-    return promise;
-  };
-
-  var onRender = function (data) {
-    return res.render('pages/company/company_admin_company', {
-      user: req.user || {},
-      //csrfToken: req.csrfToken()
-      currentAccount: data[0],
-      branchCompanies: data[1]
-    });
-  };
-
-  accountPromise
-  .then(onFetchBranchCompanies)
-  .then(onRender)
-  .catch(function (err) {
-    console.log('ERROR:', err);
-    res.redirect('/');
-    return;
-  });
-});
-
-router.get('/adminCompany/:identifier/users', function (req, res, next) {
-  if (!req.user) {
-    req.session.loginPath = null;
     console.log('No identifier');
     res.redirect('/login');
   }
 
   var accountPromise = new Promise(function (resolve, reject) {
-    var identifier = req.params.identifier || req.user.identifier;
+    var identifier = req.user.identifier;
     var role = req.params.role || req.user.role;
     var query = {'identifier': identifier, 'role': role};
 
-    mongoAccount.findOne(query).populate('company').exec()
+    mongoAccount
+    .findOne(query)
+    .populate({
+      path: 'company',
+      Model: 'entity',
+      populate: {
+        path: 'company',
+        Model: 'entity'
+      }
+    })
+    .exec()
     .then(function (user) {
       if (!user || user.length === 0) {
         var message = 'No user found';
@@ -168,43 +59,12 @@ router.get('/adminCompany/:identifier/users', function (req, res, next) {
       reject(err);
     });
   });
-  
-  var onFetchBranchCompanies = function (user) {
-    var promise = new Promise(function (resolve, reject) {
-      var query = {type: 'branchCompany', company: new ObjectId(user.company._id)} 
-    
-      mongoEntity.find(query).exec()
-      .then(function (branchCompanies) {
-        resolve([user, branchCompanies]);
-      })
-      .catch(function (err) {
-        reject(err);
-      });
-    });
 
-    return promise;
-  };
-
-  var onFetchAccounts = function (data) {
-    var branchCompanyIds = Functional.reduce(data[1], function(accumulator, branchCompany) {
-      accumulator.push(branchCompany._id);
-
-      return accumulator;
-    }, []);     
-
-    var promise = new Promise(function (resolve, reject) {
-      var query = {company: {$in: branchCompanyIds}};
-
-      mongoAccount.find(query).populate('company').lean().exec()
-      .then(function (accounts) {
-        accounts = Functional.map(accounts, function (account) {
-          account.date = Utils.formatDate(account.date, DATE_FORMAT);
-          account.roleValue = mongoAccount.getRoleValue(account.role);
-          return account;
-        });
-
-        data.push(accounts);
-        resolve(data);
+  var onFetchActivities = function (user) {
+    var promise = new Promise(function(resolve, reject) {
+      Log.getLogs(10, 0).onFetchByRole(user)
+      .then(function (data) {
+        resolve({user: user, activities: data});
       })
       .catch(function (err) {
         reject(err);
@@ -215,24 +75,18 @@ router.get('/adminCompany/:identifier/users', function (req, res, next) {
   };
 
   var onRender = function (data) {
-    var roleEnumValues = mongoAccount.schema.path('role').enumValues;
-    var roles = Functional.filter(roleEnumValues, function (roleEnumValue) {
-      return roleEnumValue !== 'admin' && roleEnumValue !== 'adminCompany';
-    });
+    var tempUser = req.user || {};
+    req.user = {};
 
-    return res.render('pages/account/account_admin_company', {
-      user: req.user || {},
-      //csrfToken: req.csrfToken()
-      currentAccount: data[0],
-      branchCompanies: data[1],
-      accounts: data[2],
-      roles: roles
+    return res.render('pages/dashboard/dashboard_admin_company', {
+      user: tempUser,
+      currentAccount: data.user,
+      activities: data.activities
     });
   };
 
-  accountPromise
-  .then(onFetchBranchCompanies)
-  .then(onFetchAccounts)
+  accountPromise(req.user)
+  .then(onFetchActivities)
   .then(onRender)
   .catch(function (err) {
     console.log('ERROR:', err);
@@ -241,6 +95,12 @@ router.get('/adminCompany/:identifier/users', function (req, res, next) {
   });
 });
 
-router.get('/adminCompany/:identifier/equipments', Equipments.getEquipmentsViewData);
+router.get('/adminCompany/activities', SessionHandle.isLogged, Activities.getActivitiesViewData);
+
+router.get('/adminCompany/companies', SessionHandle.isLogged, Companies.getCompaniesViewData);
+
+router.get('/adminCompany/users', SessionHandle.isLogged, Users.getUsersViewData);
+
+router.get('/adminCompany/equipments', SessionHandle.isLogged, Equipments.getEquipmentsViewData);
 
 module.exports = router;

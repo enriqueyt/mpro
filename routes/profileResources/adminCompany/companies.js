@@ -1,28 +1,19 @@
 var Mongoose = require('mongoose');
 
 var mongoAccount = Mongoose.model('account');
-var mongoEquipment = Mongoose.model('equipment');
+var mongoEntity = Mongoose.model('entity');
 
-exports.getEquipmentsViewData = function (req, res, next) {
+exports.getCompaniesViewData = function (req, res, next) {
   if (!req.user) {
     console.log('No identifier');
     res.redirect('/login');
   }
 
-  var populateAccountCompanyPromise = function (account) {
-    var promise = new Promise(function (resolve, reject) {
-      mongoAccount.populate(account, {path: 'company.company', model: 'entity'}, function (err, account) {
-        if (err) {
-          reject(err);
-        }
-        else {
-          resolve(account);
-        }
-      });
-    });
-
-    return promise;
-  };
+  if (req.user.role !== 'adminCompany') {
+    var message = 'Just for main administrators';
+    throw new Error(message);
+    return;
+  }
 
   var accountPromise = new Promise(function (resolve, reject) {
     var identifier = req.params.identifier || req.user.identifier;
@@ -36,15 +27,7 @@ exports.getEquipmentsViewData = function (req, res, next) {
         reject(new Error(message));
       }
       else {
-        var promise = populateAccountCompanyPromise(user);
-
-        promise
-        .then(function (account) {
-          resolve(account);
-        })
-        .catch(function (err) {
-          reject(err);
-        });
+        resolve(user);
       }
     })
     .catch(function (err) {
@@ -52,19 +35,19 @@ exports.getEquipmentsViewData = function (req, res, next) {
     });
   });
 
-  var onFetchEquipments = function (user) {
+  var onFetchBranchCompanies = function (user) {
     var promise = new Promise(function (resolve, reject) {
-      var query = {branchCompany: user.company._id};
+      var query = {type: 'branchCompany', company: user.company._id};
 
-      mongoEquipment.find(query).populate('equipmentType').populate('userAssigned').exec()
-      .then(function (equipments) {
-        resolve([user, equipments]);
+      mongoEntity.find(query).exec()
+      .then(function (branchCompanies) {
+        resolve([user, branchCompanies]);
       })
       .catch(function (err) {
         reject(err);
       });
     });
-    
+
     return promise;
   };
 
@@ -72,19 +55,19 @@ exports.getEquipmentsViewData = function (req, res, next) {
     var tempUser = req.user || {};
     req.user = {};
 
-    return res.render('pages/equipment/equipment_technician', {
+    return res.render('pages/company/company_admin_company', {
       user: tempUser,
       currentAccount: data[0],
-      equipments: data[1]
+      branchCompanies: data[1]
     });
   };
 
   accountPromise
-  .then(onFetchEquipments)
+  .then(onFetchBranchCompanies)
   .then(onRender)
   .catch(function (err) {
     console.log('ERROR:', err);
     res.redirect('/');
     return;
   });
-};
+}

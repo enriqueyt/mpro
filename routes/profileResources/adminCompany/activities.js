@@ -12,7 +12,6 @@ var DATE_FORMAT = 'DD/MM/YYYY';
 
 exports.getActivitiesViewData = function (req, res, next) {
   if (!req.user) {
-    req.session.loginPath = null;
     console.log('No identifier found');
     res.redirect('/login');
   }
@@ -107,9 +106,11 @@ exports.getActivitiesViewData = function (req, res, next) {
   }
 
   var onRender = function (data) {
+    var tempUser = req.user || {};
+    req.user = {};
+
     return res.render('pages/maintenance_activity/maintenance_activity_admin_company', {
-      user: req.user || {},
-      //csrfToken: req.csrfToken(),
+      user: tempUser,
       currentAccount: data[0],
       equipmentTypes: data[1],
       maintenanceActivities: data[2],

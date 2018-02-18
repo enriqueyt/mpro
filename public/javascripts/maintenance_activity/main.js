@@ -14,7 +14,7 @@ function setDefaultDropDownListOption(containerName) {
 }
 
 function setDropDownListOptions(actionName, parameter, containerName) {
-  var action = ''.concat('/', actionName ,'/', parameter);
+  var action = ''.concat(actionName ,'/', parameter);
   var container = $('select#'.concat(containerName)); 
 
   container.empty();
@@ -211,7 +211,7 @@ $(document).ready(function () {
         setDefaultDropDownListOption('equipment');
     }
     else {
-      setDropDownListOptions('equipmentTypesByCompany', companyId, 'equipmentType');
+      setDropDownListOptions('/equipmentTypes/company', companyId, 'equipmentType');
     }
 
     return false;
@@ -227,8 +227,8 @@ $(document).ready(function () {
       setDefaultDropDownListOption('equipment');
     }
     else {
-      setDropDownListOptions('maintenanceActivitiesByEquipmentType', equipmentTypeId, 'maintenanceActivities');
-      setDropDownListOptions('equipmentsByEquipmentType', equipmentTypeId, 'equipment');
+      setDropDownListOptions('/maintenanceActivities/equipmentType', equipmentTypeId, 'maintenanceActivities');
+      setDropDownListOptions('/equipments/equipmentType', equipmentTypeId, 'equipment');
     }
 
     return false;

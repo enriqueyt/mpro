@@ -4,18 +4,18 @@ block content-mpro
   .container-fluid
     .row
       .col-md-12
-        .row.dashboard-nav-row
+        .row#headerNav.dashboard-nav-row
           .col-md-3
-            a(href="/" + user.role + "/" + user.identifier + "/activities")
+            a(href="/" + user.role + "/activities")
               h5 Actividades
           .col-md-3
-            a(href="/" + user.role + "/" + user.identifier + "/companies")
+            a(href="/" + user.role + "/companies")
               h5 Empresas
           .col-md-3.nav-active
-            a(href="/" + user.role + "/" + user.identifier + "/users")
+            a(href="/" + user.role + "/users")
               h5 Usuarios
           .col-md-3
-            a(href="/" + user.role + "/" + user.identifier + "/equipments")
+            a(href="/" + user.role + "/equipments")
               h5 Equipos
         .row.user-nav-row
           .col-md-11.mt-2.mb-2.mx-auto

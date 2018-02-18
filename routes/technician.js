@@ -3,7 +3,9 @@ var Sanitizer = require('sanitizer');
 var Mongoose = require('mongoose');
 var MongoSanitize = require('mongo-sanitize');
 var Csrf = require('csurf');
-var ObjectId = require('mongoose').Types.ObjectId; 
+
+var Log = require('../libs/log');
+var SessionHandle = require('../libs/sessionHandle');
 
 var Activities = require('./profileResources/technician/activities');
 var Equipments = require('./profileResources/technician/equipments');
@@ -11,8 +13,6 @@ var Equipments = require('./profileResources/technician/equipments');
 var router = Express.Router();
 var csrfProtection = Csrf({cookie: true});
 var mongoAccount = Mongoose.model('account');
-var mongoEquipmentType = Mongoose.model('equipmentType');
-var mongoEquipment = Mongoose.model('equipment');
 
 router.use(function (req, res, next) {
   res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
@@ -22,9 +22,8 @@ router.use(function (req, res, next) {
   next();
 });
 
-router.get('/technician/:identifier', function (req, res, next) { 
+router.get('/technician', SessionHandle.isLogged, function (req, res, next) { 
   if (!req.user) {
-    req.session.loginPath = null;
     console.log('No identifier');
     res.redirect('/login');
   }
@@ -72,14 +71,33 @@ router.get('/technician/:identifier', function (req, res, next) {
     });
   });
 
+  var onFetchActivities = function (user) {
+    var promise = new Promise(function (resolve, reject) {
+      Log.getLogs(10,0).onFetchByRole(user)
+      .then(function (data) {
+        resolve({user: user, activities: data});
+      })
+      .catch(function (err) {
+        reject(err);
+      });
+    });
+
+    return promise;
+  };
+
   var onRender = function (data) {
+    var tempUser = req.user || {};
+    req.user = {};
+
     return res.render('pages/dashboard/dashboard_technician', {
-      user: req.user || {},
-      currentAccount: data
+      user: tempUser,
+      currentAccount: data.user,
+      activities: data.activities
     });
   };
   
   accountPromise
+  .then(onFetchActivities)
   .then(onRender)
   .catch(function (err) {
     console.log('Error:', err);
@@ -88,8 +106,8 @@ router.get('/technician/:identifier', function (req, res, next) {
   });
 });
 
-router.get('/technician/:identifier/activities', Activities.getActivitiesViewData);
+router.get('/technician/activities', SessionHandle.isLogged, Activities.getActivitiesViewData);
 
-router.get('/technician/:identifier/equipments', Equipments.getEquipmentsViewData);
+router.get('/technician/equipments', SessionHandle.isLogged, Equipments.getEquipmentsViewData);
 
 module.exports = router;

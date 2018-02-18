@@ -123,6 +123,29 @@ exports.getMaintenanceActivity = function (req, res, next) {
   });
 };
 
+exports.getMaintenanceActivitiesByEquipmentType = function (req, res, next) {
+  var maintenanceActivitiesPromise = new Promise(function (resolve, reject) {
+    var query = {equipmentType: req.params.equipmentType};
+    var projection = {'_id': 1, 'name': 1};
+
+    mongoMaintenanceActivity.find(query, projection).exec()
+    .then(function (maintenanceActivities) {
+      resolve(maintenanceActivities);
+    })
+    .catch(function (err) {
+      reject(err);
+    });
+  });
+
+  maintenanceActivitiesPromise
+  .then(function (maintenanceActivities) {
+    res.status(200).send({error: false, data: maintenanceActivities});
+  })
+  .catch(function (err) {
+    res.status(500).send({error: true, message: err.message});
+  });
+};
+
 /* ########################################################################## */
 /* UPDATE RESOURCES                                                           */
 /* ########################################################################## */

@@ -1,10 +1,13 @@
 var Mongoose = require('mongoose');
+var Functional = require('underscore');
+
+var Utils = require('../../../libs/utils');
 
 var mongoAccount = Mongoose.model('account');
-var mongoEquipmentType = Mongoose.model('equipmentType');
-var mongoEquipment = Mongoose.model('equipment');
 
-exports.getEquipmentsViewData = function (req, res, next) {
+var DATE_FORMAT = 'DD/MM/YYYY';
+
+exports.getUsersViewData = function (req, res, next) {
   if (!req.user) {
     console.log('No identifier');
     res.redirect('/login');
@@ -32,7 +35,7 @@ exports.getEquipmentsViewData = function (req, res, next) {
   
     mongoAccount.findOne(query).populate('company').exec()
     .then(function (user) {
-      if (!user || user.length === 0) {
+      if (!user || user.length == 0) {
         var message = 'No user found';
         reject(new Error(message));
       }
@@ -53,72 +56,45 @@ exports.getEquipmentsViewData = function (req, res, next) {
     });
   });
 
-  var onFetchEquipmentTypes = function (user) {
+  var onFetchAccounts = function (user) {
     var promise = new Promise(function (resolve, reject) {
-      var query = {company: user.company.company._id};
+      var query = {role: 'technician', company: user.company._id};
 
-      mongoEquipmentType.find(query).exec()
-      .then(function (equipmentTypes) {
-        resolve([user, equipmentTypes]);
-      })
-      .catch(function (err) {
-        reject(err);
-      });
-    });
-
-    return promise;
-  };
-
-  var onFetchEquipments = function (data) {
-    var promise = new Promise(function (resolve, reject) {
-      var query = {branchCompany: data[0].company._id};
-
-      mongoEquipment.find(query).populate('equipmentType').populate('userAssigned').exec()
-      .then(function (equipments) {
-        data.push(equipments);
-        resolve(data);
-      })
-      .catch(function (err) {
-        reject(err);
-      });
-    });
-    
-    return promise;
-  };
-
-  var onFetchAccounts = function (data) {
-    var promise = new Promise(function (resolve, reject) {
-      var query = {role: 'technician', company: data[0].company._id};
-
-      mongoAccount.find(query).exec()
+      mongoAccount.find(query).populate('company').lean().exec()
       .then(function (accounts) {
-        data.push(accounts);
-        resolve(data);
+        accounts = Functional.map(accounts, function (account) {
+          account.date = Utils.formatDate(account.date, DATE_FORMAT);
+          account.roleValue = mongoAccount.getRoleValue(account.role);
+          return account;
+        });
+
+        resolve([user, accounts]);
       })
-      .then(function (err) {
+      .catch(function (err) {
         reject(err);
       });
     });
 
     return promise;
-  }
+  };
 
   var onRender = function (data) {
+    var roleEnumValues = mongoAccount.schema.path('role').enumValues;
+    var roles = Functional.filter(roleEnumValues, function (roleEnumValue) {
+      return roleEnumValue !== 'admin' && roleEnumValue !== 'adminCompany' && roleEnumValue !== 'adminBranchCompany';
+    });
     var tempUser = req.user || {};
     req.user = {};
-
-    return res.render('pages/equipment/equipment_admin_branch_company', {
-      user : tempUser,
+    
+    return res.render('pages/account/account_admin_branch_company', {
+      user: tempUser,
       currentAccount: data[0],
-      equipmentTypes: data[1],
-      equipments: data[2],
-      accounts: data[3]
+      accounts: data[1],
+      roles: roles
     });
   };
-
+  
   accountPromise
-  .then(onFetchEquipmentTypes)
-  .then(onFetchEquipments)
   .then(onFetchAccounts)
   .then(onRender)
   .catch(function (err) {
@@ -126,4 +102,4 @@ exports.getEquipmentsViewData = function (req, res, next) {
     res.redirect('/');
     return;
   });
-};
+}

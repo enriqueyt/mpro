@@ -3,21 +3,17 @@ var Sanitizer = require('sanitizer');
 var Mongoose = require('mongoose');
 var MongoSanitize = require('mongo-sanitize');
 var Csrf = require('csurf');
-var Functional = require('underscore');
-var ObjectId = require('mongoose').Types.ObjectId; 
 
-var Utils = require('../libs/utils');
+var Log = require('../libs/log');
+var SessionHandle = require('../libs/sessionHandle');
 
 var Activities = require('./profileResources/adminBranchCompany/activities');
+var Users = require('./profileResources/adminBranchCompany/users');
 var Equipments = require('./profileResources/adminBranchCompany/equipments');
 
 var router = Express.Router();
 var csrfProtection = Csrf({cookie: true});
 var mongoAccount = Mongoose.model('account');
-var mongoEquipmentType = Mongoose.model('equipmentType');
-var mongoEquipment = Mongoose.model('equipment');
-
-var DATE_FORMAT = 'DD/MM/YYYY';
 
 router.use(function (req, res, next) {
   res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
@@ -27,9 +23,8 @@ router.use(function (req, res, next) {
   next();
 });
 
-router.get('/adminBranchCompany/:identifier', function (req, res, next) {
+router.get('/adminBranchCompany', SessionHandle.isLogged, function (req, res, next) {
   if (!req.user) {
-    req.session.loginPath = null;
     console.log('No identifier');
     res.redirect('/login');
   }
@@ -76,89 +71,12 @@ router.get('/adminBranchCompany/:identifier', function (req, res, next) {
       reject(err);
     });
   });
-  
-  var onRender = function (data) {
-    return res.render('pages/dashboard/dashboard_admin_branch_company', {
-      user: req.user || {},
-      //csrfToken: req.csrfToken()
-      currentAccount: data      
-    });
-  };
 
-  accountPromise
-  .then(onRender)
-  .catch(function (err) {
-    console.log('Error:', err);
-    res.redirect('/');
-    return;
-  });
-});
-
-router.get('/adminBranchCompany/:identifier/activities', Activities.getActivitiesViewData);
-
-router.get('/adminBranchCompany/:identifier/users', function (req, res, next) {
-  if (!req.user) {
-    req.session.loginPath = null;
-    console.log('No identifier');
-    res.redirect('/login');
-  }
-
-  var populateAccountCompanyPromise = function (account) {
+  var onFetchActivities = function (user) {
     var promise = new Promise(function (resolve, reject) {
-      mongoAccount.populate(account, {path: 'company.company', model: 'entity'}, function (err, account) {
-        if (err) {
-          reject(err);
-        }
-        else {
-          resolve(account);
-        }
-      });
-    });
-
-    return promise;
-  };
-
-  var accountPromise = new Promise(function (resolve, reject) {
-    var identifier = req.params.identifier || req.user.identifier;
-    var role = req.params.role || req.user.role;
-    var query = {'identifier': identifier, 'role': role};
-  
-    mongoAccount.findOne(query).populate('company').exec()
-    .then(function (user) {
-      if (!user || user.length == 0) {
-        var message = 'No user found';
-        reject(new Error(message));
-      }
-      else {
-        var promise = populateAccountCompanyPromise(user);
-
-        promise
-        .then(function (account) {
-          resolve(account);
-        })
-        .catch(function (err) {
-          reject(err);
-        });
-      }
-    })
-    .catch(function (err) {
-      reject(err);
-    });
-  });
-
-  var onFetchAccounts = function (user) {
-    var promise = new Promise(function (resolve, reject) {
-      var query = {role: 'technician', company: new ObjectId(user.company._id)};
-
-      mongoAccount.find(query).populate('company').lean().exec()
-      .then(function (accounts) {
-        accounts = Functional.map(accounts, function (account) {
-          account.date = Utils.formatDate(account.date, DATE_FORMAT);
-          account.roleValue = mongoAccount.getRoleValue(account.role);
-          return account;
-        });
-
-        resolve([user, accounts]);
+      Log.getLogs(10,0).onFetchByRole(user)
+      .then(function (data) {
+        resolve({user: user, activities: data});
       })
       .catch(function (err) {
         reject(err);
@@ -167,31 +85,33 @@ router.get('/adminBranchCompany/:identifier/users', function (req, res, next) {
 
     return promise;
   };
-
+  
   var onRender = function (data) {
-    var roleEnumValues = mongoAccount.schema.path('role').enumValues;
-    var roles = Functional.filter(roleEnumValues, function (roleEnumValue) {
-      return roleEnumValue !== 'admin' && roleEnumValue !== 'adminCompany' && roleEnumValue !== 'adminBranchCompany';
-    });
+    var tempUser = req.user || {};
+    req.user = {};
 
-    return res.render('pages/account/account_admin_branch_company', {
-      user: req.user || {},
-      currentAccount: data[0],
-      accounts: data[1],
-      roles: roles
+    return res.render('pages/dashboard/dashboard_admin_branch_company', {
+      user: tempUser,
+      currentAccount: data.user,
+      activities: data.activities
     });
   };
-  
+
   accountPromise
-  .then(onFetchAccounts)
+  .then(onFetchActivities)
   .then(onRender)
   .catch(function (err) {
-    console.log('ERROR:', err);
+    console.log('Error:', err);
     res.redirect('/');
     return;
   });
 });
 
-router.get('/adminBranchCompany/:identifier/equipments', Equipments.getEquipmentsViewData);
+
+router.get('/adminBranchCompany/:identifier/activities', SessionHandle.isLogged, Activities.getActivitiesViewData);
+
+router.get('/adminBranchCompany/users', SessionHandle.isLogged, Users.getUsersViewData);
+
+router.get('/adminBranchCompany/equipments', SessionHandle.isLogged, Equipments.getEquipmentsViewData);
 
 module.exports = router;

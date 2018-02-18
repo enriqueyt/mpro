@@ -7,7 +7,6 @@ var mongoEquipment = Mongoose.model('equipment');
 
 exports.getEquipmentsViewData = function (req, res, next) {
   if (!req.user) {
-    req.session.loginPath = null;
     console.log('No identifier');
     res.redirect('/login');
   }
@@ -83,9 +82,11 @@ exports.getEquipmentsViewData = function (req, res, next) {
   });
 
   var onRender = function (data) {
+    var tempUser = req.user || {};
+    req.user = {};
+    
     return res.render('pages/equipment/equipment_admin', {
-      user : req.user || {},
-      //csrfToken: req.csrfToken()
+      user : tempUser,
       equipmentTypes: data[0],
       companies: data[1],
       equipments: data[2]

@@ -1,0 +1,48 @@
+#addAccountModal.modal.fadde(role="dialog")
+  .modal-dialog(role="document")
+    .modal-content
+      .modal-header
+        h5.modal-title Agregar Usuario
+        button.close(type="button", data-dismiss="modal", aria-label="Close")
+          span(aria-hidden="true") &times;
+      .modal-body
+        #warningAccountForm.alert.alert-warning.alert-dismissible(role="alert",, style="display:none;")
+          button.close(type="button", data-dismiss="alert", aria-label="Close")
+            span(aria-hidden="true")
+          strong Hey! 
+        #content(style="display:inline-block")
+        form(role="form", id="addAccountForm", name="addAccountForm", action="/account", method="post")
+          .form-group.row
+            label.col-3.col-form-label(for="name") Nombre
+            .col-9
+              input.form-control(type="text", id="name", name="name", placeholder="Nombre", required="true")
+          .form-group.row
+            label.col-3.col-form-label(for="email") Correo
+            .col-9
+              input.form-control(type="email", id="username", name="username", placeholder="Correo", required="true" )
+          .form-group.row
+            label.col-3.col-form-label(for="role") Role
+            .col-9
+              select.form-control(id="role", name="role", required="true")
+                option Seleccione
+                each rol in roles
+                  option(value=rol) #{rol}
+          .form-group.row
+            label.col-3.col-form-label(for="") Empresa
+            .col-9
+              select.form-control(id="company", name="company", required="true")
+                option Seleccione
+                each company in companies
+                  option(value=company._id) #{company.name}
+          .form-group.row
+            label.col-3.col-form-label(for="") Sucursal
+            .col-9
+              select.form-control(id="branchcompany", name="branchcompany")
+                option Seleccione
+          .form-group.row
+            label.col-3.col-form-label(for="status") Estatus
+            .col-9
+            input.form-control(type="checkbox", id="status", name="status" )
+          .col-12(style="text-align:right")
+            button.btn.btn-secondary(type="button", data-dismiss="modal", style="margin-right:1%;") Cerrar
+            button.btn.btn-primary.addAccountSubmit(type="submit") Crear

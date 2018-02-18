@@ -1,18 +1,25 @@
 var Mongoose = require('mongoose');
 var Schema = Mongoose.Schema;
 var ObjectId = Mongoose.Schema.Types.ObjectId;
+var moment = require('moment');
 
-var session = new Schema(
-	{
+var session = new Schema({
 		session: {
-			type: String,		
+			type:String,		
+		},
+		user:{
+			type: Schema.Types.ObjectId,
+			ref: 'account'
 		},
 		expire: {
-			type: Date,
-			default: Date.now
+			type:Date,
+			default:moment().add(60,'minute')
+		},
+		active:{
+			type:Boolean,
+			default:true
 		}
-	},
-	{
+	},{
 		autoIndex: false
 	}
 );

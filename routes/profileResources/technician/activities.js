@@ -132,9 +132,11 @@ exports.getActivitiesViewData = function (req, res, next) {
   }
 
   var onRender = function (data) {
+    var tempUser = req.user || {};
+    req.user = {};
+
     return res.render('pages/maintenance_activity/maintenance_activity_technician', {
-      user: req.user || {},
-      //csrfToken: req.csrfToken(),
+      user: tempUser,
       currentAccount: data[0],
       equipments: data[1],
       equipmentTypes: data[2],

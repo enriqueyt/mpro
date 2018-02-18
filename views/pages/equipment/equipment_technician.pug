@@ -4,13 +4,13 @@ block content-mpro
   .container-fluid
     .row
       .col-md-12
-        .row.dashboard-nav-row
+        .row#headerNav.dashboard-nav-row
           .col-md-3
-            a(href="/" + user.role + "/" + user.identifier + "/activities")
-              h5 Actividades
+            a(href="/" + user.role + "/activities")
+              | Actividades
           .col-md-3.nav-active
-            a(href="/" + user.role + "/" + user.identifier + "/equipments")
-              h5 Equipos
+            a(href="/" + user.role + "/equipments")
+              | Equipos
         .row.information-company
           .col-md-12
             span Empresa a la que colabora 
@@ -19,7 +19,7 @@ block content-mpro
             h4(style="display:inline-block") <b>#{currentAccount.company.name}</b>
           .col-md-12
             p 
-        .row.equipment-nav-row
+        .row.equipment-nav-row.container-fluid
           ul.nav.nav-tabs(role="tablist", id="tabEquipment")
             li.nav-item
               a.nav-link.active(data-toggle="tab", href="#equipment", role="tab", aria-controls="equipment") Equipos
@@ -51,7 +51,7 @@ block content-mpro
                           td=equipment.location
                           td=equipment.equipmentType.name
                           td
-                            a.btn.default.btn-xs.blue-stripe(href="/home/" + user.identifier + "/equipment/" + equipment._id) Ver
+                            a.btn.default.btn-xs.blue-stripe(href="/home/equipments/" + equipment._id) Ver
                           td
                             a.btn.default.btn-xs.blue-stripe(onclick="searchNextMaintenanceActivityAttention('" + equipment._id + "')") Atención
                           td
