@@ -1,0 +1,30 @@
+{
+  "AUTHENTICATION_LOGIN_SUCCESS": "Success on login: User {0} starts a session using a token {1}",
+  "AUTHENTICATION_LOGOUT_SUCCESS": "Success on logout: User {0} finishes session",
+
+  "ACCOUNT_EXCEPTION": "Exception: {0}",
+  "ACCOUNT_CREATE_SUCCESS": "Success on create: User {0} creates account {1}",
+  "ACCOUNT_UPDATE_SUCCESS": "Success on update: User {0} updates account {1}",
+
+  "ENTITY_EXCEPTION": "Exception: {0}",
+  "ENTITY_CREATE_SUCCESS": "Success on create: User {0} creates entity {1}",
+  "ENTITY_UPDATE_SUCCESS": "Success on update: User {0} updates entity {1}",
+
+  "EQUIPMENT_TYPE_EXCEPTION": "Exception: {0}",
+  "EQUIPMENT_TYPE_CREATE_SUCCESS": "Success on create: User {0} creates equipment type {1}",
+  "EQUIPMENT_TYPE_UPDATE_SUCCESS": "Success on update: User {0} updates equipment type {1}",
+
+  "EQUIPMENT_EXCEPTION": "Exception: {0}",
+  "EQUIPMENT_CREATE_SUCCESS": "Success on create: User {0} creates equipment {1}",
+  "EQUIPMENT_UPDATE_SUCCESS": "Success on update: User {0} updates equipment {1}",
+
+  "MAINTENANCE_ACTIVITY_EXCEPTION": "Exception: {0}",
+  "MAINTENANCE_ACTIVITY_CREATE_SUCCESS": "Success on create: User {0} creates maintenance activity {1}",
+  "MAINTENANCE_ACTIVITY_UPDATE_SUCCESS": "Success on update: User {0} updates maintenance activity {1}",
+  "MAINTENANCE_ACTIVITY_ROLLBACK_SUCCESS": "Success on rollback: System deletes maintenance activity {0} previously saved",
+
+  "MAINTENANCE_ACTIVITY_ATTENTION_EXCEPTION": "Exception: {0}",
+  "MAINTENANCE_ACTIVITY_ATTENTION_CREATE_SUCCESS": "Success on create: User {0} creates maintenance activity attention {1}",
+  "MAINTENANCE_ACTIVITY_ATTENTION_UPDATE_SUCCESS": "Success on update: User {0} updates maintenance activity attention {1}",
+  "MAINTENANCE_ACTIVITY_ATTENTION_ROLLBACK_SUCCESS": "Success on rollback: System deletes maintenance activity attention {0} previously saved"
+}
