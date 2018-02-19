@@ -20,20 +20,26 @@ block content-mpro
         .container-fluid#tabcontent
           .row
             .col-md-12
-              table#myActivityTable(class="table table-striped table-bordered")
-                thead
-                  tr
-                    th Tipo
-                    th Accion
-                    th Descripcion
-                    th Fecha
-                tbody
-                  each activity, i in activities
-                    tr
-                      td #{activity.level}
-                      td #{activity.type}
-                      td #{activity.text}
-                      td #{activity.date}
+              each act,i in activity
+                .row.small-margin.problem-content
+                  .col-md-2.image-log(style="height:6em !important")
+                  .col-md-10.width-center-component
+                    .row
+                      .col-md-6.align-left
+                        .col-md-12
+                          h5.light-gray-text.align-left
+                            if act.user
+                              | Creado por
+                              a(href="#")
+                                | !{act.user.name}
+                        .col-md-12
+                          | !{act.text}
+                        .col-md-12.date-text
+                          | !{act.date}
+                      .col-md-6.align-right
+                        | !{act.level}
+              include ../../partials/activities-paginator.pug
+
   script(type='text/javascript').
     $(document).ready(function () {
       if ('!{Object.keys(user).length > 0}' === 'true' && '!{user.username}' === '!{currentAccount.username}') {				

@@ -91,6 +91,7 @@ log.getLogs = function (total, skip) {
         return Mongoose.Types.ObjectId(o._id);
       });
             
+
       var query = {user: {$in: users}};
 
       logModel.find(query).exec()
@@ -109,8 +110,6 @@ log.getLogs = function (total, skip) {
       .then(getArrQuery)
       .then(getLogsByUsersId)
       .then(function (data) {
-          console.log('accountsByCompany - accountByCompanyPromise - getLogsByUsersId')
-          console.log(data.length)
           return resolve(data);
       })
       .catch(reject);
