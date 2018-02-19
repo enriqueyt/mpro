@@ -1,7 +1,73 @@
+function setDefaultDropDownListOption(containerName) {
+  var container = $('select#'.concat(containerName));
+  var option = '';
+
+  container.empty();
+  
+  if (container.prop('multiple') === false) {
+    option = option.concat('<option>Seleccione</option>');
+  }
+
+  container.append(option);
+
+  return false;
+}
+
+function setDropDownListOptions(actionName, parameter, containerName) {
+  var action = ''.concat(actionName ,'/', parameter);
+  var container = $('select#'.concat(containerName)); 
+
+  container.empty();
+  
+  $.get(action, function (response) {
+    var options = '';
+    
+    if (container.prop('multiple') === false) {
+      options = options.concat('<option>Seleccione</option>');
+    }
+
+    _.each(response.data, function (item, i) {
+      options = options.concat('<option value="', item._id, '">', item.name, '</option>');
+    });
+
+    container.append(options);
+
+    return false;
+  });
+
+  return false;
+}
+
 $(document).ready(function () {
 
   $('#addAccount').click(function (e) {
     $('#addAccountModal').modal('show');
+    $('input[type=checkbox]#status').trigger('change');
+
+    return false;
+  });
+
+  $('select#company').change(function (e) {
+    e.preventDefault();
+
+    var companyId = $(this).find('option:selected').val();
+
+    if (companyId === 'Seleccione') {
+      setDefaultDropDownListOption('branchCompany');
+    }
+    else {
+      setDropDownListOptions('/entities/branchCompanies/company', companyId, 'branchCompany');
+    }
+
+    return false;
+  });
+
+  $('input[type=checkbox]#status').change(function (e) {
+    e.preventDefault();
+
+    $('input#statusValue').val($(this).prop('checked') ? 'Activo' : 'Inactivo');
+    
+    return false;
   });
 
   $('.addAccountSubmit').click(function (e) {
@@ -9,127 +75,40 @@ $(document).ready(function () {
     var data={}, _this=this;
     $('#warningAccountForm').css({display: 'none'});
     $('#warningAccountForm #content').empty();
-    $(document).find('[name="description"]').remove();
-    
-    getAvatar(function(avatar){
-      data.image=avatar;
-      var form = document[$($(_this).parents('form')).attr('name')];
-
-      _.each(form, function (item, i) {
-        if (item.getAttribute('class') === 'form-control' || item.type === 'hidden') {
-          if (item.tagName.toLowerCase() === 'input' || item.tagName.toLowerCase() === 'textarea') {
-            if (item.value.length > 0) {
-              data[item.name] = item.value;
-            }
-            else {
-              $(item).after('<p style="color:red;" name="description">Campo requerido</p>');
-            }
-          }
-          else if (item.tagName.toLowerCase() === 'select') {
-            var itemValue = $(item).find('option:selected').attr('value');
-
-            if (itemValue !== undefined) {
-              data[item.name] = itemValue;
-            }
-            else if ($(item).attr('required') !== undefined) {
-              $(item).after('<p style="color:red;" name="description">Campo requerido</p>');
-            }
-          }
-        }
-      });
-
-      if (!$(form).find('[name="description"]').length > 0) {
-        
-        var action = $($(_this).parents('form')).attr('action');
-
-        $.post(action, data, function (response) {						
-          if (!response.error) {
-            $('#addAccountModal').modal('hide');
-            window.location.reload(true);
-          }
-          else {
-            $('#warningAccountForm').css({display: ''});
-            $('#warningAccountForm #content').append(response.message);
-          }
-        });
-      }
-
-    });
-  });
-
-  $('select#company').change(function (e) {
-    e.preventDefault();
-
-    $('#branchcompany').empty();
-
-    if ($(this).find('option:selected').val() === 'Seleccione')
-      return;
-
-    var action = ''.concat('/get-branch-companies-by-company/', $(this).find('option:selected').val());
-
-    $.get(action, function (data) {
-      var options = ''.concat('<option value="0">Seleccione</option>');
-
-      _.each(data.data, function (item, i) {
-        options = options.concat('<option value="', item._id, '">', item.name, '</option>');
-      });
-
-      $('#branchcompany').append(options);
-    });
-  });
-
-  function getAvatar(done){
-    var arr=[];
-    var url='https://octodex.github.com';
-    $.get(url, function(data){      
-      $(data).find('.item a').each(function(index, value){
-        var gitavatar = $(this).first().children().attr('data-src');
-        if(gitavatar!=undefined){
-          var aux = ''.concat(url, gitavatar);
-          arr.push(aux);
-        }
-      });
-      result=arr[getRamdom(0, arr.length)];
-      done(result);
-    });
-  };
-
-  function getRamdom(min, max){
-    return Math.floor(Math.random()*(max-min+1))+min;
-  };
-
-  $('.editEntitySubmit').click(function (e) {
-    e.preventDefault();
-    
-    $(document).find('[name="description"]').remove();				
+    $(document).find('[name="requireFieldMessage"]').remove();
 
     var form = document[$($(this).parents('form')).attr('name')];
     var data = {};
 
-    _.each(form, function (item, i) {
-      if (item.getAttribute('class') === 'form-control' || item.type === 'hidden') {
-        if (item.tagName.toLowerCase() === 'input' || item.tagName.toLowerCase() === 'textarea') {
-          if (item.value.length > 0) {
-            data[item.name] = item.value;
+    _.each(form, function (item, i) {					
+      var control = $(item);
+
+      if (control.attr('class').indexOf('form-control') > -1 || control.attr('class').indexOf('form-control-custom') > -1 || control.attr('type') === 'hidden') {
+        if (control.prop('tagName').toLowerCase() === 'input' || control.prop('tagName').toLowerCase() === 'textarea') {
+          if (control.attr('type') === 'checkbox') {
+            data[control.attr('name')] = control.prop('checked');
+          }
+          else if (control.val().trim().length > 0) {
+            data[control.attr('name')] = control.val().trim();
           }
           else {
-            $(item).after('<p style="color:red;" name="description">Campo requerido</p>');
+            control.after('<p style="color:red;" name="requireFieldMessage">Campo requerido</p>');
           }
         }
-        else if (item.tagName.toLowerCase() === 'select') {
-          var itemValue = $(item).find('option:selected').attr('value');							
+        else if (control.prop('tagName').toLowerCase() === 'select') {
+          var itemValue = control.find('option:selected').attr('value');
 
           if (itemValue !== undefined) {
-            data[item.name] = itemValue;
+            data[control.attr('name')] = itemValue;
           }
-          else {
-            $(item).after('<p style="color:red;" name="description">Campo requerido</p>');
+          else if (control.attr('required') !== undefined) {
+            control.after('<p style="color:red;" name="requireFieldMessage">Campo requerido</p>');
           }
         }
       }
     });
-    
-    if (!$(form).find('[name="description"]').length > 0) {
+
+    if (!$(form).find('[name="requireFieldMessage"]').length > 0) {
       var action = $($(this).parents('form')).attr('action');
 
       var request = $.ajax({
@@ -138,26 +117,37 @@ $(document).ready(function () {
         data: data
       });
        
-      request.done(function( response ) {
+      request.done(function (response) {
         if (!response.error) {
           var obj = response.data;   
           
-          if(obj){
-            if(obj.name!=$.trim($('#entityName').val())) $('#entityName').text(obj.name);
-            if(obj.email!=$.trim($('#entityEmail').val())) $('#entityEmail').text(obj.email);
-            if(obj.location!=$.trim($('#entityLocation').val())) $('#entityLocation').val(obj.location);            
+          if (obj) {
+            if (obj.name !== $.trim($('#entityName').val())) {
+              $('#entityName').text(obj.name);
+            }
+            
+            if (obj.email !== $.trim($('#entityEmail').val())) {
+              $('#entityEmail').text(obj.email);
+            }
+            
+            if (obj.location !== $.trim($('#entityLocation').val())) {
+              $('#entityLocation').val(obj.location);
+            }           
           }
 
           $('#editEntityModal, #addBranchCompanyModal').modal('hide');
-        
         }
+
+        return false;
       });
        
-      request.fail(function(j,error) {
-        console.log( "fallo al actualizar" + error);
+      request.fail(function(j, error) {
+        console.log("Fail on update: " + error);
       });
-
     }
+
+    return false;
   });
 
+  return false;
 });

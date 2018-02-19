@@ -6,17 +6,17 @@ block content-mpro
       .col-md-12
         .row#headerNav.dashboard-nav-row
           .col-md-3
-            a(href="/"+user.role)
-              | Actividades
+            a(href="/" + user.role + "/activities")
+              h5 Actividades
           .col-md-3
-            a(href="/"+user.role+"/companies")
-              | Empresas
+            a(href="/" + user.role + "/companies")
+              h5 Empresas
           .col-md-3
-            a(href="/"+user.role+"/users")
-              | Usuarios
+            a(href="/" + user.role + "/users")
+              h5 Usuarios
           .col-md-3.nav-active
-            a(href="/"+user.role+"/equipments")
-              | Equipos
+            a(href="/" + user.role + "/equipments")
+              h5 Equipos
         .row.information-company
           .col-md-12
             span Empresa a la que colabora 
@@ -31,12 +31,19 @@ block content-mpro
               a.nav-link(data-toggle="tab", href="#equipment", role="tab", aria-controls="equipment") Equipos
           .tab-content(style="width:100%")
             #equipmentType.tab-pane.active(role="tabpanel")
-              .row
+              .row.equipment-nav-row
+                .col-md-11.mt-2.mb-2.mx-auto
+                  .input-group
+                    input.form-control(type="text", id="userSearchInput", placeholder="Usuario...")
+                    span.input-group-btn
+                      button#equipmentTypeSearch.btn.btn-primary(type="button") Buscar
+              .row.equipment-nav-row
                 .col-md-12
                   table.table
                     thead
                       th #
                       th Nombre
+                      th Estatus
                       th
                       th
                     tbody
@@ -45,11 +52,28 @@ block content-mpro
                           td=i+1
                           td=equipmentType.name
                           td
-                            a.btn.default.btn-xs.blue-stripe(href="/home/"+user.identifier+"/equipmentType/"+equipmentType._id) ver
+                            if equipmentType.status == true
+                              label.label-sm.label-success Activo
+                            else
+                              label.label-sm.label-default Inactivo
                           td
-                            i.fa.fa-trash(aria-hidden="true")
+                            if equipmentType.deleted == false
+                              a.btn.default.btn-xs.blue-stripe(onclick="searchEquipmentType('" + equipmentType._id + "')") Editar
+                            else
+                              label.label-sm.label-default Eliminado
+                          td
+                            if equipmentType.deleted == false
+                              i.fa.fa-trash(onclick="deleteEquipmentType('" + equipmentType._id + "')", aria-hidden="true")
+                            else
+                              i.fa.fa-undo(onclick="restoreEquipmentType('" + equipmentType._id + "')", aria-hidden="true")
             #equipment.tab-pane(role="tabpanel")
-              .row
+              .row.equipment-nav-row
+                .col-md-11.mt-2.mb-2.mx-auto
+                  .input-group
+                    input.form-control(type="text", id="userSearchInput", placeholder="Usuario...")
+                    span.input-group-btn
+                      button#equipmentSearch.btn.btn-primary(type="button") Buscar
+              .row.equipment-nav-row
                 .col-md-12
                   .btn-group
                     button#addEquipment.btn.btn-primary(type="button", data-toggle="addEquipmentModal", style="cursor:pointer; background-color:rgb(0,155,219)") Agregar Equipo 
@@ -73,31 +97,29 @@ block content-mpro
                           td=equipment.name
                           td=equipment.code
                           td=equipment.location
-                          td=equipment.type.name
+                          td=equipment.equipmentType.name
                           td=equipment.branchCompany.name
                           td=equipment.userAssigned.name
                           td
-                            a.btn.default.btn-xs.blue-stripe(href="/home/"+user.identifier+"/equipment/"+equipment._id) ver
+                            a.btn.default.btn-xs.blue-stripe(href="/home/equipments/" + equipment._id) Ver
                           td
                             i.fa.fa-trash(aria-hidden="true")
   #addEquipmentModal.modal.fade(rol="dialog")
     .modal-dialog(role="document")
       .modal-content
-        .modal-header
-          h5.modal-title Agregar Equipo
-          button.close(type="button", data-dismiss="modal", aria-label="Close")
-            span(aria-hidden="true") &times;
+        .modal-header.bg-primary.text-white
+          h4.modal-title.font-weight-bold Agregar Equipo
+          button.close.fa.fa-close(type="button", style="color:white; opacity:1; text-shadow:1px 1px 1px #ccc; text-indent:0" data-dismiss="modal", aria-label="Close")
         .modal-body
-          form(role="form", id="addEquipmentForm", name="addEquipmentForm", action="/equipment", method="post")
-            input(type="hidden", name="type", value="equipment")
+          form(role="form", id="addEquipmentForm", name="addEquipmentForm", action="/equipments", method="post")
             .form-group.row
               label.col-3.col-form-label(for="name") Nombre
               .col-9
-                input.form-control(type="text", id="name", name="name", plateholder="Nombre")
+                input.form-control(type="text", id="name", name="name", placeholder="Nombre")
             .form-group.row
               label.col-3.col-form-label(for="code") Código
               .col-9
-                input.form-control(type="text", id="code", name="code", plateholder="Código")
+                input.form-control(type="text", id="code", name="code", placeholder="Código")
             .form-group.row
               label.col-3.col-form-label(for="location") Ubicacion
               .col-9
@@ -110,9 +132,9 @@ block content-mpro
                   each branchCompany in branchCompanies
                     option(value=branchCompany._id) #{branchCompany.name}
             .form-group.row
-              label.col-3.col-form-label(for="") Tipo
+              label.col-3.col-form-label(for="equipmentType") Tipo
               .col-9
-                select.form-control(id="type", name="type")
+                select.form-control(id="equipmentType", name="equipmentType")
                   option Seleccione
                   each equipmentType in equipmentTypes
                     option(value=equipmentType._id) #{equipmentType.name}
@@ -121,9 +143,37 @@ block content-mpro
               .col-9
                 select.form-control(id="account", name="account")
                   option Seleccione
-            input(type="hidden", name="company", value=currentAccount.company._id)
+            input.form-control(type="hidden", name="company", value=currentAccount.company._id)
             .col-12(style="text-align:right")
               button.btn.btn-secondary(type="button", data-dismiss="modal", style="margin-right:1%;") Cerrar
               button.btn.btn-primary.addEquipmentSubmit(type="submit") Crear
+  #updateEquipmentTypeModal.modal.fade(role="dialog")
+    .modal-dialog(role="document")
+      .modal-content
+        .modal-header.bg-primary.text-white
+          h4.modal-title.font-weight-bold Actualizar Tipo de Equipo
+          button.close.fa.fa-close(type="button", style="color:white; opacity:1; text-shadow:1px 1px 1px #ccc; text-indent:0" data-dismiss="modal", aria-label="Close")
+        .modal-body
+          form(role="form", id="updateEquipmentType", name="updateEquipmentType", action="/equipmentTypes", method="put")
+            input.form-control(type="hidden", id="equipmentType", name="equipmentType")
+            .form-group.row
+              label.col-3.col-form-label(for="name") Nombre
+              .col-9
+                input.form-control(type="text", id="name", name="name", placeholder="Nombre")
+            .form-group.row
+              label.col-3.col-form-label(for="location") Descripción 
+              .col-9
+                textarea.form-control(id="description", name="description", wrap="hard")
+            input.form-control(type="hidden", name="company", value=currentAccount.company._id)
+            .form-group.row
+              label.col-3.col-form-label(for="status") Estatus
+              .col-9
+                .input-group
+                  span.input-group-addon
+                    input.form-control-custom(type="checkbox", id="status", name="status")
+                  input.form-control(type="text", id="statusValue", name="statusValue", disabled="true")
+            .col-12(style="text-align:right")
+              button.btn.btn-secondary(type="button", data-dismiss="modal", style="margin-right:1%;") Cerrar
+              button#updateEquipmentTypeSubmit.btn.btn-primary(type="submit") Actualizar
   script(src='../../javascripts/equipment/main.js')
     

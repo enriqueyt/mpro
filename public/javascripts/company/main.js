@@ -1,8 +1,8 @@
 $(document).ready(function () {
   $('#tabCompany a').click(function (e) {
-    e.preventDefault()
+    e.preventDefault();
     
-    $(this).tab('show')
+    $(this).tab('show');
   });
 
   $('#addComapny').click(function (e) {

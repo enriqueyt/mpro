@@ -6,49 +6,54 @@ block content-mpro
       .col-md-12
         .row#headerNav.dashboard-nav-row
           .col-md-3
-            a(href="/"+user.role)
-              | Actividades
+            a(href="/" + user.role + "/activities")
+              h5 Actividades
           .col-md-3
-            a(href="/"+user.role+"/companies")
-              | Empresas
+            a(href="/" + user.role + "/companies")
+              h5 Empresas
           .col-md-3.nav-active
-            a(href="/"+user.role+"/users")
-              | Usuarios
+            a(href="/" + user.role + "/users")
+              h5 Usuarios
           .col-md-3
-            a(href="/"+user.role+"/equipments")
-              | Equipos
-        .row.company-nav-row.container-fluid
+            a(href="/" + user.role + "/equipments")
+              h5 Equipos
+        .row.user-nav-row
+          .col-md-11.mt-2.mb-2.mx-auto
+            .input-group
+              input.form-control(type="text", id="userSearchInput", placeholder="Usuario...")
+              span.input-group-btn
+                button#userSearch.btn.btn-primary(type="button") Buscar
+        .row.user-nav-row
           .col-md-12
             .btn-group
               button#addAccount.btn.btn-primary(type="button", data-toggle="addAccountModal", style="cursor:pointer; background-color:rgb(0,155,219)") Agregar Usuario 
                 i.fa.fa-plus
           .col-md-12
             table.table
-              each account, i in accounts
-                if i==0
-                  thead
-                    th #
-                    th Nombre
-                    th username
-                    th Correo
-                    th Rol
-                    th Empresa
-                    th Sucursal
-                    th Fecha de ingreso
-                    th status
-                    th
-                    th 
-                tbody
+              thead
+                th #
+                th Nombre
+                th username
+                th Correo
+                th Rol
+                th Empresa
+                th Sucursal
+                th Fecha de ingreso
+                th Estatus
+                th
+                th
+              tbody 
+                each account, i in accounts
                   tr
-                    td=i+1
+                    td=i + 1
                     td=account.name
                     td=account.username
                     td=account.email
-                    td=account.role
-                    if account.role=="admin" 
+                    td=account.roleValue
+                    if account.role == "admin"
                       td
                       td
-                    else if account.role=="admin_company"
+                    else if account.role == "adminCompany"
                       td=account.company.name
                       td
                     else
@@ -56,14 +61,63 @@ block content-mpro
                       td=account.company.name
                     td=account.date
                     td
-                      if account.status==true
+                      if account.status == true
                         label.label-sm.label-success Activo
                       else
                         label.label-sm.label-default Inactivo
                     td
-                      a.btn.default.btn-xs.blue-stripe(href="/account") ver
+                      a.btn.default.btn-xs.blue-stripe(href="/accounts/" + account.identifier) Ver
                     td
                       i.fa.fa-trash(aria-hidden="true")
-  include ../../partials/login-modal.pug
+  #addAccountModal.modal.fadde(role="dialog")
+    .modal-dialog(role="document")
+      .modal-content
+        .modal-header.bg-primary.text-white
+          h4.modal-title.font-weight-bold Agregar Usuario
+          button.close.fa.fa-close(type="button", style="color:white; opacity:1; text-shadow:1px 1px 1px #ccc; text-indent:0" data-dismiss="modal", aria-label="Close")
+        .modal-body
+          #warningAccountForm.alert.alert-warning.alert-dismissible(role="alert",, style="display:none;")
+            button.close(type="button", data-dismiss="alert", aria-label="Close")
+              span(aria-hidden="true")
+            strong Hey! 
+          #content(style="display:inline-block")
+          form(role="form", id="addAccountForm", name="addAccountForm", action="/accounts", method="post")
+            .form-group.row
+              label.col-3.col-form-label(for="name") Nombre
+              .col-9
+                input.form-control(type="text", id="name", name="name", placeholder="Nombre", required="true")
+            .form-group.row
+              label.col-3.col-form-label(for="email") Correo
+              .col-9
+                input.form-control(type="email", id="username", name="username", placeholder="Correo", required="true" )
+            .form-group.row
+              label.col-3.col-form-label(for="role") Role
+              .col-9
+                select.form-control(id="role", name="role", required="true")
+                  option Seleccione
+                  each role in roles
+                    option(value=role.id) #{role.value}
+            .form-group.row
+              label.col-3.col-form-label(for="Company") Empresa
+              .col-9
+                select.form-control(id="company", name="company", required="true")
+                  option Seleccione
+                  each company in companies
+                    option(value=company._id) #{company.name}
+            .form-group.row
+              label.col-3.col-form-label(for="branchCompany") Sucursal
+              .col-9
+                select.form-control(id="branchCompany", name="branchCompany")
+                  option Seleccione
+            .form-group.row
+              label.col-3.col-form-label(for="status") Estatus
+              .col-9
+                .input-group
+                  span.input-group-addon
+                    input.form-control-custom(type="checkbox", id="status", name="status")
+                  input.form-control(type="text", id="statusValue", name="statusValue", disabled="true")
+            .col-12(style="text-align:right")
+              button.btn.btn-secondary(type="button", data-dismiss="modal", style="margin-right:1%;") Cerrar
+              button.btn.btn-primary.addAccountSubmit(type="submit") Crear
   script(src='../../javascripts/account/main.js')
     

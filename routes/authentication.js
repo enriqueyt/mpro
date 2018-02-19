@@ -4,17 +4,18 @@ var Mongoose = require('mongoose');
 var MongoSanitize = require('mongo-sanitize');
 var Csrf = require('csurf');
 var Bcrypt = require('bcrypt-nodejs');
-var Utils = require('../libs/utils');
 
-var Router = Express.Router();
-var CsrfProtection = Csrf({ cookie: true });
-var Account = Mongoose.model('account');
-var sessionHandle = require('../libs/sessionHandle');
+var Utils = require('../libs/utils');
 var Log = require('../libs/log');
+var SessionHandle = require('../libs/sessionHandle');
+
+var router = Express.Router();
+var csrfProtection = Csrf({ cookie: true });
+var mongoAccount = Mongoose.model('account');
 
 module.exports = function (passport) { 
 
-  Router.use(function (req, res, next) {
+  router.use(function (req, res, next) {
     res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
     req.body = JSON.parse(Sanitizer.sanitize(JSON.stringify(MongoSanitize(req.body))));
     req.params = JSON.parse(Sanitizer.sanitize(JSON.stringify(MongoSanitize(req.params))));
@@ -22,13 +23,13 @@ module.exports = function (passport) {
     next();
   });
 
-  Router.get('/login', function (req, res) {
-    res.render('pages/login', {
+  router.get('/login', function (req, res) {
+    res.render('pages/login', { 
       user: req.user || {}
     });
   });
 
-  Router.post('/login', function (req, res, next) {
+  router.post('/login', function (req, res, next) {
     if (!req.body.username) {
       return res.redirect('/pages/failed-login');
     }
@@ -41,7 +42,7 @@ module.exports = function (passport) {
       }
       var account = data.data;
       
-      var newSession = sessionHandle.createSession(account);
+      var newSession = SessionHandle.createSession(account);
       
       newSession
       .then(function(data){
@@ -64,7 +65,7 @@ module.exports = function (passport) {
     })(req, res, next);
   });
 
-  Router.get('/login/:loginStatus', function (req, res) {
+  router.get('/login/:loginStatus', function (req, res) {
     if (req.params.loginStatus) {
       if (req.params.loginStatus === 'failed-login') {
         var message  = 'Usuario o contraseña errada. Favor intente nuevamente';
@@ -81,13 +82,12 @@ module.exports = function (passport) {
     }
   });
 
-  Router.get('/logout', sessionHandle.isLogged, function (req, res) {
-    
+  router.get('/logout', SessionHandle.isLogged, function (req, res) { 
     var endSession = function(data){
       if(!data){
         Log.debug({
           text: 'Fin de sesion! '.concat('El Usuario ', req.user.name, ' finalizo sesion '),
-          type:'update_session',
+          type: 'update_session',
           user: req.user._id    
         });
         req.session._id = null;
@@ -98,11 +98,10 @@ module.exports = function (passport) {
       }
     };
 
-    sessionHandle.endSession(req.session._id, endSession);
-
+    SessionHandle.endSession(req.session._id, endSession);
   });
 
-  Router.get('/addMyAccount/:email', function (req, res, next) {
+  router.get('/addMyAccount/:email', function (req, res, next) {
     req.body = {
       name: req.params.email.split('@')[0],
       email: req.params.email,
@@ -149,5 +148,5 @@ module.exports = function (passport) {
     });
   });
 
-  return Router;
+  return router;
 };

@@ -15,7 +15,7 @@ var equipment = new Schema(
     location: {
       type: String
     },
-    type: {
+    equipmentType: {
       type: Schema.Types.ObjectId,
       ref: 'equipmentType',
       required: true
@@ -31,8 +31,20 @@ var equipment = new Schema(
         imageUrl: String
       }
     ],
-    maintenances_date: [
-      Date
+    maintenanceActivityDates: [
+      {
+        date: Date,
+        identifier: String,
+        started: {
+          type: Boolean,
+          default: false
+        },
+        finished: {
+          type: Boolean,
+          default: false
+        },
+        finishedDate: Date
+      }
     ],
     date: {
       type: Date,
@@ -51,10 +63,20 @@ var equipment = new Schema(
 
 equipment.pre('save', function (next) {
   var self = this;
-  var model = self.model(self.constructor.modelName);    
-  console.log(model);
-  // Sends mail before equipment creation was made.
-  next();
+  var model = self.model(self.constructor.modelName);
+  var query = {name: self.name, code: self.code, equipmentType: self.equipmentType, branchCompany: self.branchCompany};
+
+  model.find(query, function (err, documents) {
+    if (documents.length === 0) {
+      next();
+    }
+    else {
+      next(new Error(
+        'Equipment exists - Name: '.concat(
+          self.name, ' Code: ', self.code, ' Equipment Type: ', self.equipmentType, ' Branch Company: ', self.branchCompany)
+      ));
+    }
+  });
 });
 
 module.exports = Mongoose.model('equipment', equipment);

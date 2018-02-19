@@ -26,21 +26,31 @@ require('./models/account');
 require('./models/entity');
 require('./models/equipmentType');
 require('./models/equipment');
+require('./models/maintenanceActivity');
+require('./models/maintenanceActivityAttention');
 require('./models/log');
 
+var api = require('./routes/api');
 var index = require('./routes/index');
 var initPassport = require('./config/passport')(Passport);
 var authentication = require('./routes/authentication')(Passport);
 var admin = require('./routes/admin');
 var adminCompany = require('./routes/admin_company');
 var adminBranchCompany = require('./routes/admin_branch_company');
-var technical = require('./routes/technical');
+var technician = require('./routes/technician');
 
 var app = Express();
 
 // view engine setup
 app.set('views', Path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
+
+app.use(function(req, res, next) {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT');
+  next();
+});
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
@@ -61,12 +71,13 @@ app.use(Passport.session());
 
 //app.use(csrf({cookie: true}));
 
+app.use('/', api);
 app.use('/', index);
 app.use('/', authentication);
 app.use('/', admin);
 app.use('/', adminCompany);
 app.use('/', adminBranchCompany);
-app.use('/', technical);
+app.use('/', technician);
 
 // catch 404 and forward to error handler
 /*app.use(function(req, res, next) {
