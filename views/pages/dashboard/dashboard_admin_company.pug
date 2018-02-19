@@ -5,18 +5,18 @@ block content-mpro
     .row
       .col-md-12
         .row#headerNav.dashboard-nav-row
-          .col-md-3.nav-active
-            a(href="/"+user.role)
-              | Actividad
           .col-md-3
-            a(href="/"+user.role+"/companies")
-              | Empresa
+            a(href="/" + user.role + "/activities")
+              h5 Actividades
           .col-md-3
-            a(href="/"+user.role+"/users")
-              | Usuarios
+            a(href="/" + user.role + "/companies")
+              h5 Empresas
           .col-md-3
-            a(href="/"+user.role+"/equipments")
-              | Equipos
+            a(href="/" + user.role + "/users")
+              h5 Usuarios
+          .col-md-3
+            a(href="/" + user.role + "/equipments")
+              h5 Equipos
         .row.information-company
           .col-md-12
             span Empresa a la que colabora 
@@ -34,20 +34,20 @@ block content-mpro
                     th Descripcion
                     th Fecha
                 tbody
-                  each act,i in activity
+                  each activity, i in activities
                     tr
-                      td #{act.level}
-                      td #{act.type}
-                      td #{act.text}
-                      td #{act.date}
+                      td #{activity.level}
+                      td #{activity.type}
+                      td #{activity.text}
+                      td #{activity.date}
   script(type='text/javascript').
-    $(document).ready(function(){
-      if('!{Object.keys(user).length > 0}' === 'true' && '!{user.username}' === '!{currentAccount.username}') {				
+    $(document).ready(function () {
+      if ('!{Object.keys(user).length > 0}' === 'true' && '!{user.username}' === '!{currentAccount.username}') {				
         $('#myActivityTable').DataTable({
-            "paging":   true,
-            "ordering": true,
-            "pagingType": "full_numbers",
-            "lengthMenu": [[ 50, 100, 500, -1], [50, 100, 500, "All"]]
+          'paging': true,
+          'ordering': true,
+          'pagingType': 'full_numbers',
+          'lengthMenu': [[ 50, 100, 500, -1], [50, 100, 500, 'All']]
         });
       }
     })

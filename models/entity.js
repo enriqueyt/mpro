@@ -18,7 +18,7 @@ var entity = new Schema(
     },
     type: {
       type: String,
-      enum: ['company', 'branch_company']
+      enum: ['company', 'branchCompany']
     },
     company: {
       type: Schema.Types.ObjectId,
@@ -36,9 +36,18 @@ var entity = new Schema(
 entity.pre('save', function (next) {
   var self = this;
   var model = self.model(self.constructor.modelName);    
-  console.log(model);
-  // Sends mail before entity creation was made.
-  next();
+  var query = {name: self.name, type: self.type, email: self.email};
+
+  model.find(query, function (err, documents) {
+    if (documents.length === 0) {
+      next();
+    }
+    else {
+      next(new Error(
+        'Entity already exists - Name: '.concat(
+          self.name, 'Type: ', self.type, ' Email: ', self.email)));
+    }
+  });
 });
 
 module.exports = Mongoose.model('entity', entity);

@@ -6,26 +6,32 @@ block content-mpro
       .col-md-12
         .row#headerNav.dashboard-nav-row
           .col-md-3
-            a(href="/"+user.role)
-              | Actividades
+            a(href="/" + user.role + "/activities")
+              h5 Actividades
           .col-md-3.nav-active
-            a(href="/"+user.role+"/companies")
-              | Empresas
+            a(href="/" + user.role + "/companies")
+              h5 Empresas
           .col-md-3
-            a(href="/"+user.role+"/users")
-              | Usuarios
+            a(href="/" + user.role + "/users")
+              h5 Usuarios
           .col-md-3
-            a(href="/"+user.role+"/equipments")
-              | Equipos
-        .row.company-nav-row.container-fluid
+            a(href="/" + user.role + "/equipments")
+              h5 Equipos
+        .row.company-nav-row
           ul.nav.nav-tabs(role="tablist", id="tabCompany")
             li.nav-item
               a.nav-link.active(data-toggle="tab", href="#company", role="tab", aria-controls="company") Empresas
             li.nav-item
-              a.nav-link(data-toggle="tab", href="#branchcompany", role="tab", aria-controls="branchcompany") Sucursales
+              a.nav-link(data-toggle="tab", href="#branchCompany", role="tab", aria-controls="branchCompany") Sucursales
           .tab-content(style="width:100%")
             #company.tab-pane.active(role="tabpanel")
-              .row
+              .row.company-nav-row
+                .col-md-11.mt-2.mb-2.mx-auto
+                  .input-group
+                    input.form-control(type="text", id="companySearchInput", placeholder="Empresa...")
+                    span.input-group-btn
+                      button#companySearch.btn.btn-primary(type="button") Buscar
+              .row.company-nav-row
                 .col-md-12
                   .btn-group
                     button#addComapny.btn.btn-primary(type="button", data-toggle="addCompanyModal", style="cursor:pointer; background-color:rgb(0,155,219)") Agregar Empresa 
@@ -49,11 +55,17 @@ block content-mpro
                           td=company.phone
                           td=company.location
                           td
-                            a.btn.default.btn-xs.blue-stripe(href="/home/company/"+company._id) ver
+                            a.btn.default.btn-xs.blue-stripe(href="/home/companies/" + company._id) Ver
                           td
                             i.fa.fa-trash(aria-hidden="true")
-            #branchcompany.tab-pane(role="tabpanel")
-              .row
+            #branchCompany.tab-pane(role="tabpanel")
+              .row.company-nav-row
+                .col-md-11.mt-2.mb-2.mx-auto
+                  .input-group
+                    input.form-control(type="text", id="branchCompanySearchInput", placeholder="Sucursal...")
+                    span.input-group-btn
+                      button#brancgCompanySearch.btn.btn-primary(type="button") Buscar
+              .row.company-nav-row
                 .col-md-12
                   .btn-group
                     button#addBranchCompany.btn.btn-primary(type="button", data-toggle="addBranchCompanyModal", style="cursor:pointer; background-color:rgb(0,155,219)") Agregar Sucursal 
@@ -79,31 +91,30 @@ block content-mpro
                           td=company.location
                           td=company.company.name
                           td
-                            a.btn.default.btn-xs.blue-stripe(href="/home/"+user.identifier+"/branch_company/"+company._id) ver
+                            a.btn.default.btn-xs.blue-stripe(href="/home/branchCompanies/" + company._id) Ver
                           td
                             i.fa.fa-trash(aria-hidden="true")
   #addCompanyModal.modal.fade(rol="dialog")
     .modal-dialog(role="document")
       .modal-content
-        .modal-header
-          h5.modal-title Agregar Empresa
-          button.close(type="button", data-dismiss="modal", aria-label="Close")
-            span(aria-hidden="true") &times;
+        .modal-header.bg-primary.text-white
+          h4.modal-title.font-weight-bold Agregar Empresa
+          button.close.fa.fa-close(type="button", style="color:white; opacity:1; text-shadow:1px 1px 1px #ccc; text-indent:0" data-dismiss="modal", aria-label="Close")
         .modal-body
-          form(role="form", id="addComapnyForm", name="addComapnyForm", action="/entity", method="post")
-            input(type="hidden", name="type", value="company")
+          form(role="form", id="addComapnyForm", name="addComapnyForm", action="/entities", method="post")
+            input.form-control(type="hidden", name="type", value="company")
             .form-group.row
               label.col-3.col-form-label(for="name") Nombre
               .col-9
-                input.form-control(type="text", id="name", name="name", plateholder="Nombre")
+                input.form-control(type="text", id="name", name="name", placeholder="Nombre")
             .form-group.row
               label.col-3.col-form-label(for="email") Correo
               .col-9
-                input.form-control(type="email", id="email", name="email", plateholder="Correo")
+                input.form-control(type="email", id="email", name="email", placeholder="Correo")
             .form-group.row
               label.col-3.col-form-label(for="phone") Telefono
               .col-9
-                input.form-control(type="phone", id="phone", name="phone", plateholder="Telefono")
+                input.form-control(type="phone", id="phone", name="phone", placeholder="Telefono")
             .form-group.row
               label.col-3.col-form-label(for="location") Ubicacion
               .col-9
@@ -114,31 +125,30 @@ block content-mpro
   #addBranchCompanyModal.modal.fade(rol="dialog")
     .modal-dialog(role="document")
       .modal-content
-        .modal-header
-          h5.modal-title Agregar Sucursal
-          button.close(type="button", data-dismiss="modal", aria-label="Close")
-            span(aria-hidden="true") &times;
+        .modal-header.bg-primary.text-white
+          h4.modal-title.font-weight-bold Agregar Sucursal
+          button.close.fa.fa-close(type="button", style="color:white; opacity:1; text-shadow:1px 1px 1px #ccc; text-indent:0" data-dismiss="modal", aria-label="Close")
         .modal-body
-          form(role="form", id="addBranchCompanyForm", name="addBranchCompanyForm", action="/entity", method="post")
-            input(type="hidden", name="type", value="branch_company")
+          form(role="form", id="addBranchCompanyForm", name="addBranchCompanyForm", action="/entities", method="post")
+            input.form-control(type="hidden", name="type", value="branchCompany")
             .form-group.row
               label.col-3.col-form-label(for="name") Nombre
               .col-9
-                input.form-control(type="text", id="name", name="name", plateholder="Nombre")
+                input.form-control(type="text", id="name", name="name", placeholder="Nombre")
             .form-group.row
               label.col-3.col-form-label(for="email") Correo
               .col-9
-                input.form-control(type="email", id="email", name="email", plateholder="Correo")
+                input.form-control(type="email", id="email", name="email", placeholder="Correo")
             .form-group.row
               label.col-3.col-form-label(for="phone") Telefono
               .col-9
-                input.form-control(type="phone", id="phone", name="phone", plateholder="Telefono")
+                input.form-control(type="phone", id="phone", name="phone", placeholder="Telefono")
             .form-group.row
               label.col-3.col-form-label(for="location") Ubicacion
               .col-9
                 textarea.form-control(id="location", name="location", wrap="hard")
             .form-group.row
-              label.col-3.col-form-label(for="") Empresa
+              label.col-3.col-form-label(for="company") Empresa
               .col-9
                 select.form-control(id="company", name="company")
                   option Seleccione
