@@ -26,7 +26,7 @@ var leaveLog = function(type, obj){
     });
 };
 
-log.getLogs = function(total, skip){
+log.getLogs = function(limit, skip){
 
     var accountByCompanyPromise = function(user){
         return new Promise(function(resolve, reject){
@@ -98,8 +98,6 @@ log.getLogs = function(total, skip){
             .then(getArrQuery)
             .then(getLogsByUsersId)
             .then(function(data){
-                console.log('accountsByCompany - accountByCompanyPromise - getLogsByUsersId')
-                console.log(data.length)
                 return resolve(data);
             })
             .catch(reject);
@@ -130,7 +128,9 @@ log.getLogs = function(total, skip){
                 .find(query)
                 .sort({date:-1})
                 .exec()
-                .then(resolve)
+                .then(function(data){
+                    resolve(data);
+                })
                 .catch(reject);
         });
     };
@@ -173,15 +173,22 @@ log.getLogs = function(total, skip){
     var onFetchAllLogs = function(){
         return new Promise(function(resolve, reject){
             logModel
-            .find({})
-            .sort({date:-1})
-            .exec()
-            .then(function(logs){
-                resolve(logs);
-            })
-            .catch(function(err){
-                reject(err);
-            });
+                .find({})
+                .sort({date:-1})
+                .populate({
+                    path:'user',
+                    Model:'account'
+                })
+                .exec()
+                .then(function(data){
+                    var count=data.length,
+                        logs=data.slice(skip, limit+skip);
+                        console.log([false, logs, count])
+                    resolve([false, logs, count]);
+                })
+                .catch(function(err){
+                    reject([true, err, null]);
+                });
         });
     };
 

@@ -224,3 +224,38 @@ a.top-nav {
 #tabcontent{
   margin:5px;
 }
+
+.light-gray-text{
+  color:gray;
+  font-size: small;
+}
+
+.align-left{
+  text-align: left;
+}
+
+.align-right{
+  text-align: right;
+}
+
+.date-text{
+  font-size:small;
+  margin-top:3px;
+}
+
+.height-center-component{
+  margin:auto 0; 
+}
+
+.width-center-component{
+  margin:0 auto;
+}
+
+.image-log{
+  background-image: url('../../images/company.png');
+  background-position: center center;
+  background-size: 50%;
+  background-color: #257bbf;
+  background-repeat: no-repeat;
+  height: 8em;
+}

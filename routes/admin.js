@@ -17,6 +17,8 @@ var mongoEquipment = Mongoose.model('equipment');
 var sessionHandle = require('../libs/sessionHandle');
 var Log = require('../libs/log');
 
+var moment = require('moment');
+
 router.use(function (req, res, next) {
   res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
   req.body = JSON.parse(Sanitizer.sanitize(JSON.stringify(MongoSanitize(req.body))));
@@ -57,7 +59,13 @@ router.get('/admin', sessionHandle.isLogged, function(req, res, next) {
     return new Promise(function(resolve, reject){
       Log.getLogs(10,0).onFetchByRole(user)
       .then(function(data){
-        resolve({user:user,activity:data});
+        resolve({
+          user:user,
+          activity:data[1], 
+          offSet:data[2],
+          limit:10, 
+          skip:0
+        });
       })
       .catch(reject);
 
@@ -70,18 +78,20 @@ router.get('/admin', sessionHandle.isLogged, function(req, res, next) {
     return res.render('pages/dashboard/dashboard_admin', {
       user : tempUser,
       currentAccount: data.user,
-      activity:data.activity
+      activity:data.activity,
+      limit:10,
+      skip:0
     });
   };
 
   accountPromise
-  .then(onFetchActivities)
-  .then(onRender)
-  .catch(function (err) {
-    console.log('ERROR:', err);
-    res.redirect('/');
-    return;
-  });
+    .then(onFetchActivities)
+    .then(onRender)
+    .catch(function (err) {
+      console.log('ERROR:', err);
+      res.redirect('/');
+      return;
+    });
 });
 
 router.get('/admin/admin-activity-block', sessionHandle.isLogged, function (req, res, next) {
