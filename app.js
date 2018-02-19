@@ -12,10 +12,10 @@ var Csrf = require('csurf');
 
 var Mongoose = require('mongoose');
 
-var Config = require('./config/configdb');
+var DbConfig = require('./config/dbConfig');
 var Utils = require('./libs/utils');
 
-var mongooseConnection = Utils.getDbConnection(Mongoose, Config);
+var mongooseConnection = Utils.getDbConnection(Mongoose, DbConfig);
 var db = Mongoose.connection;
 
 db.on('error', console.error.bind(console, 'Database connection error:'));
