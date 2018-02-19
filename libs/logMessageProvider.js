@@ -44,10 +44,11 @@ var LogMessageProvider = (function (locales) {
   function applyMessageLog(parameters) {
     var key = parameters[0];
     var format = logResources[key];
+    var newParameters = parameters.slice(); // For copying original array
 
-    parameters[0] = format;
+    newParameters[0] = format;
 
-    return compose.apply(null, parameters);
+    return compose.apply(null, newParameters);
   }
 
   return {
