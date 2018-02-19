@@ -1,6 +1,8 @@
 var Mongoose = require('mongoose');
 var Functional = require('underscore');
 
+var Log = require('../../libs/log');
+
 var mongoMaintenanceActivity = Mongoose.model('maintenanceActivity');
 
 /* ########################################################################## */
@@ -18,10 +20,25 @@ exports.createMaintenanceActivities = function (req, res, next) {
     var promise = new Promise(function (resolve, reject) {
       var onCreateDocument = function (err, document) {        
         if (err) {
-          console.log('ERROR on Create:', err.message);
+          Log.error({
+            parameters: ['MAINTENANCE_ACTIVITY_EXCEPTION', err],
+            //text      : 'Exception! '.concat(err),
+            type      : 'create_maintenanceActivity',
+            user      : req.user._id,
+            model     : err
+          });
+
           resolve({error: true, message: err.message});
         };
   
+        Log.debug({
+          parameters: ['MAINTENANCE_ACTIVITY_CREATE_SUCCESS', req.user.name, document.name],
+          //text      : 'Success on create! '.concat('User ', req.user.name, ' creates maintenance activity ', document.name),
+          type      : 'create_maintenanceActivity',
+          user      : req.user._id,
+          model     : document
+        });
+
         resolve({error: false, data: document});
       };
   
@@ -37,14 +54,28 @@ exports.createMaintenanceActivities = function (req, res, next) {
     var promise = new Promise(function (resolve, reject) {
       var onRemoveDocument = function (err, document) {
         if (err) {
-          console.log('ERROR on RollBack:', err.message);
+          Log.error({
+            parameters: ['MAINTENANCE_ACTIVITY_EXCEPTION', err],
+            //text      : 'Exception! '.concat(err),
+            type      : 'rollback_maintenanceActivity',
+            user      : req.user._id,
+            model     : err
+          });
+
           reject({error: true, message: err.message});
         };
+
+        Log.debug({
+          parameters: ['MAINTENANCE_ACTIVITY_ROLLBACK_SUCCESS', req.user.name, document.name],
+          //text      : 'Success on rollback! '.concat('System deletes maintenance activity ', document.name, ' which was previously saved'),
+          type      : 'rollback_maintenanceActivity',
+          user      : req.user._id,
+          model     : document
+        });
   
         resolve({error: false, data: document});
       };
       
-      // console.log("ROLLBACK Document ID: ", maintenanceActivity._id);
       mongoMaintenanceActivity.findByIdAndRemove(maintenanceActivity._id, onRemoveDocument);
     });
 
@@ -70,7 +101,6 @@ exports.createMaintenanceActivities = function (req, res, next) {
 
       var rollBackPromises = Functional.reduce(results, function (accumulator, result) {
         if (result.error === false) {
-          // console.log('DOCUMENT CREATED: ', result.data);
           var promise = rollBackPromise(result.data);
           accumulator.push(promise);    
         }
@@ -98,7 +128,6 @@ exports.createMaintenanceActivities = function (req, res, next) {
   Promise.all(createDocumentPromises)
   .then(onCreateDocuments)
   .catch(function (err) {
-    console.log('ERROR:', err.message);
     res.status(500).send(err.message);
   });
 };
@@ -112,7 +141,7 @@ exports.getMaintenanceActivity = function (req, res, next) {
     res.status(401).send({error: true, message: 'No user found'});
   }
 
-  var query = {'_id': req.params.maintenanceActivity};
+  var query = {_id: req.params.maintenanceActivity};
 
   mongoMaintenanceActivity.findOne(query).populate('company').populate('equipmentType').exec()
   .then(function (document) {
@@ -126,7 +155,7 @@ exports.getMaintenanceActivity = function (req, res, next) {
 exports.getMaintenanceActivitiesByEquipmentType = function (req, res, next) {
   var maintenanceActivitiesPromise = new Promise(function (resolve, reject) {
     var query = {equipmentType: req.params.equipmentType};
-    var projection = {'_id': 1, 'name': 1};
+    var projection = {_id: 1, name: 1};
 
     mongoMaintenanceActivity.find(query, projection).exec()
     .then(function (maintenanceActivities) {
@@ -155,7 +184,7 @@ exports.updateMaintenanceActivity = function (req, res, next) {
     res.status(401).send({error: true, message: 'No user found'});
   }
 
-  var query = {'_id': req.params.maintenanceActivity};			
+  var query = {_id: req.params.maintenanceActivity};			
   var option = {new: true};
   var setValues = {};
 
@@ -181,8 +210,25 @@ exports.updateMaintenanceActivity = function (req, res, next) {
     }
     
     if (!document) {
+      Log.error({
+        parameters: ['MAINTENANCE_ACTIVITY_EXCEPTION', err],
+        //text      : 'Exception! '.concat(err),
+        type      : 'update_maintenanceActivity',
+        user      : req.user._id,
+        model     : err
+      });
+
       res.status(404).send({error: true, message: 'Document does not exist'});
     }
+
+    Log.debug({
+      parameters: ['MAINTENANCE_ACTIVITY_UPDATE_SUCCESS', req.user.name, document.name],
+      //text      : 'Success on update! '.concat('User ', req.user.name, ' updates maintenance activity ', document.name),
+      type      : 'update_maintenanceActivity',
+      user      : req.user._id,
+      model     : document
+    });
+
 
     res.status(200).send({error: false, data: document});
   };

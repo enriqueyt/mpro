@@ -15,33 +15,35 @@ exports.createAccount = function (req, res, next) {
 
   var saveAccountPromise = new Promise(function (resolve, reject) {
     var account = {
-      name: req.body.name,
+      name    : req.body.name,
       username: req.body.username,
       password: Utils.createHash(''.concat('mpro-', req.body.username.split('@')[0]), Bcrypt),
-      email: req.body.username,
-      role: req.body.role,
-      status: req.body.status,
-      company: req.body.branchCompany === undefined ? req.body.company : req.body.branchCompany,
-      // company: req.body.branchcompany === '0' ? req.body.company : req.body.branchcompany,
-      image: req.body.image
+      email   : req.body.username,
+      role    : req.body.role,
+      status  : req.body.status,
+      company : req.body.branchCompany === undefined ? req.body.company : req.body.branchCompany,
+      //company : req.body.branchcompany === '0' ? req.body.company : req.body.branchcompany,
+      image   : req.body.image
     };
   
     var onCreateDocument = function (err, document) {        
       if (err) {
         Log.error({
-          text: 'Exception! '.concat(err),
-          type:'create_account',
-          user: req.user._id,
-          model: err
+          parameters: ['ACCOUNT_EXCEPTION', err],
+          //text      : 'Exception! '.concat(err),
+          user      : req.user._id,
+          model     : err
         });
+
         reject({error: true, code: 500, message: err.message});
       };
 
       Log.debug({
-        text: 'Success on create! '.concat('User ', req.user.name, ' creates account ', document.name),
-        type: 'create_account',
-        user: req.user._id,
-        model: document
+        parameters: ['ACCOUNT_CREATE_SUCCESS', req.user.name, document.name],
+        //text      : 'Success on create! '.concat('User ', req.user.name, ' creates account ', document.name),
+        type      : 'create_account',
+        user      : req.user._id,
+        model     : document
       });
 
       resolve({error: false, data: document});
@@ -102,7 +104,7 @@ exports.getAccount = function (req, res, next) {
     res.status(401).send({error: true, message: 'No user found'});
   }
 
-  var query = {'_id': req.params.account};
+  var query = {_id: req.params.account};
   var projection = {username: 0, password: 0};
 
   mongoAccount.findOne(query, projection).populate('company').exec()
@@ -135,7 +137,7 @@ exports.getTechniciansByCompany = function (req, res, next) {
 
     var promise = new Promise(function (resolve, reject) {
       var query = {role: 'technician', company: {$in: branchCompanyIds}};
-      var projection = {'_id': 1, 'name': 1};
+      var projection = {_id: 1, name: 1};
 
       mongoAccount.find(query, projection).exec()
       .then(function (accounts) {
@@ -162,7 +164,7 @@ exports.getTechniciansByCompany = function (req, res, next) {
 exports.getTechniciansByBranchCompany = function (req, res, next) {
   var accountsPromise = new Promise(function (resolve, reject) {
     var query = {role: 'technician', company: req.params.branchCompany};
-    var projection = {'_id': 1, 'name': 1};
+    var projection = {_id: 1, name: 1};
 
     mongoAccount.find(query, projection).exec()
     .then(function (accounts) {
@@ -191,7 +193,7 @@ exports.updateAccount = function (req, res, next) {
     res.status(401).send({error: true, message: 'No user found'});
   }
 
-  var query = {'_id': req.params.equipment};	
+  var query = {_id: req.params.equipment};	
   var option = {new: true};
   var setValues = {};
 
@@ -210,10 +212,11 @@ exports.updateAccount = function (req, res, next) {
   var onUpdateDocument = function (err, document) {
     if (err) {
       Log.error({
-        text: 'Exception! '.concat(err),
-        type: 'update_account',
-        user: req.user._id,
-        model: err
+        parameters: ['ACCOUNT_EXCEPTION', err],
+        //text      : 'Exception! '.concat(err),
+        type      : 'update_account',
+        user      : req.user._id,
+        model     : err
       });
 
       res.status(500).send({error: true, message: 'Unexpected error was occurred'});
@@ -224,10 +227,11 @@ exports.updateAccount = function (req, res, next) {
     }
 
     Log.debug({
-      text: 'Success on update! '.concat('User ', req.user.name, ' updates account ', document.name),
-      type: 'update_account',
-      user: req.user._id,
-      model: document
+      parameters: ['ACCOUNT_UPDATE_SUCCESS', req.user.name, document.name],
+      //text      : 'Success on update! '.concat('User ', req.user.name, ' updates account ', document.name),
+      type      : 'update_account',
+      user      : req.user._id,
+      model     : document
     });
 
     res.status(200).send({error: false, data: document});

@@ -40,25 +40,26 @@ module.exports = function (passport) {
       if (data.error) { 
         return res.redirect('/login/failed-login');
       }
+
       var account = data.data;
-      
       var newSession = SessionHandle.createSession(account);
       
       newSession
-      .then(function(data){
-        req.session._id=data[1].session;
-        var obj={
-          text: 'Inicio de sesion! '.concat('El Usuario ', account.name, ' inicio de sesion ', data[1].session),
-          type:'create_session',
-          user: account._id,
-          model: JSON.stringify(data[1])
-        };
-        Log.debug(obj)
-        .then(function(data){
+      .then(function (data) {
+        req.session._id = data[1].session;
+        
+        Log.debug({
+          parameters: ['AUTHENTICATION_LOGIN_SUCCESS', account.name, data[1].session],
+          //text      : 'Success on login! '.concat('User ', account.name, ' starts a session using the token ', data[1].session),
+          type      : 'create_session',
+          user      : account._id,
+          model     : JSON.stringify(data[1])
+        })
+        .then(function (data) {
           return res.redirect('/'.concat(account.role));
         });     
       })
-      .catch(function(err){
+      .catch(function (err) {
         console.log(err)
       });
 
@@ -68,8 +69,9 @@ module.exports = function (passport) {
   router.get('/login/:loginStatus', function (req, res) {
     if (req.params.loginStatus) {
       if (req.params.loginStatus === 'failed-login') {
-        var message  = 'Usuario o contraseña errada. Favor intente nuevamente';
+        var message  = 'Usuario o contraseña errada. Intente nuevamente.';
       }
+
       res.render('pages/login', { 
         user: req.user || {},
         showMessage: message
@@ -83,15 +85,17 @@ module.exports = function (passport) {
   });
 
   router.get('/logout', SessionHandle.isLogged, function (req, res) { 
-    var endSession = function(data){
-      if(!data){
+    var endSession = function (data) {
+      if (!data) {
         Log.debug({
-          text: 'Fin de sesion! '.concat('El Usuario ', req.user.name, ' finalizo sesion '),
-          type: 'update_session',
-          user: req.user._id    
+          parameters: ['AUTHENTICATION_LOGOUT_SUCCESS', req.user.name],
+          //text      : 'Success on logout! '.concat('User ', req.user.name, ' finishes session '),
+          type      : 'update_session',
+          user      : req.user._id    
         });
+
         req.session._id = null;
-        req.user=null;
+        req.user = null;
         req.logout();
         res.redirect('/login');
         return;
@@ -117,7 +121,7 @@ module.exports = function (passport) {
     var query = {'username': user.username};
 
 		Account.findOne(query, function (err, doc) {        
-      if (err){
+      if (err) {
         res.json({'response': err});
         res.end();
       }

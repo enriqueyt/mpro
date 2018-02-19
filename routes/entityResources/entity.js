@@ -15,34 +15,36 @@ exports.createEntity = function (req, res, next) {
 
   var saveEntityPromise = new Promise(function (resolve, reject) {
     var entity = {
-      name: req.body.name,
-      email: req.body.email,
-      phone: req.body.phone,
+      name    : req.body.name,
+      email   : req.body.email,
+      phone   : req.body.phone,
       location: req.body.location,        
-      type: req.body.type
+      type    : req.body.type
     };
 
-    if (req.body.company != undefined){
+    if (typeof req.body.company !== 'undefined') {
       entity.company = req.body.company;
     };
   
     var onCreateDocument = function (err, document) {        
       if (err) {
         Log.error({
-          text: 'Exception! '.concat(err),
-          type: 'create_entity',
-          user: req.user._id,
-          model: err
+          parameters: ['ENTITY_EXCEPTION', req.user.name, document.name],
+          //text      : 'Exception! '.concat(err),
+          type      : 'create_entity',
+          user      : req.user._id,
+          model     : err
         });
 
         reject({error: true, code: 500, message: err.message});
       };
 
       Log.debug({
-        text: 'Success on create! '.concat('User ', req.user.name, ' creates entity ', document.name),
-        type:'create_entity',
-        user: req.user._id,
-        model: document
+        parameters: ['ENTITY_CREATE_SUCCESS', req.user.name, document.name],
+        //text      : 'Success on create! '.concat('User ', req.user.name, ' creates entity ', document.name),
+        type      :'create_entity',
+        user      : req.user._id,
+        model     : document
       });
 
       resolve({error: false, data: document});
@@ -102,7 +104,7 @@ exports.getEntity = function (req, res, next) {
     res.status(401).send({error: true, message: 'No user found'});
   }
 
-  var query = {'_id': req.params.entity};
+  var query = {_id: req.params.entity};
 
   mongoEntity.findOne(query).populate('company').exec()
   .then(function (entity) {
@@ -116,7 +118,7 @@ exports.getEntity = function (req, res, next) {
 exports.getBranchCompaniesByCompany = function (req, res, next) {
   var branchCompaniesPromise = new Promise(function (resolve, reject) {
     var query = {type: 'branchCompany', company: req.params.company};
-    var select = '_id name';
+    var select = {_id: 1, name: 1};
 
     mongoEntity.find(query, select).populate('company').exec()
     .then(function (branchCompanies) {
@@ -145,7 +147,7 @@ exports.updateEntity = function (req, res, next) {
     res.status(401).send({error: true, message: 'No user found'});
   }
 
-  var query = {'_id': req.params.equipment};	
+  var query = {_id: req.params.equipment};	
   var option = {new: true};
   var setValues = {};
 
@@ -172,10 +174,11 @@ exports.updateEntity = function (req, res, next) {
   var onUpdateDocument = function (err, document) {
     if (err) {
       Log.error({
-        text: 'Exception! '.concat(err),
-        type: 'update_entity',
-        user: req.user._id,
-        model: err
+        parameters: ['ENTITY_EXCEPTION', err],
+        //text      : 'Exception! '.concat(err),
+        type      : 'update_entity',
+        user      : req.user._id,
+        model     : err
       });
 
       res.status(500).send({error: true, message: 'Unexpected error was occurred'});
@@ -186,10 +189,11 @@ exports.updateEntity = function (req, res, next) {
     }
 
     Log.debug({
-      text: 'Success on update! '.concat('User ', req.user.name, ' updates entity ', document.name),
-      type: 'update_entity',
-      user: req.user._id,
-      model: document
+      parameters: ['ENTITY_UPDATE_SUCCESS', req.user.name, document.name],
+      //text      : 'Success on update! '.concat('User ', req.user.name, ' updates entity ', document.name),
+      type      : 'update_entity',
+      user      : req.user._id,
+      model     : document
     });
 
     res.status(200).send({error: false, data: document});
