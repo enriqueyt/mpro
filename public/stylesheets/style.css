@@ -7,6 +7,11 @@ body {
   height:100%;
   margin:0;
   word-wrap: break-word; 
+  font-family: montserrat;
+}
+
+body{
+  background-color: #fafafa
 }
 
 .pagefooter{

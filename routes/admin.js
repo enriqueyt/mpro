@@ -56,11 +56,11 @@ router.get('/admin', SessionHandle.isLogged, function (req, res, next) {
     
     return new Promise(function(resolve, reject){
       Log.getLogs(10,0).onFetchByRole(user)
-      .then(function(data){
+      .then(function(data){        
         resolve({
           user:user,
-          activity:data[1], 
-          offSet:data[2],
+          activity:data, 
+          offSet:data.length,
           limit:10, 
           skip:0
         });
@@ -90,9 +90,6 @@ router.get('/admin', SessionHandle.isLogged, function (req, res, next) {
       res.redirect('/');
       return;
     });
-});
-
-router.get('/admin/admin-activity-block', SessionHandle.isLogged, function (req, res, next) {
 });
 
 router.get('/admin/activities', SessionHandle.isLogged, Activities.getActivitiesViewData);

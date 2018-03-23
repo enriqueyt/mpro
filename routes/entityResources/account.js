@@ -2,6 +2,8 @@ var Mongoose = require('mongoose');
 
 var Log = require('../../libs/log');
 
+var Utils = require('../../libs/utils');
+
 var mongoAccount = Mongoose.model('account');
 
 /* ########################################################################## */
@@ -17,7 +19,7 @@ exports.createAccount = function (req, res, next) {
     var account = {
       name    : req.body.name,
       username: req.body.username,
-      password: Utils.createHash(''.concat('mpro-', req.body.username.split('@')[0]), Bcrypt),
+      password: Utils.createHash(''.concat('mpro-', req.body.username.split('@')[0])),
       email   : req.body.username,
       role    : req.body.role,
       status  : req.body.status,
@@ -26,27 +28,28 @@ exports.createAccount = function (req, res, next) {
       image   : req.body.image
     };
   
-    var onCreateDocument = function (err, document) {        
-      if (err) {
+    var onCreateDocument = function (err, document) {
+      if (err||document==undefined) {        
         Log.error({
           parameters: ['ACCOUNT_EXCEPTION', err],
           //text      : 'Exception! '.concat(err),
           user      : req.user._id,
           model     : err
-        });
+        }); 
 
         reject({error: true, code: 500, message: err.message});
-      };
-
-      Log.debug({
-        parameters: ['ACCOUNT_CREATE_SUCCESS', req.user.name, document.name],
-        //text      : 'Success on create! '.concat('User ', req.user.name, ' creates account ', document.name),
-        type      : 'create_account',
-        user      : req.user._id,
-        model     : document
-      });
-
-      resolve({error: false, data: document});
+        return;
+      }else{
+        Log.debug({
+          parameters: ['ACCOUNT_CREATE_SUCCESS', req.user.name, document.name],
+          //text      : 'Success on create! '.concat('User ', req.user.name, ' creates account ', document.name),
+          type      : 'create_account',
+          user      : req.user._id,
+          model     : document
+        });
+  
+        resolve({error: false, data: document});
+      }
     };
   
     var newAccount = new mongoAccount(account);
@@ -61,6 +64,7 @@ exports.createAccount = function (req, res, next) {
   saveAccountPromise
   .then(onFinish)
   .catch(function (err) {
+    console.log(err)
     res.status(err.code).send(err.message);
   });
 };

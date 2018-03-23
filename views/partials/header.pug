@@ -1,30 +1,44 @@
-.header.navbar.navbar-light#home-page-header
+.header.navbar#home-page-header
   .dropdown.custom-nav
     .navbar-header
-      .row
-        .col-md-3.text-left
-          a(href="/"+user.role+"/"+user.identifier)
-            .logo-img
-              img(src="/images/Logo-MaintPro-trans.png", style="width:20%;")
-        .col-md-3
-        .col-md-6.text-right(style="padding-top:1em;")
-          if user && Object.keys(user).length == 0
-            a.top-nav(href="/about") Nosotros
-            a.top-nav(href="/services") Services
-            a.top-nav(href="/contact") Contacto
-            a.home-login.btn-go.btn-sm(href="/login", style="margin-right:1em;") Inicio de sesión
-          else
-            a(href="/".concat(user.role,"/",user.identifier))
-              span.userName #{user.name}
-            img.avatar(src=user.image, alt="avatar")
-            a.home-login.btn.btn-go.btn-sm(href="/logout") Cerrar sesión
+      a.nav-img(href="/"+user.role)        
+        img(src="/images/Logo-MaintPro-trans.png", style="width: 100%;height: 100%;")
+      if user && Object.keys(user).length == 0
+        a.home-login.btn-go.btn-sm(href="/login", style="margin-right:1em;") Inicio de sesión
+      else
+        .top-nav-content
+          ul.top-nav
+            li.top-nav-item(class=tabActivitiesActive)
+              a.nav-item(href="/".concat(user.role,"/activities")) Actividades
+            if(user.role!=="adminBranchCompany"&&user.role!=="technician")
+              li.top-nav-item(class=tabCompaniesActive)
+                a.nav-item(href="/".concat(user.role,"/companies")) Empresas
+            if(user.role!=="technician")
+              li.top-nav-item(class=tabUserActive)
+                a.nav-item(href="/".concat(user.role,"/users")) Usuario
+            li.top-nav-item(class=tabEquipmentsActive)
+              a.nav-item(href="/".concat(user.role,"/equipments")) Equipos  
+            li.top-item.text-right.user-nav-content
+              a(href="/".concat(user.role))
+                span.userName #{user.name}
+              img.avatar(src=user.image, alt="avatar")
+              a(href="/logout")
+                span.userName Cerrar sesión
   script(type="text/javascript").
-    /*var canvas = document.getElementById('mycanvas');
-    var ctx = canvas.getContext('2d');
-    var img = new Image();
-    img.addEventListener('load', function() {
-      ctx.drawImage(img, 0, 0, 100, 100);
-    }, false);
-    img.src = "#{user.image}";*/
+    $(document).ready(function(){
+      $("a.nav-item").click(function(e){
+        e.preventDefault();        
+      });
+      
+      $("li.top-nav-item").click(function(){
+        var action = $(this).find("a.nav-item").attr("href");
+        document.location.href=action;
+      });
+
+      $(".page-nav li.nav-item").click(function(e){
+        $($(this).parent().get(0)).find(".nav-item-active").removeClass("nav-item-active");
+        $(this).find("a").addClass("nav-item-active");
+      });
+    });
 
     

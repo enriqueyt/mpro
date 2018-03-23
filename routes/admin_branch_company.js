@@ -108,7 +108,7 @@ router.get('/adminBranchCompany', SessionHandle.isLogged, function (req, res, ne
 });
 
 
-router.get('/adminBranchCompany/:identifier/activities', SessionHandle.isLogged, Activities.getActivitiesViewData);
+router.get('/adminBranchCompany/activities', SessionHandle.isLogged, Activities.getActivitiesViewData);
 
 router.get('/adminBranchCompany/users', SessionHandle.isLogged, Users.getUsersViewData);
 

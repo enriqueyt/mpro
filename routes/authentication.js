@@ -110,7 +110,7 @@ module.exports = function (passport) {
       name: req.params.email.split('@')[0],
       email: req.params.email,
       role: 'admin',
-      image:'https://octodex.github.com/images/octobiwan.jpg"'
+      image:'https://octodex.github.com/images/octobiwan.jpg'
     };
 
     var user = {
@@ -120,7 +120,7 @@ module.exports = function (passport) {
 
     var query = {'username': user.username};
 
-		Account.findOne(query, function (err, doc) {        
+		mongoAccount.findOne(query, function (err, doc) {        
       if (err) {
         res.json({'response': err});
         res.end();
@@ -131,14 +131,15 @@ module.exports = function (passport) {
         res.end();
       }
       else {
-        var newUser = new Account();
+        var newUser = new mongoAccount();
 
         newUser.name = req.body.name;
         newUser.username = user.username;
         newUser.password = Utils.createHash(user.password);
         newUser.email = req.body.email;
         newUser.role = req.body.role;
-
+        newUser.image = req.body.image;
+        console.log(newUser)
         newUser.save(function (err) {
           if (err) {
             res.json({'response': ''.concat('Error al salvar! ', err)});

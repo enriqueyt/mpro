@@ -4,42 +4,24 @@ block content-mpro
   .container-fluid
     .row
       .col-md-12
-        .row#headerNav.dashboard-nav-row
-          .col-md-3
-            a(href="/" + user.role + "/activities")
-              h5 Actividades
-          .col-md-3
-            a(href="/" + user.role + "/companies")
-              h5 Empresas
-          .col-md-3
-            a(href="/" + user.role + "/users")
-              h5 Usuarios
-          .col-md-3
-            a(href="/" + user.role + "/equipments")
-              h5 Equipos
         .container-fluid#tabcontent
           .row
             .col-md-12
-              each act,i in activity
-                .row.small-margin.problem-content
-                  .col-md-2.image-log(style="height:6em !important")
-                  .col-md-10.width-center-component
-                    .row
-                      .col-md-6.align-left
-                        .col-md-12
-                          h5.light-gray-text.align-left
-                            if act.user
-                              | Creado por
-                              a(href="#")
-                                | !{act.user.name}
-                        .col-md-12
-                          | !{act.text}
-                        .col-md-12.date-text
-                          | !{act.date}
-                      .col-md-6.align-right
-                        | !{act.level}
-              include ../../partials/activities-paginator.pug
-
+              table.table.table-header
+                thead
+                  th #
+                  th Accion
+                  th Descripcion
+                  th Fecha                
+                  th Tipo
+                tbody
+                  each act,i in activity
+                    tr
+                      td=i + 1
+                      td=act.type
+                      td=act.text
+                      td=act.date
+                      td=act.level
   script(type='text/javascript').
     $(document).ready(function () {
       if ('!{Object.keys(user).length > 0}' === 'true' && '!{user.username}' === '!{currentAccount.username}') {				

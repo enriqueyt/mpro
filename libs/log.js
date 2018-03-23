@@ -50,13 +50,12 @@ log.getLogs = function (total, skip) {
 
   var branchEntityByEntity = function (user) {
     return new Promise(function (resolve, reject) {
-      var query = {company:user.company._id};         
-  
+      var query = {company:user.company._id};            
       entityModel
       .find(query)
-      .then(function (data) {            
+      .then(function (data) {
         var arr = [];
-        
+    
         data.forEach(function (v, k) {
           arr.push(v._id);
         });
@@ -69,19 +68,16 @@ log.getLogs = function (total, skip) {
 
   var accountsByBranchCompany = function (obj) {
     return new Promise(function (resolve, reject) {
-      var query = [{ 
-        $match : {
-          'company': { $in: obj[0] }
-        }
-      }];
-
+      var query = { 'company': { $in: obj[0] }};
+      
       accountModel
-      .aggregate(query)
-      .exec()
+      .find(query)
       .then(function (data) {
         resolve([data, obj[1]])
       })
       .catch(reject);
+      
+
     });
   };
 
@@ -172,7 +168,7 @@ log.getLogs = function (total, skip) {
   };
 
   var onFilterLogsByCompany = function (user) {
-    return new Promise(function (resolve, reject) {
+    return new Promise(function (resolve, reject) {      
       branchEntityByEntity(user)
       .then(accountsByBranchCompany)
       .then(accountsByCompany)
@@ -187,16 +183,35 @@ log.getLogs = function (total, skip) {
 
   var onFetchAllLogs = function () {
     return new Promise(function (resolve, reject) {
-      logModel
-      .find({})
-      .sort({date: -1})
+
+      var query = [
+        {$match:{}},
+        {$facet:{
+          edges:[
+            {$skip:skip},
+            {$limit:total}
+          ],
+          pageInfo:[
+            {$group:{_id:null, count:{$sum:1}}}
+          ]
+        }}
+      ];
+
+      /*logModel.aggregate(query)
       .exec()
-      .then(function (logs) {
-        resolve(logs);
-      })
-      .catch(function (err) {
-        reject(err);
-      });
+      .then(resolve)
+      .catch(reject);
+      */
+      logModel
+        .find({})
+        .sort({date: -1})
+        .exec()
+        .then(function (logs) {
+          resolve(logs);
+        })
+        .catch(function (err) {
+          reject(err);
+        });
     });
   };
 
@@ -206,13 +221,13 @@ log.getLogs = function (total, skip) {
         case 'admin':
           onFetchAllLogs().then(resolve).catch(reject);
           break;
-        case 'admin_company':
+        case 'adminCompany':
           onFilterLogsByCompany(user).then(resolve).catch(reject);
           break;
-        case 'admin_branch_company':
+        case 'adminBranchCompany':
           onFilterLogsByBranchCompany(user).then(resolve).catch(reject);
           break;
-        case 'technical':
+        case 'technician':
           onFetchLogBySingleUser(user).then(resolve).catch(reject);
           break;
       };
@@ -229,7 +244,7 @@ function onCreateLog (obj) {
     var log = new logModel(obj);
     
     log.save(function (err, document) {
-      if (err) { 
+      if (err) {
         return reject(err);
       }
       

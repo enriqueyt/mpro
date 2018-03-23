@@ -1,45 +1,32 @@
 extends ../../layout
 block content-mpro
+  - var tabCompaniesActive = "top-nav-item-active"
   include ../../partials/header.pug
   .container-fluid
     .row
       .col-md-12
-        .row#headerNav.dashboard-nav-row
-          .col-md-3
-            a(href="/" + user.role + "/activities")
-              h5 Actividad
-          .col-md-3.nav-active
-            a(href="/" + user.role + "/companies")
-              h5 Empresa
-          .col-md-3
-            a(href="/" + user.role + "/users")
-              h5 Usuarios
-          .col-md-3
-            a(href="/" + user.role + "/equipments")
-              h5 Equipos
         .row.information-company
           .col-md-12
             span Empresa a la que colabora 
             h4(style="display:inline-block") <b>#{currentAccount.company.name}</b>
         .row.company-nav-row
-          ul.nav.nav-tabs(role="tablist", id="tabCompany")
+          ul.page-nav(role="tablist", id="tabCompany")
             li.nav-item
-              a.nav-link.active(data-toggle="tab", href="#branchCompany", role="tab", aria-controls="branchCompany") Sucursales
+              a.nav-link.nav-item-active(data-toggle="tab", href="#branchCompany", role="tab", aria-controls="branchCompany") Sucursales
           .tab-content(style="width:100%")
             #branchCompany.tab-pane.active(role="tabpanel")
-              .row.company-nav-row
-                .col-md-11.mt-2.mb-2.mx-auto
+              .row.company-nav-row.nav-row-padding
+                .col-md-10
                   .input-group
-                    input.form-control(type="text", id="branchCompanySearchInput", placeholder="Sucursal...")
-                    span.input-group-btn
-                      button#branchCompanySearch.btn.btn-primary(type="button") Buscar
-              .row.company-nav-row
+                    input.form-control.input-search(type="text", id="branchCompanySearchInput", placeholder="Buscar sucursal")
+                    a.fa.fa-search.fa-w-16.fa-3x
+                .col-md-2(style="padding-left:0;")
+                  button#addBranchCompany.btn.btn-primary.button-search(type="button", data-toggle="addBranchCompanyModal")
+                      i.fa.fa-plus 
+                        | Agregar Sucursal
+              .row.company-nav-row.no-padding
                 .col-md-12
-                 .btn-group
-                    button#addBranchCompany.btn.btn-primary(type="button", data-toggle="addBranchCompanyModal", style="cursor:pointer; background-color:rgb(0,155,219)") Agregar Sucursal 
-                      i.fa.fa-plus
-                .col-md-12
-                  table.table
+                  table.table.table-header
                     thead
                       th #
                       th Nombre
