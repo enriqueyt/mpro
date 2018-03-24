@@ -35,3 +35,6 @@ npm-debug.log
 
 # IDE javascript resource references
 jsconfig.json
+
+# DockerUtils library
+docker/**/

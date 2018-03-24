@@ -5,10 +5,11 @@
   "scripts": {
     "start": "pm2 start ./bin/www",
     "restart": "pm2 restart $(pm2 id www | grep -oP [0-9]+)",
-		"stop": "pm2 stop $(pm2 id www | grep -oP [0-9]+)",
+    "stop": "pm2 stop $(pm2 id www | grep -oP [0-9]+)",
     "remove": "pm2 delete $(pm2 id www | grep -oP [0-9]+)",
-		"test": "nodemon ./bin/www",
-		"ls": "pm2 ls"
+    "start:dev": "nodemon ./bin/www",
+    "test": "",
+    "ls": "pm2 ls"
   },
   "dependencies": {
     "bcrypt-nodejs": "0.0.3",
@@ -22,6 +23,7 @@
     "mongo-sanitize": "^1.0.0",
     "mongoose": "^4.11.1",
     "morgan": "~1.8.1",
+    "nodemon": "^1.17.1",
     "passport": "^0.3.2",
     "passport-local": "^1.0.0",
     "pm2": "^2.7.2",
