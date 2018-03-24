@@ -1,43 +1,30 @@
 extends ../../layout
 block content-mpro
+  - var tabEquipmentsActive = "top-nav-item-active"
   include ../../partials/header.pug
   .container-fluid
     .row
       .col-md-12
-        .row#headerNav.dashboard-nav-row
-          .col-md-3
-            a(href="/" + user.role + "/activities")
-              h5 Actividades
-          .col-md-3
-            a(href="/" + user.role + "/companies")
-              h5 Empresas
-          .col-md-3
-            a(href="/" + user.role + "/users")
-              h5 Usuarios
-          .col-md-3.nav-active
-            a(href="/" + user.role + "/equipments")
-              h5 Equipos
         .row.equipment-nav-row
-          ul.nav.nav-tabs(role="tablist", id="tabEquipment")
+          ul.page-nav(role="tablist", id="tabEquipment")
             li.nav-item
-              a.nav-link.active(data-toggle="tab", href="#equipmentType", role="tab", aria-controls="equipmentType") Tipo de Equipo
+              a.nav-link.nav-item-active(data-toggle="tab", href="#equipmentType", role="tab", aria-controls="equipmentType") Tipo de Equipo
             li.nav-item
               a.nav-link(data-toggle="tab", href="#equipment", role="tab", aria-controls="equipment") Equipos
           .tab-content(style="width:100%")
             #equipmentType.tab-pane.active(role="tabpanel")
-              .row.equipment-nav-row
-                .col-md-11.mt-2.mb-2.mx-auto
+              .row.equipment-nav-row.nav-row-padding
+                .col-md-10
                   .input-group
-                    input.form-control(type="text", id="equipmentTypeSearchInput", placeholder="Tipo de equipo...")
-                    span.input-group-btn
-                      button#equipmentTypeSearch.btn.btn-primary(type="button") Buscar
-              .row.equipment-nav-row
+                    input.form-control.input-search(type="text", id="equipmentTypeSearchInput", placeholder="Buscar tipo de equipo")
+                    a.fa.fa-search.fa-w-16.fa-3x
+                .col-md-2
+                  button#addEquipmentType.btn.btn-primary.button-search(type="button", data-toggle="addEquipmentTypeModal")
+                    i.fa.fa-plus.noWrap
+                      | Agregar Tipo de Equipo
+              .row.equipment-nav-row.no-padding 
                 .col-md-12
-                  .btn-group
-                    button#addEquipmentType.btn.btn-primary(type="button", data-toggle="addEquipmentTypeModal", style="cursor:pointer; background-color:rgb(0,155,219)") Agregar Tipo de Equipo 
-                      i.fa.fa-plus
-                .col-md-12
-                  table.table
+                  table.table.table-header
                     thead
                       th #
                       th Nombre
@@ -67,19 +54,18 @@ block content-mpro
                             else
                               i.fa.fa-undo(onclick="restoreEquipmentType('" + equipmentType._id + "')", aria-hidden="true")
             #equipment.tab-pane(role="tabpanel")
-              .row.equipment-nav-row
-                .col-md-11.mt-2.mb-2.mx-auto
+              .row.equipment-nav-row.nav-row-padding
+                .col-md-10
                   .input-group
-                    input.form-control(type="text", id="equipmentSearchInput", placeholder="Equipo...")
-                    span.input-group-btn
-                      button#equipmentSearch.btn.btn-primary(type="button") Buscar
-              .row.equipment-nav-row
+                    input.form-control.input-search(type="text", id="equipmentSearchInput", placeholder="Buscar equipo")
+                    a.fa.fa-search.fa-w-16.fa-3x
+                .col-md-2
+                  button#addEquipment.btn.btn-primary.button-search(type="button", data-toggle="addEquipmentModal")
+                    i.fa.fa-plus 
+                      | Agregar Equipo
+              .row.equipment-nav-row.no-padding.nav-row-padding
                 .col-md-12
-                  .btn-group
-                    button#addEquipment.btn.btn-primary(type="button", data-toggle="addEquipmentModal", style="cursor:pointer; background-color:rgb(0,155,219)") Agregar Equipo 
-                      i.fa.fa-plus
-                .col-md-12
-                  table.table
+                  table.table.table-header
                     thead
                       th #
                       th Nombre

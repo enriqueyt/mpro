@@ -1,36 +1,30 @@
 extends ../../layout
 block content-mpro
+  - var tabActivitiesActive = "top-nav-item-active"
   include ../../partials/header.pug
   .container-fluid
     .row
       .col-md-12
-        .row.dashboard-nav-row
-          .col-md-3.nav-active
-            a(href="/" + user.role + "/activities")
-              h5 Actividades
-          .col-md-3
-            a(href="/" + user.role + "/users")
-              h5 Usuarios
-          .col-md-3
-            a(href="/" + user.role + "/equipments")
-              h5 Equipos
         .row.manageActivity-nav-row
-          ul.nav.nav-tabs(role="tablist", id="tabManageActivity")
+          ul.page-nav(role="tablist", id="tabManageActivity")
             li.nav-item
-              a.nav-link.active(data-toggle="tab", href="#maintenanceActivity", role="tab", aria-controls="maintenanceActivity") Actividades
+              a.nav-link.nav-item-active(data-toggle="tab", href="#maintenanceActivity", role="tab", aria-controls="maintenanceActivity") Actividades
             li.nav-item
               a.nav-link(data-toggle="tab", href="#maintenanceActivityAttention", role="tab", aria-controls="maintenanceActivityAttention") Atenciones
           .tab-content(style="width:100%")
             #maintenanceActivity.tab-pane.active(role="tabpanel")
               .row.activity-nav-row
-                .col-md-11.mt-2.mb-2.mx-auto
+                .col-md-10
                   .input-group
-                    input.form-control(type="text", id="maintenanceActivitySearchInput", placeholder="Actividad...")
-                    span.input-group-btn
-                      button#maintenanceActivitySearch.btn.btn-primary(type="button") Buscar
-              .row.activity-nav-row
+                    input.form-control.input-search(type="text", id="maintenanceActivitySearchInput", placeholder="Buscar Actividad")
+                    a.fa.fa-search.fa-w-16.fa-3x
+                .col-md-2(style="padding-left:0;")
+                  button#manageActivity.btn.btn-primary(type="button", data-toggle="manageActivityModal")
+                      i.fa.fa-plus 
+                        | Gestionar Actividades
+              .row.activity-nav-row.no-padding
                 .col-md-12
-                  table.table
+                  table.table.table-header
                     thead
                       th #
                       th Nombre
@@ -55,18 +49,17 @@ block content-mpro
                               label.label-sm.label-default Eliminado
             #maintenanceActivityAttention.tab-pane(role="tabpanel")
               .row.activity-nav-row
-                .col-md-11.mt-2.mb-2.mx-auto
+                .col-md-10
                   .input-group
-                    input.form-control(type="text", id="maintenanceActivityAttentionSearchInput", placeholder="Atención...")
-                    span.input-group-btn
-                      button#maintenanceActivityAttentionSearch.btn.btn-primary(type="button") Buscar
-              .row.activity-nav-row
+                    input.form-control.input-search(type="text", id="maintenanceActivityAttentionSearchInput", placeholder="Buscar atención")
+                    a.fa.fa-search.fa-w-16.fa-3x
+                .col-md-2(style="padding-left:0;")
+                  button#manageActivity.btn.btn-primary(type="button", data-toggle="manageActivityModal")
+                      i.fa.fa-plus 
+                        | Gestionar Atenciones
+              .row.activity-nav-row.no-padding
                 .col-md-12
-                  .btn-group
-                    button#manageActivityAttention.btn.btn-primary(type="button", data-toggle="manageActivityModal", style="cursor:pointer; background-color:rgb(0,155,219)") Gestionar Atenciones 
-                      i.fa.fa-plus
-                .col-md-12
-                  table.table
+                  table.table.table-header
                     thead
                       th #
                       th Actividad

@@ -71,10 +71,10 @@ var sessionHandle = {
             });
         };
         validateSession(session_id)
-        .then(function(data){
+        .then(function(data){            
             if(!data[0]&&data[1]!=null) {
                 req.user=data[1].user;
-            }
+            }            
             return next();
         });
     }

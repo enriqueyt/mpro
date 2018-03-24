@@ -1,39 +1,32 @@
 extends ../../layout
 block content-mpro
+  - var tabEquipmentsActive = "top-nav-item-active"
   include ../../partials/header.pug
   .container-fluid
     .row
       .col-md-12
-        .row#headerNav.dashboard-nav-row
-          .col-md-3
-            a(href="/" + user.role + "/activities")
-              | Actividades
-          .col-md-3.nav-active
-            a(href="/" + user.role + "/equipments")
-              | Equipos
         .row.information-company
           .col-md-12
             span Empresa a la que colabora 
             h4(style="display:inline-block") <b>#{currentAccount.company.company.name}</b>
-            span Sucursal
+            span  Sucursal 
             h4(style="display:inline-block") <b>#{currentAccount.company.name}</b>
           .col-md-12
             p 
         .row.equipment-nav-row.container-fluid
-          ul.nav.nav-tabs(role="tablist", id="tabEquipment")
+          ul.page-nav(role="tablist", id="tabEquipment")
             li.nav-item
-              a.nav-link.active(data-toggle="tab", href="#equipment", role="tab", aria-controls="equipment") Equipos
+              a.nav-link.nav-item-active(data-toggle="tab", href="#equipment", role="tab", aria-controls="equipment") Equipos
           .tab-content(style="width:100%")
             #equipment.tab-pane.active(role="tabpanel")
-              .row.equipment-nav-row
-                .col-md-11.mt-2.mb-2.mx-auto
+              .row.equipment-nav-row.nav-row-padding
+                .col-md-10
                   .input-group
-                    input.form-control(type="text", id="userSearchInput", placeholder="Usuario...")
-                    span.input-group-btn
-                      button#equipmentSearch.btn.btn-primary(type="button") Buscar
-              .row.equipment-nav-row
+                    input.form-control.input-search(type="text", id="userSearchInput", placeholder="Buscar equipo")
+                    a.fa.fa-search.fa-w-16.fa-3x                
+              .row.equipment-nav-row.no-padding
                 .col-md-12
-                  table.table
+                  table.table.table-header
                     thead
                       th #
                       th Nombre

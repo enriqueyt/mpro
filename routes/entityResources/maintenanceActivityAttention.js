@@ -2,6 +2,7 @@ var Mongoose = require('mongoose');
 var Functional = require('underscore');
 
 var Utils = require('../../libs/utils');
+var Log = require('../../libs/log');
 
 var mongoEquipment = Mongoose.model('equipment');
 var mongoMaintenanceActivityAttention = Mongoose.model('maintenanceActivityAttention');
@@ -40,9 +41,24 @@ exports.createMaintenanceActivityAttentions = function (req, res, next) {
     var promise = new Promise(function (resolve, reject) {
       var onCreateDocument = function (err, document) {        
         if (err) {
-          console.log('ERROR on Create:', err.message);
+          Log.error({
+            parameters: ['MAINTENANCE_ACTIVITY_ATTENTION_EXCEPTION', err],
+            //text      : 'Exception! '.concat(err),
+            type      : 'create_maintenanceActivityAttention',
+            user      : req.user._id,
+            model     : err
+          });
+
           resolve({error: true, code: 500, message: err.message});
         };
+
+        Log.debug({
+          parameters: ['MAINTENANCE_ACTIVITY_ATTENTION_CREATE_SUCCESS', req.user.name, document.name],
+          //text      : 'Success on create! '.concat('User ', req.user.name, ' creates maintenance activity attention', document.name),
+          type      : 'create_maintenanceActivityAttention',
+          user      : req.user._id,
+          model     : document
+        });
   
         resolve({error: false, data: document});
       };
@@ -59,14 +75,28 @@ exports.createMaintenanceActivityAttentions = function (req, res, next) {
     var promise = new Promise(function (resolve, reject) {
       var onRemoveDocument = function (err, document) {
         if (err) {
-          console.log('ERROR on RollBack:', err.message);
+          Log.error({
+            parameters: ['MAINTENANCE_ACTIVITY_ATTENTION_EXCEPTION', err],
+            //text      : 'Exception! '.concat(err),
+            type      : 'rollback_maintenanceActivityAttention',
+            user      : req.user._id,
+            model     : err
+          });
+
           reject({error: true, code: 500, message: err.message});
         };
+
+        Log.debug({
+          parameters: ['MAINTENANCE_ACTIVITY_ATTENTION_ROLLBACK_SUCCESS', req.user.name, document.name],
+          //text      : 'Success on rollback! '.concat('System deletes maintenance activity attention', document.name, ' which was previously saved'),
+          type      : 'rollback_maintenanceActivityAttention',
+          user      : req.user._id,
+          model     : document
+        });
   
         resolve({error: false, data: document});
       };
       
-      // console.log("ROLLBACK Document ID: ", maintenanceActivityAttention._id);
       mongoMaintenanceActivityAttention.findByIdAndRemove(maintenanceActivityAttention._id, onRemoveDocument);
     });
 
@@ -93,7 +123,6 @@ exports.createMaintenanceActivityAttentions = function (req, res, next) {
   
         var rollBackPromises = Functional.reduce(results, function (accumulator, result) {
           if (result.error === false) {
-            // console.log('DOCUMENT CREATED: ', result.data);
             var promise = rollBackPromise(result.data);
             accumulator.push(promise);    
           }
@@ -123,7 +152,7 @@ exports.createMaintenanceActivityAttentions = function (req, res, next) {
 
   var onUpdateEquipment = function (data) {
     var promise = new Promise(function (resolve, reject) {
-      var query = {'_id': req.body.equipment};
+      var query = {_id: req.body.equipment};
       var options = {new: true, upsert: true};
       var maintenanceActivityAttentions = data[0];
       var maintenanceActivityDates = data[1];
@@ -143,6 +172,14 @@ exports.createMaintenanceActivityAttentions = function (req, res, next) {
           });
 
           if (err) {
+            Log.error({
+              parameters: ['EQUIPMENT_EXCEPTION', err],
+              //text      : 'Exception! '.concat(err),
+              type      : 'update_equipment',
+              user      : req.user._id,
+              model     : err
+            });
+
             reject({error: true, code: 500, message: 'Unexpected error was occurred'});
           }
 
@@ -170,7 +207,6 @@ exports.createMaintenanceActivityAttentions = function (req, res, next) {
   .then(onUpdateEquipment)
   .then(onFinish)
   .catch(function (err) {
-    console.log('ERROR:', err.message);
     res.status(err.code).send(err.message);
   });
 };
@@ -185,8 +221,8 @@ exports.getNextMaintenanceActivityAttention = function (req, res, next) {
   }
 
   var maintenanceActivityDatesPromise = new Promise(function (resolve, reject) {
-    var query = {'_id': req.params.equipment};
-    var projection = {'_id': 0, maintenanceActivityDates: 1};
+    var query = {_id: req.params.equipment};
+    var projection = {_id: 0, maintenanceActivityDates: 1};
     
     mongoEquipment.findOne(query).select(projection).exec()
     .then(function (data) {
@@ -292,7 +328,6 @@ exports.getNextMaintenanceActivityAttention = function (req, res, next) {
   .then(getMaintenanceAttention)
   .then(onFinish)
   .catch(function (err) {
-    console.log('ERROR:', err.message);
     res.status(err.code).send(err.message);
   });
 };
@@ -304,7 +339,7 @@ exports.getMaintenanceActivityAttentionByActivityDate = function (req, res, next
 
   var maintenanceActivityDatePromise = new Promise(function (resolve, reject) {
     var query = {'maintenanceActivityDates.identifier': req.params.identifier};
-    var projection = {'_id': 0, 'maintenanceActivityDates.$': 1};
+    var projection = {_id: 0, 'maintenanceActivityDates.$': 1};
 
     mongoEquipment.findOne(query).select(projection).exec()
     .then(function (data) {
@@ -355,7 +390,6 @@ exports.getMaintenanceActivityAttentionByActivityDate = function (req, res, next
   .then(getMaintenanceAttention)
   .then(onFinish)
   .catch(function (err) {
-    console.log('ERROR:', err.message);
     res.status(err.code).send(err.message);
   });
 };
@@ -369,7 +403,7 @@ exports.updateMaintenanceActivityAttention = function (req, res, next) {
     res.status(401).send({error: true, message: 'No user found'});
   }
 
-  var query = {'_id': req.params.maintenanceActivityAttention}
+  var query = {_id: req.params.maintenanceActivityAttention}
   var option = {new: true};
   var setValues = {};
 
@@ -379,12 +413,28 @@ exports.updateMaintenanceActivityAttention = function (req, res, next) {
 
   var onUpdateDocument = function (err, document) {
     if (err) {
+      Log.error({
+        parameters: ['MAINTENANCE_ACTIVITY_ATTENTION_EXCEPTION', err],
+        //text      : 'Exception! '.concat(err),
+        type      : 'update_maintenanceActivityAttention',
+        user      : req.user._id,
+        model     : err
+      });
+
       res.status(500).send({error: true, message: 'Unexpected error was occurred', document: req.params.maintenanceActivityAttention});
     }
 
     if (!document) {
       res.status(404).send({error: true, message: 'Document does not exist'});
     }
+
+    Log.debug({
+      parameters: ['MAINTENANCE_ACTIVITY_ATTENTION_UPDATE_SUCCESS', req.user.name, document.name],
+      //text      : 'Success on update! '.concat('User ', req.user.name, ' updates maintenance activity attention ', document.name),
+      type      : 'update_maintenanceActivityAttention',
+      user      : req.user._id,
+      model     : document
+    });
 
     res.status(200).send({error: false, data: document});
   };

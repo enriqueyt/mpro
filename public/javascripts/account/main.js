@@ -80,7 +80,7 @@ $(document).ready(function () {
     var form = document[$($(this).parents('form')).attr('name')];
     var data = {};
 
-    _.each(form, function (item, i) {					
+    _.each(form, function (item, i) {
       var control = $(item);
 
       if (control.attr('class').indexOf('form-control') > -1 || control.attr('class').indexOf('form-control-custom') > -1 || control.attr('type') === 'hidden') {
@@ -113,11 +113,12 @@ $(document).ready(function () {
 
       var request = $.ajax({
         url: action,
-        method: 'PUT',
+        method: 'POST',
         data: data
       });
        
       request.done(function (response) {
+        
         if (!response.error) {
           var obj = response.data;   
           
@@ -134,8 +135,9 @@ $(document).ready(function () {
               $('#entityLocation').val(obj.location);
             }           
           }
-
-          $('#editEntityModal, #addBranchCompanyModal').modal('hide');
+          document.addAccountForm.reset();
+          $('#editEntityModal, #addBranchCompanyModal, #addAccountModal').modal('hide');
+          window.location.reload();
         }
 
         return false;

@@ -28,20 +28,22 @@ exports.createEquipment = function (req, res, next) {
     var onCreateDocument = function (err, document) {        
       if (err) {
         Log.error({
-          text: 'Exception! '.concat(err),
-          type: 'create_equipment',
-          user: req.user._id,
-          model: err
+          parameters: ['EQUIPMENT_EXCEPTION', err],
+          //text      : 'Exception! '.concat(err),
+          type      : 'create_equipment',
+          user      : req.user._id,
+          model     : err
         });
 
         reject({error: true, code: 500, message: err.message});
       };
 
       Log.debug({
-        text: 'Success on create! '.concat('User ', req.user.name, ' creates equipment ', document.name),
-        type: 'create_equipment',
-        user: req.user._id,
-        model: document
+        parameters: ['EQUIPMENT_CREATE_SUCCESS', req.user.name, document.name],
+        //text      : 'Success on create! '.concat('User ', req.user.name, ' creates equipment ', document.name),
+        type      : 'create_equipment',
+        user      : req.user._id,
+        model     : document
       });
 
       resolve({error: false, data: document});
@@ -97,7 +99,7 @@ exports.getEquipment = function (req, res, next) {
     res.status(401).send({error: true, message: 'No user found'});
   }
 
-  var query = {'_id': req.params.equipment};
+  var query = {_id: req.params.equipment};
 
   mongoEquipment.findOne(query).populate('company').exec()
   .then(function (equipment) {
@@ -111,7 +113,7 @@ exports.getEquipment = function (req, res, next) {
 exports.getEquipmentsByEquipmentType = function (req, res, next) {
   var equipmentsPromise = new Promise(function (resolve, reject) {
     var query = {equipmentType: req.params.equipmentType};
-    var projection = {'_id': 1, 'name': 1};
+    var projection = {_id: 1, name: 1};
 
     mongoEquipment.find(query, projection).exec()
     .then(function (equipments) {
@@ -140,7 +142,7 @@ exports.updateEquipment = function (req, res, next) {
     res.status(401).send({error: true, message: 'No user found'});
   }
 
-  var query = {'_id': req.params.equipment};	
+  var query = {_id: req.params.equipment};	
   var option = {new: true};
   var setValues = {};
 
@@ -171,10 +173,11 @@ exports.updateEquipment = function (req, res, next) {
   var onUpdateDocument = function (err, document) {
     if (err) {
       Log.error({
-        text: 'Exception! '.concat(err),
-        type: 'update_equipment',
-        user: req.user._id,
-        model: err
+        parameters: ['EQUIPMENT_EXCEPTION', err],
+        //text      : 'Exception! '.concat(err),
+        type      : 'update_equipment',
+        user      : req.user._id,
+        model     : err
       });
 
       res.status(500).send({error: true, message: 'Unexpected error was occurred'});
@@ -185,10 +188,11 @@ exports.updateEquipment = function (req, res, next) {
     }
 
     Log.debug({
-      text: 'Success on update! '.concat('User ', req.user.name, ' updates equipment ', document.name),
-      type: 'update_equipmentType',
-      user: req.user._id,
-      model: document
+      parameters: ['EQUIPMENT_UPDATE_SUCCESS', req.user.name, document.name],
+      //text      : 'Success on update! '.concat('User ', req.user.name, ' updates equipment ', document.name),
+      type      : 'update_equipmentType',
+      user      : req.user._id,
+      model     : document
     });
 
     res.status(200).send({error: false, data: document});
@@ -230,10 +234,11 @@ exports.updateMaintenanceActivityDate = function (req, res, next) {
   var onUpdateDocument = function (err, document) {
     if (err) {
       Log.error({
-        text: 'Exception! '.concat(err),
-        type: 'update_equipment',
-        user: req.user._id,
-        model: err
+        parameters: ['EQUIPMENT_EXCEPTION', err],
+        //text      : 'Exception! '.concat(err),
+        type      : 'update_equipment',
+        user      : req.user._id,
+        model     : err
       });
 
       res.status(500).send({error: true, message: 'Unexpected error was occurred'});
@@ -244,10 +249,11 @@ exports.updateMaintenanceActivityDate = function (req, res, next) {
     }
 
     Log.debug({
-      text: 'Success on update! '.concat('User ', req.user.name, ' updates equipment ', document.name),
-      type: 'update_equipment',
-      user: req.user._id,
-      model: document
+      parameters: ['EQUIPMENT_UPDATE_SUCCESS', req.user.name, document.name],
+      //text      : 'Success on update! '.concat('User ', req.user.name, ' updates equipment ', document.name),
+      type      : 'update_equipment',
+      user      : req.user._id,
+      model     : document
     });
 
     res.status(200).send({error: false, data: document}); // This document contains information related to update process status.

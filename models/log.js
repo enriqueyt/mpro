@@ -2,16 +2,20 @@ var Mongoose = require('mongoose');
 var Schema = Mongoose.Schema;
 var ObjectId = Mongoose.Schema.Types.ObjectId;
 
-var log = new Schema({
+var log = new Schema(
+	{
+		parameters: [
+			Schema.Types.Mixed
+		],
 		text: {
-			type:String
+			type: String
 		},
 		level: {
 			type: String,
 			enum: ['error', 'info', 'debug']
 		},
-		type:{ // al realizar algun crud ej: create_account, delete_activities...
-			type:String
+		type: { // al realizar algun crud ej: create_account, delete_activities...
+			type: String
 		},
 		user: {
 			type: Schema.Types.ObjectId,
@@ -21,10 +25,10 @@ var log = new Schema({
 			type: Date,
 			default: Date.now
 		},
-		model:String
+		model: String
 	},
 	{
-  	autoIndex:false
+		autoIndex: false
 	}
 );
 

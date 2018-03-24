@@ -24,49 +24,52 @@ router.use(function (req, res, next) {
   next();
 });
 
-router.get('/adminCompany', SessionHandle.isLogged, function (req, res, next) {
+router.get('/adminCompany', SessionHandle.isLogged, function (req, res, next) {  
   if (!req.user) {
     console.log('No identifier');
     res.redirect('/login');
+    return;
   }
 
-  var accountPromise = new Promise(function (resolve, reject) {
-    var identifier = req.user.identifier;
-    var role = req.params.role || req.user.role;
-    var query = {'identifier': identifier, 'role': role};
+  var accountPromise = function(req){
+    return new Promise(function (resolve, reject) {
+      var identifier = req.user.identifier;
+      var role = req.params.role || req.user.role;
+      var query = {'identifier': identifier, 'role': role};
 
-    mongoAccount
-    .findOne(query)
-    .populate({
-      path: 'company',
-      Model: 'entity',
-      populate: {
+      mongoAccount
+      .findOne(query)
+      .populate({
         path: 'company',
-        Model: 'entity'
-      }
-    })
-    .exec()
-    .then(function (user) {
-      if (!user || user.length === 0) {
-        var message = 'No user found';
-        reject(new Error(message));
-      }
-      else {
-        resolve(user);
-      }
-    })
-    .catch(function (err) {
-      reject(err);
-    });
-  });
-
-  var onFetchActivities = function (user) {
-    var promise = new Promise(function(resolve, reject) {
-      Log.getLogs(10, 0).onFetchByRole(user)
-      .then(function (data) {
-        resolve({user: user, activities: data});
+        Model: 'entity',
+        populate: {
+          path: 'company',
+          Model: 'entity'
+        }
+      })
+      .exec()
+      .then(function (user) {
+        if (!user || user.length === 0) {
+          var message = 'No user found';
+          reject(new Error(message));
+        }
+        else {
+          resolve(user);
+        }
       })
       .catch(function (err) {
+        reject(err);
+      });
+    });
+  };
+
+  var onFetchActivities = function (user) {
+    var promise = new Promise(function(resolve, reject) {      
+      Log.getLogs(10, 0).onFetchByRole(user)
+      .then(function (data) {        
+        resolve({user: user, activities: data});
+      })
+      .catch(function (err) {        
         reject(err);
       });
     });
@@ -76,8 +79,7 @@ router.get('/adminCompany', SessionHandle.isLogged, function (req, res, next) {
 
   var onRender = function (data) {
     var tempUser = req.user || {};
-    req.user = {};
-
+    req.user = {};    
     return res.render('pages/dashboard/dashboard_admin_company', {
       user: tempUser,
       currentAccount: data.user,
@@ -85,7 +87,7 @@ router.get('/adminCompany', SessionHandle.isLogged, function (req, res, next) {
     });
   };
 
-  accountPromise(req.user)
+  accountPromise(req)
   .then(onFetchActivities)
   .then(onRender)
   .catch(function (err) {
