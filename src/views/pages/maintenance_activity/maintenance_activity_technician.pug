@@ -1,0 +1,84 @@
+extends ../../layout
+block content-mpro
+  - var tabActivitiesActive = "top-nav-item-active"
+  include ../../partials/header.pug
+  .container-fluid
+    .row
+      .col-md-12
+        .row.manageActivity-nav-row.nav-row-padding
+          .col-md-10
+            .input-group
+              input.form-control.input-search(type="text", id="maintenanceActivityAttentionSearchInput", placeholder="Busar atención")
+              a.fa.fa-search.fa-w-16.fa-3x
+          .col-md-2(style="padding-left:0;")
+            button#manageActivityAttention.btn.btn-primary(type="button", data-toggle="manageActivityModal")
+                i.fa.fa-plus.noWrap
+                  | Gestionar Atenciones
+        .row
+          .col-md-12.no-padding
+            table.table.table-header
+              thead
+                th #
+                th Actividad
+                th Equipo
+                th Estatus
+                th Fecha
+                th
+              tbody
+                each maintenanceActivityAttention, i in maintenanceActivityAttentions
+                  tr
+                    td=i + 1
+                    td=maintenanceActivityAttention.maintenanceActivity.name
+                    td=maintenanceActivityAttention.equipment.name
+                    td
+                      if maintenanceActivityAttention.checked == true
+                        label.label-sm.label-success Revisada
+                      else
+                        label.label-sm.label-default Por Revisar
+                    td=maintenanceActivityAttention.date
+                    td
+                      a.btn.default.btn-xs.blue-stripe(onclick="searchMaintenanceActivityAttention('" + maintenanceActivityAttention._id + "')") Ver
+                         
+  #manageActivityModal.modal.fade(role="dialog")
+    .modal-dialog(role="document")
+      .modal-content
+        .modal-header.bg-primary.text-white
+          h4.modal-title.font-weight-bold Atenciones
+          button.close.fa.fa-close(type="button", style="color:white; opacity:1; text-shadow:1px 1px 1px #ccc; text-indent:0" data-dismiss="modal", aria-label="Close")
+        .modal-body
+          form(role="form", id="addMaintenanceActivityAttentionForm", name="addMaintenanceActivityAttentionForm", action="/maintenanceActivityAttentions", method="post")
+            .col-12
+              .form-group.row
+                label.col-3.col-form-label(for="equipmentType") Tipo de Equipo
+                .col-9
+                  select.form-control(id="equipmentType", name="equipmentType", required="true")
+                    option Seleccione
+                    each equipmentType in equipmentTypes
+                      option(value=equipmentType._id) #{equipmentType.name}
+              .form-group.row
+                label.col-3.col-form-label(for="maintenanceActivities") Actividades
+                .col-9
+                  select.form-control(id="maintenanceActivities", name="maintenanceActivities", multiple="true")
+              .form-group.row
+                label.col-3.col-form-label(for="equipment") Equipo
+                .col-9
+                  select.form-control(id="equipment", name="equipment", required="true")
+                    option Seleccione
+                    each equipment in equipments
+                      option(value=equipment._id) #{equipment.name}
+              hr
+              .form-group.row
+                label.col-3.col-form-label(for="dates") Fechas
+                .col-9
+                  .input-group.date
+                    input.form-control(type="text", id="dates", name="dates", readonly="true")
+                    .input-group-addon
+                      span.fa.fa-th
+              input.form-control(type="hidden", name="company", value=currentAccount.company.company._id)
+              input.form-control(type="hidden", name="branchCompany", value=currentAccount.company._id)
+            .col-12(style="text-align:right")
+              button.btn.btn-secondary(type="button", data-dismiss="modal", style="margin-right:1%;") Cerrar
+              button#addMaintenanceActivityAttentionSubmit.btn.btn-primary(type="submit") Crear
+  script(src='../../javascripts/maintenance_activity/main.js')
+
+        

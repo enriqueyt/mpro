@@ -1,0 +1,45 @@
+.row
+    .col-md-12
+        ul#log-pagination.pagination.pg-blue.width-center-component
+            - var total=Math.round(offSet/limit);
+            - var max=0, init=0, end=10, aux=5;
+            - if(skip>aux+1){
+                - init=skip+aux;
+                - end=parseInt(skip)+aux;
+                - if(end>total){
+                    - end=total;
+                - }
+            - } else{
+                -end=total;
+            - }
+            if end>0
+                li
+                    a.page-link(href="")
+                        | &laquo;
+            - for(var i=init; i<end; i++){
+                if i==(skip>0?skip-1:0)
+                    li.page-item.active
+                        a.page-link(href="#")
+                            | !{i+1}
+                else
+                    li.page-item
+                        a.page-link(href="#")
+                            | !{i+1}
+                if i==end-1
+                    if total-5 > skip
+                        li.page-item
+                            a.page-link(href="#")
+                                | .
+                        li.page-item
+                            a.page-link(href="#")
+                                | .
+                        li.page-item
+                            a.page-link(href="#")
+                                | .
+                        li.page-item
+                            a.page-link(href="#")
+                                | !{total}
+                    li.page-link
+                        a.page-link(href="#")
+                            | &raquo;
+            - }

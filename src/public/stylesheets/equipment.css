@@ -1,0 +1,176 @@
+/***
+New equipment Page
+***/
+.equipment-sidebar {
+  float: left;
+  width: 300px;
+  margin-right: 20px;
+}
+
+.equipment-content {
+  overflow: hidden;
+}
+
+/* equipment SIDEBAR */
+.equipment-sidebar-portlet {
+  padding: 30px 0 0 0 !important;
+  border: 1px solid #eaeaea;
+}
+
+.equipment-picture {
+  text-align: center;
+}
+
+.equipment-picture img {
+  float: none;
+  margin: 0 auto;
+  width: 50%;
+  height: 50%;
+  -webkit-border-radius: 50% !important;
+  -moz-border-radius: 50% !important;
+  border-radius: 50% !important;
+}
+
+.equipment-title {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.equipment-title-name {
+  color: #5a7391;
+  font-size: 2em;
+  font-weight: 600;
+  margin-bottom: 7px;
+}
+
+.equipment-title-type,
+.equipment-title-user {
+  text-transform: uppercase;
+  color: #5b9bd1;
+  font-size: 13px;
+  font-weight: 800;
+  margin-bottom: 7px;
+}
+
+.equipment-buttons {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.equipment-buttons .btn {
+  margin-right: 5px;
+}
+.equipment-buttons .btn:last-child {
+  margin-right: 0;
+}
+
+.equipment-buttons button {
+  text-transform: uppercase;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 6px 15px;
+}
+
+.equipment-menu {
+  margin-top: 30px;
+  padding-bottom: 20px;
+}
+
+.equipment-menu ul li {
+  border-bottom: 1px solid #f0f4f7;
+  cursor: pointer;
+}
+
+.equipment-menu ul li:last-child {
+  border-bottom: none;
+}
+
+.equipment-menu ul li a {
+  color: #93a3b5;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.equipment-menu ul li a i {
+  margin-right: 8px;
+  font-size: 16px;
+}
+
+.equipment-menu ul li a:hover {
+  background-color: #fafcfd;
+  color: #5b9bd1;
+  font-size: medium;
+}
+
+.equipment-menu ul{
+  display: block;
+}
+
+.equipment-menu ul li.active a {
+  color: #5b9bd1;
+  background-color: #f6f9fb;
+  border-left: 2px solid #5b9bd1;
+  margin-left: -2px;
+}
+
+.equipment-stat {
+  padding-bottom: 20px;
+  border-bottom: 1px solid #f0f4f7;
+}
+
+.equipment-stat-title {
+  color: #7f90a4;
+  font-size: 25px;
+  text-align: center;
+}
+
+.equipment-stat-text {
+  color: #5b9bd1;
+  font-size: 11px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.equipment-desc-title {
+  color: #7f90a4;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.equipment-desc-text {
+  color: #7e8c9e;
+  font-size: 14px;
+}
+
+.equipment-desc-link i {
+  width: 22px;
+  font-size: 19px;
+  color: #abb6c4;
+  margin-right: 5px;
+}
+
+.equipment-desc-link a {
+  font-size: 14px;
+  font-weight: 600;
+  color: #5b9bd1;
+}
+
+/* END equipment SIDEBAR */
+/* RESPONSIVE MODE */
+@media (max-width: 991px) {
+  /* 991px */
+  /* 991px */
+  .equipment-sidebar {
+    float: none;
+    width: 100% !important;
+    margin: 0;
+  }
+
+  .equipment-sidebar > .portlet {
+    margin-bottom: 20px;
+  }
+
+  .equipment-content {
+    overflow: visible;
+  }
+}
