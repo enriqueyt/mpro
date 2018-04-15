@@ -44,7 +44,7 @@ block content-mpro
                               label.label-sm.label-default Inactivo
                           td
                             if maintenanceActivity.deleted == false
-                              a.btn.default.btn-xs.blue-stripe(onclick="searchMaintenanceActivity('" + maintenanceActivity._id + "')") Ver
+                              a.btn.default.btn-xs.blue-stripe(onclick="searchMaintenanceActivity('" + maintenanceActivity._id + "')")
                             else
                               label.label-sm.label-default Eliminado
             #maintenanceActivityAttention.tab-pane(role="tabpanel")

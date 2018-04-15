@@ -38,7 +38,31 @@ function setDropDownListOptions(actionName, parameter, containerName) {
   return false;
 }
 
+function getAvatar(done){
+  var avatars=[], gitavatar, aux, result;
+  var url = 'https://octodex.github.com';
+  $.get(url, function(data) {    
+    $(data).find('.item a').each(function(k, v){
+      gitavatar = $(v).first().children().attr('data-src');
+      if(gitavatar!=undefined){
+        aux=''.concat(url, gitavatar);
+        avatars.push(aux);
+      }
+    });
+    result=avatars[Math.floor(getRandom(0, avatars.length))];
+    done(result);
+  });
+};
+
+function getRandom(min, max){
+  return Math.random()*(max-min)+min;
+};
+
 $(document).ready(function () {
+  var avatarImg='';
+  getAvatar(function(image){    
+    avatarImg=image;
+  });
 
   $('#addAccount').click(function (e) {
     $('#addAccountModal').modal('show');
@@ -110,7 +134,7 @@ $(document).ready(function () {
 
     if (!$(form).find('[name="requireFieldMessage"]').length > 0) {
       var action = $($(this).parents('form')).attr('action');
-
+      data.image=avatarImg;
       var request = $.ajax({
         url: action,
         method: 'POST',
@@ -150,6 +174,5 @@ $(document).ready(function () {
 
     return false;
   });
-
-  return false;
+  
 });

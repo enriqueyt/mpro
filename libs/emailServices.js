@@ -1,15 +1,11 @@
 var exports = module.exports={};
 
-var sendindBlue = require('sib-api-v3-sdk');
-var defaultClient = sendindBlue.ApiClient.instance;
+var sendGrid = require('@sendgrid/mail');
+sendGrid.setApiKey('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');
 
-var apiKey = defaultClient.authentications['api-key'];
-apiKey.apiKey = 'YOUR_API_V3_KEY';
+var from = 'enriqueyt@gmail.com';
 
-var apiInstance = new sendindBlue.EmailCampaignsApi();
-var emailCampaigns = new sendindBlue.CreateEmailCampaign();
-
-function sendEmail(option){
+function sendEmail(option, callback){
     if(!option.to){
         throw new Error('');
     }
@@ -20,13 +16,30 @@ function sendEmail(option){
         throw new Error('');
     }
 
-    apiInstance.CreateEmailCampaign(option)
-    .then(function(data){
-        console.log('data: ', data);
-        return data;
-    }, function(error){
-        console.log('error',);
-        return error;
-    })
+    sendGrid.send({
+        to:option.to,
+        from:'enriqueyt@gmail.com',
+        subject:option.subject,
+        text:option.text
+    }, function(err, data){
+        if(err){
+            console.log('err: ', err);
+            callback(true, err);
+            return;
+        };
+        return callback(false, data);
+    });
 
+};
+
+exports.send = function(options){    
+    return new Promise(function(resolve, reject){
+        sendEmail(options, function(err, data){            
+            if(err){
+                reject(data);
+                return;
+            };
+            return resolve(data);
+        });
+    });
 };
