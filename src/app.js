@@ -12,7 +12,7 @@ var Csrf = require('csurf');
 
 var Mongoose = require('mongoose');
 
-var DbConfig = require('./config/dbConfig');
+var DbConfig = require('../config/dbConfig');
 var Utils = require('./libs/utils');
 
 var mongooseConnection = Utils.getDbConnection(Mongoose, DbConfig);
@@ -32,7 +32,7 @@ require('./models/log');
 
 var api = require('./routes/api');
 var index = require('./routes/index');
-var initPassport = require('./config/passport')(Passport);
+var initPassport = require('./passport')(Passport);
 var authentication = require('./routes/authentication')(Passport);
 var admin = require('./routes/admin');
 var adminCompany = require('./routes/admin_company');

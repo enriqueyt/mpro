@@ -1,6 +1,6 @@
 var Functional = require('underscore');
 
-var Locales = require('../config/localeConfig');
+var Locales = require('../../config/localeConfig');
 
 var LogMessageProvider = (function (locales) {
   var logResources = require('../resources/locales/'.concat(locales.default, '/log'));
