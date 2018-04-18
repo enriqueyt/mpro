@@ -14,7 +14,11 @@
     "pretest": "npm run lint",
     "test": "",
     "posttest": "",
-    "lint": "jshint src/*.js src/**/*.js"
+    "lint": "jshint src/*.js src/**/*.js",
+    "build:clean": "rimraf build",
+    "prebuild": "npm run build:clean; node scripts/clean-pkg",
+    "build": "bash scripts/build.sh",
+    "postbuild": "node scripts/restore-pkg"
   },
   "dependencies": {
     "@sendgrid/mail": "^6.2.1",
@@ -40,6 +44,8 @@
     "underscore": "^1.8.3"
   },
   "devDependencies": {
-    "jshint": "^2.9.5"
+    "jshint": "^2.9.5",
+    "rimraf": "^2.6.2",
+    "uglify-js": "^3.3.21"
   }
 }
