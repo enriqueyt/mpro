@@ -33,7 +33,7 @@ var AppMessageProvider = (function (locales) {
     return false;
   }
 
-  function getMessageApp(key, parameters) {
+  function getMessage(key, parameters) {
     var format = appResources[key];
 
     parameters.unshift(format);
@@ -47,12 +47,12 @@ var AppMessageProvider = (function (locales) {
       return false;
     },
 
-    getMessageLog: function (key, parameters) {
-      return getMessageApp(key, parameters);
+    getMessage: function (key, parameters) {
+      return getMessage(key, parameters);
     }
   };
 })(Locales);
 
 module.exports = AppMessageProvider;
 
-// TODO: Think about cases where a key does not exists in the resource file.
+// TODO: Think about cases where a key does not exist in the resource file.
