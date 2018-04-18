@@ -42,15 +42,15 @@ Go to Docker main page (https://www.docker.com), install docker engine and docke
 
 ### To create the MongoDB docker container (Alternative):
 ``` bash
-> cd docker
-> docker-compose up -d mongodb
+> $ cd docker
+> $ docker-compose up -d mongodb
 ```
 
 ### To start, restart and stop the MongoDB container:
 ``` bash
-> docker-compose start mongodb
-> docker-compose restart mongodb
-> docker-compose stop mongodb
+> $ docker-compose start mongodb
+> $ docker-compose restart mongodb
+> $ docker-compose stop mongodb
 ```
 Go to Docker Compose page documentation (https://docs.docker.com/compose) to view more details.
 
@@ -77,7 +77,7 @@ Use the following prefix to create branches:
 * fix/ISSUE-DESCRIPTION for bug's fix.
 
 ## Version
-0.1
+0.1.0
 
 ## Author
 * **EYT** - *Initial work* - [enriqueyt](https://github.com/enriqueyt)
