@@ -9,7 +9,7 @@
     "stop": "pm2 stop $(pm2 id www | grep -oP [0-9]+)",
     "remove": "pm2 delete $(pm2 id www | grep -oP [0-9]+)",
     "ls": "pm2 ls",
-    "start:dev": "nodemon src/bin/www",
+    "start:dev": "node src/bin/www",
     "test": "",
     "lint": "jshint src/*.js src/**/*.js"
   },
