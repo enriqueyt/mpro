@@ -1,17 +1,9 @@
 #!/bin/bash
 
-function getAppVersion() {
-  PACKAGE_VERSION=$(cat package.json \
-    | grep version \
-    | head -1 \
-    | awk -F: '{ print $2 }' \
-    | sed 's/[",\t ]//g')
+EXECUTION_PATH=$(cd `dirname $0` && pwd)
 
-  echo $PACKAGE_VERSION
-}
-
-function main() {  
-  VERSION=$(getAppVersion)
+function main() {    
+  VERSION=$(bash $EXECUTION_PATH/appVersion.sh --version)
   
   echo "Creating build/$VERSION directory..."
   mkdir -p build/$VERSION
