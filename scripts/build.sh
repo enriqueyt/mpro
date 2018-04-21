@@ -16,7 +16,7 @@ function main() {
   
   echo "Creating zip file..."
   cd build
-  zip -r "$VERSION.zip" $VERSION
+  tar -czf "$VERSION.tgz" $VERSION
 
   exit 0
 }
