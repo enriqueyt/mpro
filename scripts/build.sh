@@ -14,7 +14,7 @@ function main() {
   echo "Starting minify process..."
   find build/$VERSION/src \( -name '*.js' -o -name 'www' \) -exec bash -c 'echo $1; node_modules/uglify-js/bin/uglifyjs $1 -mc -o $1' - '{}' \;
   
-  echo "Creating zip file..."
+  echo "Compressing version source files..."
   cd build
   tar -czf "$VERSION.tgz" $VERSION
 
