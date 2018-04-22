@@ -30,7 +30,7 @@ got.post('https://api.travis-ci.org/repo/Nanielito%2Fdocker-mpro/requests', {
       message: `Trigger build at ${gitCommitHash}`,
       branch: 'master',
       config: {
-        merge_mode: 'merge_deep',
+        merge_mode: 'deep_merge',
         env: {
           BRANCH: 'development' // process.argv[2]
         }
