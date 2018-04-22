@@ -4,7 +4,7 @@ const got   = require('got');
 
 console.log('Fetching git commit hash...');
 
-let gitRepositoryInfo = shell.exec('git rev-parse HEAD; git rev-parse --abbrev-ref HEAD', {
+const gitRepositoryInfo = shell.exec('git rev-parse HEAD', {
   cwd: path.join(__dirname, '..')
 });
 
@@ -14,12 +14,9 @@ if (gitRepositoryInfo.code !== 0) {
   process.exit(-1);
 }
 
-gitRepositoryInfo = gitRepositoryInfo.stdout.trim().split('\n');
+const gitCommitHash = gitRepositoryInfo.stdout.trim();
 
-const gitCommitHash = gitRepositoryInfo[0];
-const gitBranch     = gitRepositoryInfo[1];
-
-console.log('Git commit', gitCommitHash, 'on branch', gitBranch);
+console.log('Git commit: ', gitCommitHash);
 
 got.post('https://api.travis-ci.org/repo/Nanielito%2Fdocker-mpro/requests', {
   headers: {
@@ -30,7 +27,7 @@ got.post('https://api.travis-ci.org/repo/Nanielito%2Fdocker-mpro/requests', {
   },
   body: JSON.stringify({
     request: {
-      message: `Trigger build at ${gitCommitHash} on ${gitBranch}`,
+      message: `Trigger build at ${gitCommitHash}`,
       branch: 'master'
     }
   })
