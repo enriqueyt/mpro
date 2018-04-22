@@ -49,7 +49,7 @@ function setNextDevelopmentPhaseVersion() {
 
   setAppReleaseVersion
 
-  VERSION=getAppVersion
+  VERSION=$(getAppVersion)
 
   setAppVersion "$VERSION-SNAPSHOT.0"
 }
