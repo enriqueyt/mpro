@@ -32,7 +32,9 @@ got.post('https://api.travis-ci.org/repo/Nanielito%2Fdocker-mpro/requests', {
       config: {
         merge_mode: 'deep_merge',
         env: {
-          BRANCH: 'development' // process.argv[2]
+          global: {
+            BRANCH: 'development' // process.argv[2]
+          }
         }
       }
     }
