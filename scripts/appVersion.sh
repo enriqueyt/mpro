@@ -1,13 +1,14 @@
 #!/bin/bash
 
-OPTS=`getopt -o hvprs --long help,version,put,release,snapshot -n 'parse-options' -- "$@"`
+OPTS=`getopt -o hvprsn --long help,version,put,release,snapshot,next -n 'parse-options' -- "$@"`
 eval set -- "$OPTS"
 
-COMMANDS=(                                                       \
-    "$0 -v | --version      Gets package current version"        \
-    "$0 -p | --put VERSION  Sets package version"                \
-    "$0 -r | --release      Updates package version to release"  \
-    "$0 -s | --snapshot     Updates package version to snapshot" \
+COMMANDS=(                                                                \
+    "$0 -v | --version      Gets package current version"                 \
+    "$0 -p | --put VERSION  Sets package version"                         \
+    "$0 -r | --release      Updates package version to release"           \
+    "$0 -s | --snapshot     Updates package version to snapshot"          \
+    "$0 -n | --next         Updates packages to next development version" \
 )
 
 function usage() {
