@@ -3,7 +3,7 @@ node_js: '8'
 branches:
   only:
   - ci-test # TODO: Change to master
-  - development 
+  - development
 script:
 - node scripts/trigger-build $TRAVIS_BRANCH
 env:
