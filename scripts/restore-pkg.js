@@ -1,8 +1,8 @@
-const fs = require('fs');
+const fs   = require('fs');
 const path = require('path');
 
 // Define absolute paths for original pkg and temporary pkg.
-const PACKAGE_PATH = path.resolve(__dirname, '../package.json');
+const PACKAGE_PATH        = path.resolve(__dirname, '../package.json');
 const CACHED_PACKAGE_PATH = path.resolve(__dirname, '../cached-package.json');
 
 // Obtain original/cached contents from `cached-package.json`.
