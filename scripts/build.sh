@@ -5,6 +5,10 @@ EXECUTION_PATH=$(cd `dirname $0` && pwd)
 function main() {    
   VERSION=$(bash $EXECUTION_PATH/appVersion.sh --version)
   
+  if [[ $VERSION =~ SNAPSHOT ]]; then
+    VERSION="latest"
+  fi
+
   echo "Creating build/$VERSION directory..."
   mkdir -p build/$VERSION
 
