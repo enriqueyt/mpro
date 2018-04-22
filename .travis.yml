@@ -2,9 +2,10 @@ language: node_js
 node_js: '8'
 branches:
   only:
-  - ci-test
+  - ci-test # TODO: Change to master
+  - development 
 script:
-- node scripts/trigger-build
+- node scripts/trigger-build $TRAVIS_BRANCH
 env:
   global:
     secure: UoZh0soyxLoDDrfdTzI1XyXeLZs7ourRhYNZsEaawpHh6CzBE7eQpOm3dx+ouhhddq0aS+Kq8SbJpFY/DnpC5GOQL9wC0yWqfU7fu54kw8O+CspgJ8hZSjP4Trvri8+hY4ZdlEd1XjTMP9SjzLzcRm87ERR9X/eriGNIOtwf9baFMU4rz0S3RIqSzbedCChex5NtoEnt1b3kW5pHyQJSKBAx5oPF0eTFDlGzm4lL+jCUZnHWVZv4aJ1IdEg3GXpQ5nKYT5+7Dbm2AyVhgO+tYe4mM63gnR06n5LdXFI4XZ0asJJchr6zRrwOfNq+u7KJMtK+PlXZXDALxXej0zcpsF9jO94RcfkSTfQa5VZxxP4APu/NOEaJxs3jSDaRIo+jmPphay7UMDPXwnuD4ORtN4SWMWog11+nsWjr7gw23HVTQdhw7p9iQGBhODuyEC80/Aydpr95W1jSeoUFqSwQ1Hnb4wWv77BNuhwhmAn7RB3Jt8FTghkJ4TwncMjBVYdVFRWD58FR+wPZGyw+7/Q9Aqu82BITsrBweOpy4B69Wdw/i/ARBlycWDqzLA3oI3sdmnsHBRE7Wsc0K5rN/PqKTueAYxEFiKdkDj2qNoCFyFEN0t63hh16U5jIdVLyKclKDlwEfA9DYMs8CTcPsbpmO56PronLUP4RilzNsiYiD78=

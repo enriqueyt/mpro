@@ -28,7 +28,13 @@ got.post('https://api.travis-ci.org/repo/Nanielito%2Fdocker-mpro/requests', {
   body: JSON.stringify({
     request: {
       message: `Trigger build at ${gitCommitHash}`,
-      branch: 'master'
+      branch: 'master',
+      config: {
+        merge_mode: 'merge_deep',
+        env: {
+          BRANCH: 'development' // process.argv[2]
+        }
+      }
     }
   })
 })
