@@ -28,7 +28,7 @@ function getAppVersion() {
 function setAppVersion() {
   VERSION=$1
 
-  if [ -z "$VERSION"]; then
+  if [ -z "$VERSION" ]; then
     echo "VERSION must be non empty value"
     exit 1
   else
