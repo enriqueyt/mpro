@@ -1,14 +1,15 @@
 #!/bin/bash
 
-OPTS=`getopt -o hvprsn --long help,version,put,release,snapshot,next -n 'parse-options' -- "$@"`
+OPTS=`getopt -o hvprsnR --long help,version,put,release,snapshot,next,README -n 'parse-options' -- "$@"`
 eval set -- "$OPTS"
 
-COMMANDS=(                                                                \
-    "$0 -v | --version      Gets package current version"                 \
-    "$0 -p | --put VERSION  Sets package version"                         \
-    "$0 -r | --release      Updates package version to release"           \
-    "$0 -s | --snapshot     Updates package version to snapshot"          \
-    "$0 -n | --next         Updates packages to next development version" \
+COMMANDS=(                                                               \
+    "$0 -v | --version      Gets package current version"                \
+    "$0 -p | --put VERSION  Sets package version"                        \
+    "$0 -r | --release      Updates package version to release"          \
+    "$0 -s | --snapshot     Updates package version to snapshot"         \
+    "$0 -n | --next         Updates package to next development version" \
+    "$0 -R | --README       Sets package version on README file"         \
 )
 
 function usage() {
@@ -54,6 +55,12 @@ function setNextDevelopmentPhaseVersion() {
   setAppVersion "$VERSION-SNAPSHOT.0"
 }
 
+function setAppVersionOnReadme() {
+  APPVERSION=$1
+
+  sed -i -e "s#\(^v\)\(.*\)#\1$APPVERSION#g" README.md
+}
+
 if [[ $# = 1 ]]; then
   usage
   exit 1
@@ -72,6 +79,8 @@ case "$1" in
     setAppSnapshotVersion; exit 0 ;;
   -n | --next)
     setNextDevelopmentPhaseVersion; exit 0 ;;
+  -R | --README)
+    setAppVersionOnReadme $2; exit 0 ;;
   *)
     usage; exit 1 ;;
 esac
