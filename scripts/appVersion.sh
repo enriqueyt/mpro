@@ -1,6 +1,6 @@
 #!/bin/bash
 
-OPTS=`getopt -o hvprsnR --long help,version,put,release,snapshot,next,README -n 'parse-options' -- "$@"`
+OPTS=`getopt -o hvp:rsnR: --long help,version,put:,release,snapshot,next,README: -n 'parse-options' -- "$@"`
 eval set -- "$OPTS"
 
 COMMANDS=(                                                               \
@@ -56,9 +56,9 @@ function setNextDevelopmentPhaseVersion() {
 }
 
 function setAppVersionOnReadme() {
-  APPVERSION=$1
+  VERSION=$1
 
-  sed -i -e "s#\(^v\)\(.*\)#\1$APPVERSION#g" README.md
+  sed -i -e "s#\(^v\)\(.*\)#\1$VERSION#g" README.md
 }
 
 if [[ $# = 1 ]]; then

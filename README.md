@@ -77,7 +77,7 @@ Use the following prefix to create branches:
 * fix/ISSUE-DESCRIPTION for bug's fix.
 
 ## Version
-v0.1.0   
+v0.1.0
 [![Build status](https://travis-ci.org/Nanielito/docker-mpro.svg?master)](https://travis-ci.org/Nanielito)
 
 ## Author
