@@ -24,12 +24,26 @@ $(document).ready(function () {
     _.each(form, function (item, i) {				
       if (item.getAttribute('class') === 'form-control' || item.type === 'hidden') {
         if (item.tagName.toLowerCase() === 'input' || item.tagName.toLowerCase() === 'textarea') {
+          
           if (item.value.length > 0) {
+            if(item.getAttribute("type")=="email"){
+              if(!(/^[a-zA-Z0-9]+\@[a-zA-Z0-9]+\.[a-zA-Z0-9-]{0,5}$/ig).exec(item.value)){
+                $(item).after('<p style="color:red;" name="description">Correo invalido</p>');
+                return;
+              }
+            }
+            if(item.getAttribute("type")=="phone"){              
+              if(!(/^[0-9]+$/ig).exec(item.value)){
+                $(item).after('<p style="color:red;" name="description">Cmapo debe ser numérico</p>');
+                return;
+              }
+            }
             data[item.name] = item.value;
           }
           else {
             $(item).after('<p style="color:red;" name="description">Campo requerido</p>');
           }
+
         }
         else if (item.tagName.toLowerCase() === 'select') {
           var itemValue = $(item).find('option:selected').attr('value');							

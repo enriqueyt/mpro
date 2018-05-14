@@ -17,7 +17,7 @@ exports.createMaintenanceActivityAttentions = function (req, res, next) {
   if (!req.user || !req.user.username) {
     res.status(401).send({error: true, message: 'No user found'});
   }
-
+  console.log(req.body.documents)
   var documents = JSON.parse(req.body.documents);
   var maintenanceActivityDates = [];
 

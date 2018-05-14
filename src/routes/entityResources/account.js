@@ -80,7 +80,6 @@ exports.createAccount = function (req, res, next) {
   saveAccountPromise
   .then(onFinish)
   .catch(function (err) {
-    console.log(err)
     res.status(err.code).send(err.message);
   });
 };

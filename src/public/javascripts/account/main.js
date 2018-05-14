@@ -113,6 +113,18 @@ $(document).ready(function () {
             data[control.attr('name')] = control.prop('checked');
           }
           else if (control.val().trim().length > 0) {
+            if(item.getAttribute("type")=="email"){
+              if(!(/^[a-zA-Z0-9]+\@[a-zA-Z0-9]+\.[a-zA-Z0-9-]{0,5}$/ig).exec(item.value)){
+                $(item).after('<p style="color:red;" name="requireFieldMessage">Correo invalido</p>');
+                return;
+              }
+            }
+            if(item.getAttribute("type")=="phone"){              
+              if(!(/^[0-9]+$/ig).exec(item.value)){
+                $(item).after('<p style="color:red;" name="requireFieldMessage">Campo debe ser numérico</p>');
+                return;
+              }
+            }
             data[control.attr('name')] = control.val().trim();
           }
           else {

@@ -29,9 +29,10 @@ exports.getUsersViewData = function (req, res, next) {
   };
 
   var accountPromise = new Promise(function (resolve, reject) {
-    var identifier = req.params.identifier || req.user.identifier;
+    var identifier = req.user.identifier;
     var role = req.params.role || req.user.role;
-    var query = {'identifier': identifier, 'role': role};
+    var username = req.user.username;
+    var query = {'identifier': identifier, 'role': role, username: username};
   
     mongoAccount.findOne(query).populate('company').exec()
     .then(function (user) {
@@ -79,13 +80,14 @@ exports.getUsersViewData = function (req, res, next) {
   };
 
   var onRender = function (data) {
-    var roleEnumValues = mongoAccount.schema.path('role').enumValues;
-    var roles = Functional.filter(roleEnumValues, function (roleEnumValue) {
-      return roleEnumValue !== 'admin' && roleEnumValue !== 'adminCompany' && roleEnumValue !== 'adminBranchCompany';
+    var roleEnumValues = mongoAccount.getRoleValues();
+    var roles = [];
+    Functional.each(roleEnumValues,function(v,k){      
+      if(v.id!=='admin'&&v.id!=='adminCompany'&&v.id!=='adminBranchCompany') roles.push(v);
     });
+
     var tempUser = req.user || {};
-    req.user = {};
-    
+    req.user = {};    
     return res.render('pages/account/account_admin_branch_company', {
       user: tempUser,
       currentAccount: data[0],

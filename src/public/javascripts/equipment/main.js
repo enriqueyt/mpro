@@ -340,10 +340,22 @@ $(document).ready(function () {
 
     _.each(form, function (item, i) {
       var control = $(item);
-
-      if (control.attr('class').indexOf('form-control') > -1 || control.attr('type') === 'hidden') {
+      if(control.attr("class")==undefined) return;
+      if ((control.attr('class')).indexOf('form-control') > -1 || control.attr('type') === 'hidden') {
         if (control.prop('tagName').toLowerCase() === 'input' || control.prop('tagName').toLowerCase() === 'textarea') {
           if (control.val().trim().length > 0) {
+            if(item.getAttribute("type")=="email"){
+              if(!(/^[a-zA-Z0-9]+\@[a-zA-Z0-9]+\.[a-zA-Z0-9-]{0,5}$/ig).exec(item.value)){
+                $(item).after('<p style="color:red;" name="description">Correo invalido</p>');
+                return;
+              }
+            }
+            if(item.getAttribute("type")=="phone"){              
+              if(!(/^[0-9]+$/ig).exec(item.value)){
+                $(item).after('<p style="color:red;" name="description">Cmapo debe ser numérico</p>');
+                return;
+              }
+            }
             data[control.attr('name')] = control.val().trim();
           }
           else {
@@ -407,7 +419,7 @@ $(document).ready(function () {
     _.each(form, function (item) {
       var control = $(item);
 
-      if (control.attr('class').indexOf('form-control') > -1 || control.attr('class').indexOf('form-control-custom') > -1 || control.attr('type') === 'hidden') {
+      if ((control.attr('class')).indexOf('form-control') > -1 || (control.attr('class')).indexOf('form-control-custom') > -1 || control.attr('type') === 'hidden') {
         if (control.prop('tagName').toLowerCase() === 'input' || control.prop('tagName').toLowerCase() === 'textarea') {
           if (control.attr('type') === 'checkbox') {
             data[control.attr('name')] = control.prop('checked');
@@ -527,8 +539,8 @@ $(document).ready(function () {
     _.each(form, function (item) {
       var control = $(item);
       var action = '';
-
-      if (control.attr('class').indexOf('form-control-custom') > -1) {
+      
+      if ((control.attr('class')).indexOf('form-control-custom') > -1) {
         if (control.prop('tagName').toLowerCase() === 'input') {
           if (control.attr('type') === 'checkbox' && control.prop('changed') === true) {
             data['checked'] = control.prop('checked');
