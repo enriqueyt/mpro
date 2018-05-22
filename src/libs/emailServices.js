@@ -1,11 +1,19 @@
 var exports = module.exports={};
 
-var sendGrid = require('@sendgrid/mail');
-sendGrid.setApiKey('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');
+var nodemailer = require('nodemailer');
 
-var from = 'enriqueyt@gmail.com';
+var transport = nodemailer.createTransport({
+    service: 'Gmail',
+    auth: {
+        user: 'mproservice123@gmail.com',
+        pass: 'mproservice123456'
+    }
+});
 
 function sendEmail(option, callback){
+
+    option.from='mproservice123@gmail.com';
+
     if(!option.to){
         throw new Error('');
     }
@@ -16,12 +24,7 @@ function sendEmail(option, callback){
         throw new Error('');
     }
 
-    sendGrid.send({
-        to:option.to,
-        from:'enriqueyt@gmail.com',
-        subject:option.subject,
-        text:option.text
-    }, function(err, data){
+    transport.sendMail(option, function(err, data){
         if(err){
             console.log('err: ', err);
             callback(true, err);

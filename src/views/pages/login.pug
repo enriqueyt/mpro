@@ -11,6 +11,6 @@ block content-mpro
         input#inputPassword.form-control(type='password', name='password', placeholder='Contraseña' required)
       button#loginButton.btn.btn-lg.btn-primary.btn-block(type='submit') Ingresar
     if showMessage
-      h5(style="margin-top:1em;text-align:center;") #{showMessage}
+      h5(style="margin-top:1em;text-align:center;color:red;") #{showMessage}
   script(type='text/javascript').
     console.log('#{csrfToken}');

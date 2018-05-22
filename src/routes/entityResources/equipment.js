@@ -25,7 +25,7 @@ exports.createEquipment = function (req, res, next) {
       userAssigned : req.body.account
     };
 
-    var onCreateDocument = function (err, document) {        
+    var onCreateDocument = function (err, document) {
       if (err) {
         Log.error({
           parameters: ['EQUIPMENT_EXCEPTION', err],
@@ -50,7 +50,7 @@ exports.createEquipment = function (req, res, next) {
     };
 
     var newEquipment = new mongoEquipment(equipment);
-  
+
     newEquipment.save(onCreateDocument);
   });
 

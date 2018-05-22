@@ -259,6 +259,18 @@ $(document).ready(function () {
       if (control.attr('class').indexOf('form-control') > -1 || control.attr('type') === 'hidden') {
         if (control.prop('tagName').toLowerCase() === 'input') {
           if (control.val().trim().length > 0) {
+            if(item.getAttribute("type")=="email"){
+              if(!(/^[a-zA-Z0-9]+\@[a-zA-Z0-9]+\.[a-zA-Z0-9-]{0,5}$/ig).exec(item.value)){
+                $(item).after('<p style="color:red;" name="description">Correo invalido</p>');
+                return;
+              }
+            }
+            if(item.getAttribute("type")=="phone"){              
+              if(!(/^[0-9]+$/ig).exec(item.value)){
+                $(item).after('<p style="color:red;" name="description">Cmapo debe ser numérico</p>');
+                return;
+              }
+            }
             if (/name\d*/.test(control.attr('name')) === true) {
               collection.push({name: control.val().trim()});
             }

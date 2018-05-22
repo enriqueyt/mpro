@@ -418,4 +418,35 @@ router.get('/account', SessionHandle.isLogged, function (req, res, next) {
   mongoAccount.findOne(query).populate('company').exec(onFetchAccount);
 });
 
+var EmailService = require('../libs/emailServices');
+
+router.get('/testMail', function(req, res){
+  var account = {
+    to:'enriqueyt@gmail.com',
+    name:'Enrique Yepez',
+    username:'enriqueyt@gmail.com',
+    password: '123456'
+  };
+  EmailService.send({
+    from:'mproservice123@gmail.com',
+    to:account.username,
+    subject:'CREACION DE USUARIO',
+    text:`${account.name}, 
+    
+    Se ha registrado un usuario para usted en la aplicacion MPRO, favor ingrese con las siguiente credenciales
+    
+    Usuario: ${account.username},
+    Contrase;a: ${account.password}
+    
+    Gracias,`
+  })
+  .then(function(data){
+    res.json(data);
+  })
+  .catch(function(err){
+    console.log(err)
+    res.json(err);
+  });
+});
+
 module.exports = router;

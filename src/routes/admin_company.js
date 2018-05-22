@@ -35,18 +35,12 @@ router.get('/adminCompany', SessionHandle.isLogged, function (req, res, next) {
     return new Promise(function (resolve, reject) {
       var identifier = req.user.identifier;
       var role = req.params.role || req.user.role;
-      var query = {'identifier': identifier, 'role': role};
-
+      var username = req.user.username;
+      var query = {'identifier': identifier, 'role': role, username: username};
+      
       mongoAccount
       .findOne(query)
-      .populate({
-        path: 'company',
-        Model: 'entity',
-        populate: {
-          path: 'company',
-          Model: 'entity'
-        }
-      })
+      .populate('company')
       .exec()
       .then(function (user) {
         if (!user || user.length === 0) {
@@ -86,7 +80,7 @@ router.get('/adminCompany', SessionHandle.isLogged, function (req, res, next) {
       activities: data.activities
     });
   };
-
+  
   accountPromise(req)
   .then(onFetchActivities)
   .then(onRender)
