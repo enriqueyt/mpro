@@ -1,3 +1,4 @@
 {
-  "ACCOUNT_CREATION_EMAIL": "{0},\n\nSe ha registrado un usuario para usted en la aplicacion MPRO, favor ingrese con las siguiente credenciales\n\nUsuario: {1},\nContraseña: {2}\n\nGracias."
+  "ACCOUNT_CREATION_EMAIL_SUBJECT": "CREACION DE USUARIO",
+  "ACCOUNT_CREATION_EMAIL_TEXT": "{0},\n\nSe ha registrado un usuario para usted en la aplicacion MPRO, favor ingrese con las siguiente credenciales\n\nUsuario: {1},\nContraseña: {2},\nSitio: {3}\n\nGracias."
 }

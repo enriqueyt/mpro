@@ -51,8 +51,15 @@ exports.createAccount = function (req, res, next) {
         });
         EmailService.send({
           to: account.username,
-          subject: 'CREACION DE USUARIO',
-          text: AppMessageProvider.getMessage('ACCOUNT_CREATION_EMAIL', [account.name, account.username, account.password])
+          subject: AppMessageProvider.getMessage('ACCOUNT_CREATION_EMAIL_SUBJECT'),
+          text: AppMessageProvider.getMessage(
+            'ACCOUNT_CREATION_EMAIL_TEXT',
+            [
+              account.name, 
+              account.username, 
+              /*account.password*/ 'mpro-'.concat(account.email.split('@')[0]),
+              'http://138.68.246.213:3000'
+            ])
         });
 
         resolve({error: false, data: document});
