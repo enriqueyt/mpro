@@ -318,7 +318,7 @@ $(document).ready(function () {
       setDefaultDropDownListOption('account');
     }
     else {
-      setDropDownListOptions('/technicians/branchCompany', branchCompanyId, 'account');
+      setDropDownListOptions('/accounts/technicians/branchCompany', branchCompanyId, 'account');
     }
   });
 

@@ -1,3 +1,4 @@
 {
-  
+  "ACCOUNT_CREATION_EMAIL_SUBJECT": "USER CREATION",
+  "ACCOUNT_CREATION_EMAIL_TEXT": "{0},\n\nA user had been registered for you into MPRO application, please sign in using the following credentials\n\nUser: {1},\nPassword: {2},\nSite: {3}\n\nThank you."
 }

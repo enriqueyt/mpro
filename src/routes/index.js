@@ -422,23 +422,16 @@ var EmailService = require('../libs/emailServices');
 
 router.get('/testMail', function(req, res){
   var account = {
-    to:'enriqueyt@gmail.com',
-    name:'Enrique Yepez',
-    username:'enriqueyt@gmail.com',
+    to: 'enriqueyt@gmail.com',
+    name: 'Enrique Yepez',
+    username: 'enriqueyt@gmail.com',
     password: '123456'
   };
   EmailService.send({
-    from:'mproservice123@gmail.com',
-    to:account.username,
-    subject:'CREACION DE USUARIO',
-    text:`${account.name}, 
-    
-    Se ha registrado un usuario para usted en la aplicacion MPRO, favor ingrese con las siguiente credenciales
-    
-    Usuario: ${account.username},
-    Contrase;a: ${account.password}
-    
-    Gracias,`
+    from: 'mproservice123@gmail.com',
+    to: account.username,
+    subject: 'CREACION DE USUARIO',
+    text: AppMessageProvider.getMessage('ACCOUNT_CREATION_EMAIL', [account.name, account.username, account.password])
   })
   .then(function(data){
     res.json(data);
