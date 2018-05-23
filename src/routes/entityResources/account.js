@@ -1,11 +1,9 @@
 var Mongoose = require('mongoose');
 
 var Log = require('../../libs/log');
-
 var EmailService = require('../../libs/emailServices');
-
+var AppMessageProvider = require('../../libs/appMessageProvider');
 var LogMessageProvider = require('../../libs/logMessageProvider');
-
 var Utils = require('../../libs/utils');
 
 var mongoAccount = Mongoose.model('account');
@@ -52,16 +50,16 @@ exports.createAccount = function (req, res, next) {
           model     : document
         });
         EmailService.send({
-          to:account.username,
-          subject:'CREACION DE USUARIO',
-          text:`${account.name}, 
-          
-          Se ha registrado un usuario para usted en la aplicacion MPRO, favor ingrese con las siguiente credenciales
-          
-          Usuario: ${account.username},
-          Contrase;a: ${account.password}
-          
-          Gracias,`
+          to: account.username,
+          subject: AppMessageProvider.getMessage('ACCOUNT_CREATION_EMAIL_SUBJECT'),
+          text: AppMessageProvider.getMessage(
+            'ACCOUNT_CREATION_EMAIL_TEXT',
+            [
+              account.name, 
+              account.username, 
+              /*account.password*/ 'mpro-'.concat(account.email.split('@')[0]),
+              'http://138.68.246.213:3000'
+            ])
         });
 
         resolve({error: false, data: document});

@@ -36,6 +36,10 @@ var LogMessageProvider = (function (locales) {
   function getMessageLog(key, parameters) {
     var format = logResources[key];
 
+    if (typeof parameters === 'undefined') {
+      parameters = [];
+    }
+    
     parameters.unshift(format);
 
     return compose.apply(null, parameters);

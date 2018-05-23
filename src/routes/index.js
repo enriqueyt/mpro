@@ -422,24 +422,16 @@ var EmailService = require('../libs/emailServices');
 
 router.get('/testMail', function(req, res){
   var account = {
-    to:'enriqueyt@gmail.com',
-    name:'Enrique Yepez',
-    username:'enriqueyt@gmail.com',
-    password: '123456',
-    date: new Date()
+    to: 'enriqueyt@gmail.com',
+    name: 'Enrique Yepez',
+    username: 'enriqueyt@gmail.com',
+    password: '123456'
   };
   EmailService.send({
-    from:'mproservice123@gmail.com',
-    to:account.username,
-    subject:'Prueba de envio de notificaciones',
-    text:`${account.name}, 
-    
-    Esto es una prueba de llamasdeas delsde el servicio ${account.date}
-    
-    Usuario: ${account.username},
-    Contrase;a: ${account.password}
-    
-    Gracias,`
+    from: 'mproservice123@gmail.com',
+    to: account.username,
+    subject: 'CREACION DE USUARIO',
+    text: AppMessageProvider.getMessage('ACCOUNT_CREATION_EMAIL', [account.name, account.username, account.password])
   })
   .then(function(data){
     res.json(data);

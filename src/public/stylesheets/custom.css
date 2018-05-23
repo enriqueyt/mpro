@@ -509,3 +509,7 @@ button.add-activity:hover{
 		padding-top: 4%;
 	}
 }
+
+body .notifyjs-wrapper{
+	z-index: 2 !important;
+}

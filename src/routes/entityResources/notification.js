@@ -72,13 +72,7 @@ exports.sendNotifications = function (req, res, next) {
             }
             else{
               var newArr=[];
-              console.log("equipments------------Begin--------------")
-              console.log(equipments)
-              console.log("equipments------------End--------------")
               newArr = _.filter(equipments,(diff(not)));
-              console.log("newArr------------BEGIN--------------")
-              console.log(newArr)
-              console.log("newArr------------FIN--------------")
               resolve([newArr, not])
             }            
           })
@@ -93,15 +87,8 @@ exports.sendNotifications = function (req, res, next) {
       result = _.reduce(list, function(arrEmpty, val){        
         var key = "".concat(val.equipment._id,"-",val.date);
         if(!obj[key]&&val.checked==false){
-          obj[key]={ ...{id:val.equipment._id,date:val.date, userAssigned:val.equipment.userAssigned.username, name:val.equipment.userAssigned.name, equipment:val.equipment.name}};
-          arrEmpty.push({
-            id:val.equipment._id,
-            date:val.date, 
-            userAssigned:val.equipment.userAssigned.username,
-            idUserAssigned:val.equipment.userAssigned._id,
-            name:val.equipment.userAssigned.name, 
-            equipment:val.equipment.name
-          });
+          obj[key]={ ...{id:val.equipment._id, date:val.date, userAssigned:val.equipment.userAssigned.username, idUserAssigned:val.equipment.userAssigned._id, name:val.equipment.userAssigned.name, equipment:val.equipment.name}};
+          arrEmpty.push({id:val.equipment._id, date:val.date, userAssigned:val.equipment.userAssigned.username, idUserAssigned:val.equipment.userAssigned._id, name:val.equipment.userAssigned.name, equipment:val.equipment.name});
         }
         return arrEmpty;
       },[]);
@@ -120,20 +107,7 @@ exports.sendNotifications = function (req, res, next) {
     };
     
     var notify = function(account){
-
-      EmailService.send({
-        to:account.userAssigned,
-        subject:'Notificacion de servicio',
-        text:`${account.name}, 
-        
-        Se le informa que tiene un servicio programado, anexo detalle:
-        
-        Fecha: ${account.date},
-        Equipo: ${account.equipment}
-        
-        Gracias,`
-      });
-
+      
     };
 
     var markAsNotified = function(notifications){
@@ -182,9 +156,6 @@ exports.sendNotifications = function (req, res, next) {
     .then(markAsNotified)
     .then(onFinish)
     .catch(function (err) {
-      console.log("----------------------------")
-      console.log(err)
-      console.log("----------------------------")
       res.status(500).send(err.message);
     });
   };
