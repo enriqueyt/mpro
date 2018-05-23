@@ -425,15 +425,16 @@ router.get('/testMail', function(req, res){
     to:'enriqueyt@gmail.com',
     name:'Enrique Yepez',
     username:'enriqueyt@gmail.com',
-    password: '123456'
+    password: '123456',
+    date: new Date()
   };
   EmailService.send({
     from:'mproservice123@gmail.com',
     to:account.username,
-    subject:'CREACION DE USUARIO',
+    subject:'Prueba de envio de notificaciones',
     text:`${account.name}, 
     
-    Se ha registrado un usuario para usted en la aplicacion MPRO, favor ingrese con las siguiente credenciales
+    Esto es una prueba de llamasdeas delsde el servicio ${account.date}
     
     Usuario: ${account.username},
     Contrase;a: ${account.password}

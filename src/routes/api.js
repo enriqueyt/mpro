@@ -11,6 +11,7 @@ var EquipmentType = require('./entityResources/equipmentType');
 var Equipment = require('./entityResources/equipment');
 var MaintenanceActivity = require('./entityResources/maintenanceActivity');
 var MaintenanceActivityAttention = require('./entityResources/maintenanceActivityAttention');
+var Notifications = require('./entityResources/notification');
 
 
 var router = Express.Router();
@@ -204,5 +205,10 @@ router.put(
   MaintenanceActivityAttention.updateMaintenanceActivityAttention
 );
 
+/* ########################################################################## */
+/* NOTIFICATIONS                                                              */
+/* ########################################################################## */
+
+router.get('/notifications', Notifications.sendNotifications);
 
 module.exports = router;

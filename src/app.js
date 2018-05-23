@@ -29,6 +29,7 @@ require('./models/equipment');
 require('./models/maintenanceActivity');
 require('./models/maintenanceActivityAttention');
 require('./models/log');
+require('./models/notification');
 
 var api = require('./routes/api');
 var index = require('./routes/index');
