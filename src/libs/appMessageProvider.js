@@ -36,6 +36,10 @@ var AppMessageProvider = (function (locales) {
   function getMessage(key, parameters) {
     var format = appResources[key];
 
+    if (typeof parameters === 'undefined') {
+      parameters = [];
+    }
+
     parameters.unshift(format);
 
     return compose.apply(null, parameters);
