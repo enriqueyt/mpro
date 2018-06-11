@@ -1,13 +1,13 @@
 var Mongoose = require('mongoose');
 var Moment = require('moment');
+var _ = require('underscore');
 var ObjectId = Mongoose.Schema.Types.ObjectId;
-
 var LogMessageProvider = require('./logMessageProvider');
-
+var Utils = require('./utils');
 var logModel = Mongoose.model('log');
 var accountModel = Mongoose.model('account');
 var entityModel = Mongoose.model('entity');
-
+var DATE_FORMAT = 'DD/MM/YYYY';
 var log = {};
 
 log.debug = function (obj) {
@@ -85,8 +85,7 @@ log.getLogs = function (total, skip) {
     return new Promise(function (resolve, reject) {
       var users = ids.map(function (o) {
         return Mongoose.Types.ObjectId(o._id);
-      });
-            
+      });            
 
       var query = {user: {$in: users}};
 
@@ -135,12 +134,21 @@ log.getLogs = function (total, skip) {
     return new Promise(function (resolve, reject) {
       var query = {user:user._id};
       
-      logModel
-      .find(query)
-      .sort({date: -1 })
-      .exec()
-      .then(resolve)
-      .catch(reject);
+      logModel.find(query).sort({date: -1 }).exec()
+        .then(function(data){
+          var result=[];
+          _.each(data, function(value, key){            
+            result.push({
+              type:value.type,
+              level:value.level,
+              date:Utils.formatDate(value.date, DATE_FORMAT),
+              parameters:value.parameters,
+              text:value.text
+            });
+          });
+          resolve(result);
+        })
+        .catch(reject);
     });
   };
 
@@ -158,7 +166,17 @@ log.getLogs = function (total, skip) {
         
         getLogsByUsersId(arr)
         .then(function (data) {
-          resolve(data);
+          var result=[];
+          _.each(data, function(value, key){            
+            result.push({
+              type:value.type,
+              level:value.level,
+              date:Utils.formatDate(value.date, DATE_FORMAT),
+              parameters:value.parameters,
+              text:value.text
+            });
+          });
+          resolve(result);
         });
       })
       .catch(function (err) {
@@ -170,14 +188,24 @@ log.getLogs = function (total, skip) {
   var onFilterLogsByCompany = function (user) {
     return new Promise(function (resolve, reject) {      
       branchEntityByEntity(user)
-      .then(accountsByBranchCompany)
-      .then(accountsByCompany)
-      .then(function (data) {
-        return resolve(data);
-      })
-      .catch(function (data) {
-        return reject(data);
-      });
+        .then(accountsByBranchCompany)
+        .then(accountsByCompany)
+        .then(function (data) {
+          var result=[];
+          _.each(data, function(value, key){            
+            result.push({
+              type:value.type,
+              level:value.level,
+              date:Utils.formatDate(value.date, DATE_FORMAT),
+              parameters:value.parameters,
+              text:value.text
+            });
+          });
+          return resolve(result);
+        })
+        .catch(function (data) {
+          return reject(data);
+        });
     });
   };
 
@@ -206,8 +234,18 @@ log.getLogs = function (total, skip) {
         .find({})
         .sort({date: -1})
         .exec()
-        .then(function (logs) {
-          resolve(logs);
+        .then(function (data) {
+          var result=[];
+          _.each(data, function(value, key){            
+            result.push({
+              type:value.type,
+              level:value.level,
+              date:Utils.formatDate(value.date, DATE_FORMAT),
+              parameters:value.parameters,
+              text:value.text
+            });
+          });
+          resolve(result);
         })
         .catch(function (err) {
           reject(err);

@@ -3,159 +3,204 @@ var _ = require('underscore');
 var Utils = require('../../libs/utils');
 var Log = require('../../libs/log');
 var EmailService = require('../../libs/emailServices');
+var AppMessageProvider = require('../../libs/appMessageProvider');
 var mongoEquipment = Mongoose.model('equipment');
 var mongoNotification = Mongoose.model('notification');
+var mongoAccount = Mongoose.model('account');
 var mongoMaintenanceActivityAttention = Mongoose.model('maintenanceActivityAttention');
 var DATE_FORMAT = 'DD/MM/YYYY';
 
 exports.sendNotifications = function (req, res, next) {
     
-    var findMantenance = new Promise(function (resolve, reject) {
+    var findAttentions = new Promise(function (resolve, reject) {
       var today = new Date(), tomorrow = new Date();
 
-      today.setDate(today.getDate()-1)
+      today.setDate(today.getDate()-1)      
+
+      tomorrow.setDate(tomorrow.getDate()+2);      
       console.log(today)
-
-      tomorrow.setDate(tomorrow.getDate()+2);
       console.log(tomorrow)
-
-      var query = {"date":{"$gte":new Date(today), "$lt":new Date(tomorrow)}}, 
-          projection={_id:0, "equipment":1, "date":-1, "checked":1};
+      var query = {"date":{"$gte":new Date(today), "$lt":new Date(tomorrow)}, "notificationId":null}, 
+          projection={_id:0, "equipment":1, "date":-1, "checked":1, "notificationId":1};
       
       mongoMaintenanceActivityAttention
         .find(query, projection)
         .populate({
-          path: 'equipment', 
-          select: {
-            _id: 1, 
-            name: 1,
-            userAssigned:1,
-            branchCompany:1
-          },
-          populate:{
-            path:'userAssigned',
-            model:'account'
-          }/*,
+          path: 'equipment',
+          model:'equipment',     
           populate:{
             path:'branchCompany',
-            model:'entity'
-        }*/})
-        .lean()
-        .exec()
-        .then(function (equipment) {          
-          if (!equipment || equipment.length === 0) {
-            var message = 'No equipment found';
-            reject(new Error(message));
+            model:'entity',
+            populate:{
+              path:'company',
+              model:'entity'
+            }
+        }})
+        .populate({
+          path:'notificationId',
+          model:'notification'
+        }).lean().exec()
+        .then(function (attentions) {          
+          if (!attentions || attentions.length === 0) {            
+            resolve([]);
           }
-          else {
-            resolve(groupBy(equipment));
+          else {            
+            resolve(groupBy(attentions));
           }
         })
+        .catch(function(err){
+          console.log(err)
+          reject(err)
+        });
     });
 
-    var validateUserNotification = function(equipments){
+    var sendNotifications = function(attentions){
       return new Promise(function(resolve, reject){
+              
+        var entities = _.reduce(attentions, function(arrEmpty, arr){
+          return arrEmpty.concat([arr.branchCompanyId, arr.companyId]);
+        }, [])
+        
+        entities=[ ...new Set(entities)];
+        
+        var query = {'company':{$in:entities}, $or:[{'role':'adminCompany'}, {'role':'adminBranchCompany'}]},
+          projection={'password':0};
 
-        var users = _.map(equipments, function(value){return value.idUserAssigned})
-        
-        var query = {"userAssigned":{$in:users}}
-        
-        mongoNotification
-          .find(query).lean().exec()
-          .then(function(not){
-            if(!not.length){
-              var arr = equipments.toString();
-              _.each(equipments, function(v, k){
-                notify(v);
-              })
-              resolve([equipments, []]);
-            }
-            else{
-              var newArr=[];
-              newArr = _.filter(equipments,(diff(not)));
-              resolve([newArr, not])
-            }            
+        mongoAccount
+          .find(query, projection).lean().exec()
+          .then(function(accounts){
+            
+            var tempAccountsToNotify = _.reduce(attentions, function(arrEmpty, arr){
+              return arrEmpty.concat(arr.userAssigned);  
+            }, [])
+
+            tempAccountsToNotify=[ ...new Set(tempAccountsToNotify)];
+            var arrAccountsToNotify = _.reduce(accounts, function(arrEmpty, arr){
+              return arrEmpty.concat(arr);  
+            }, tempAccountsToNotify);
+            
+            arrAccountsToNotify=[ ...new Set(arrAccountsToNotify)];
+            
+            _.each(arrAccountsToNotify, function(value, key){              
+              notify(value);
+            });
+
+            resolve(attentions);
+
           })
-          .catch(function(err){
-            reject(err);
-          });
+                
       });
     };
 
     var groupBy = function(list, groupby){
       var result = [], obj = {};
       result = _.reduce(list, function(arrEmpty, val){        
-        var key = "".concat(val.equipment._id,"-",val.date);
+        var key = "".concat(val.equipment._id,"-",val.date);        
         if(!obj[key]&&val.checked==false){
-          obj[key]={ ...{id:val.equipment._id, date:val.date, userAssigned:val.equipment.userAssigned.username, idUserAssigned:val.equipment.userAssigned._id, name:val.equipment.userAssigned.name, equipment:val.equipment.name}};
-          arrEmpty.push({id:val.equipment._id, date:val.date, userAssigned:val.equipment.userAssigned.username, idUserAssigned:val.equipment.userAssigned._id, name:val.equipment.userAssigned.name, equipment:val.equipment.name});
+          obj[key]={ ...{
+            equipmentId:val.equipment._id, 
+            date:val.date, 
+            userAssigned:val.equipment.userAssigned,
+            name:val.equipment.userAssigned.name, 
+            equipment:val.equipment.name,
+            notificationId:val.notification,
+            branchCompanyId:val.equipment.branchCompany._id,
+            companyId:val.equipment.branchCompany.company._id
+          }};
+          arrEmpty.push(obj[key]);
         }
         return arrEmpty;
       },[]);
       return result;
     };
 
-    var diff = function(firstArr){
-      var func = function(secondArr){
-        return _.filter(firstArr, function(val){
-          return (val.date).getTime() != (secondArr.date).getTime() && val.equipment!=secondArr.text
-        });
-      };
-
-      return func;
-
-    };
-    
     var notify = function(account){
-      
+     
+      EmailService.send({
+        to: account.userAssigned,
+        subject: AppMessageProvider.getMessage('NOTIFICATION_SUBJECT'),
+        text: AppMessageProvider.getMessage(
+          'NOTIFICATION_EMAIL_TEXT',[account.name, Utils.formatDate(account.date, DATE_FORMAT), account.equipment])
+      });
+
     };
 
     var markAsNotified = function(notifications){
       return new Promise(function(resolve, reject){
         var result = [];
 
-        var createNotification = _.reduce(notifications[0], function (arrEmpty, notification) {   
-                 
+        var createNotification = _.reduce(notifications, function (arrEmpty, notification) {           
           arrEmpty.push(saveNotification({
-            name: notification.name,
-            text: notification.equipment,
-            userAssigned: notification.idUserAssigned,
+            equipment: notification.equipmentId,
             date:notification.date
           }));
           return arrEmpty;
         }, []);
-        resolve(createNotification);
+        
+        Promise.all(createNotification)
+        .then(alreadyNotified)
+        .then(function(data){          
+          resolve(data);
+        })
       });
     };
 
     var saveNotification = function (notification) {
       var promise = new Promise(function (resolve, reject) {
-        var onCreateDocument = function (err, document) {
-          
+        var onCreateDocument = function (err, document) {          
           if (err) {
             resolve({error: true, message: err.message});
-          };
-          
-          resolve({error: false, data: document});
+          };          
+          return resolve(document)
+
         };
-    
         var newNotification = new mongoNotification(notification);
       
         newNotification.save(onCreateDocument);
       });
-  
       return promise;
     };
+
+    var updateAttentions = function(notification){
+      var promise = new Promise(function(resolve, reject){
+        var query = {"date":notification.date, "equipment":notification.equipment},
+            update = {notificationId:notification._id},
+            option = {multi : true};
+
+        mongoMaintenanceActivityAttention.update(query, update, option, function(err, document){          
+          if(err){
+            reject(err)
+          }
+          resolve(document);
+        });
+      });
+      return promise;
+    };
+
+    var alreadyNotified = function(data){
+      return new Promise(function(resolve, reject){
+        
+        var arrAttentionsUpdated = _.reduce(data, function (arrEmpty, notification) {
+          arrEmpty.push(updateAttentions(notification));
+          return arrEmpty;
+        }, []);
+        
+        Promise.all(arrAttentionsUpdated)
+        .then(function(data){          
+          resolve(data)
+        });        
+      });
+    }
   
     var onFinish = function (data) {
       res.status(200).send(data);
     };
   
-    findMantenance
-    .then(validateUserNotification)
-    .then(markAsNotified)
-    .then(onFinish)
-    .catch(function (err) {
-      res.status(500).send(err.message);
-    });
+    findAttentions
+      .then(sendNotifications)
+      .then(markAsNotified)
+      .then(onFinish)
+      .catch(function (err) {
+        res.status(500).send(err.message);
+      });
   };

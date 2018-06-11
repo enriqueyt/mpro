@@ -50,4 +50,9 @@ entity.pre('save', function (next) {
   });
 });
 
+entity.pre('find', function(next){
+  //this.populate('company');
+  next();
+});
+
 module.exports = Mongoose.model('entity', entity);

@@ -2,16 +2,10 @@ var Mongoose = require('mongoose');
 var Schema = Mongoose.Schema;
 var ObjectId = Mongoose.Schema.Types.ObjectId;
 
-var notification = new Schema({
-    name: {
-      type: String
-    },
-    text: {
-      type: String
-    },
-    userAssigned: {
+var notification = new Schema({    
+    equipment: {
       type: Schema.Types.ObjectId,
-      ref: 'account',
+      ref: 'equipment',
       required: true
     },
     date:{

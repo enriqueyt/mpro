@@ -418,28 +418,4 @@ router.get('/account', SessionHandle.isLogged, function (req, res, next) {
   mongoAccount.findOne(query).populate('company').exec(onFetchAccount);
 });
 
-var EmailService = require('../libs/emailServices');
-
-router.get('/testMail', function(req, res){
-  var account = {
-    to: 'enriqueyt@gmail.com',
-    name: 'Enrique Yepez',
-    username: 'enriqueyt@gmail.com',
-    password: '123456'
-  };
-  EmailService.send({
-    from: 'mproservice123@gmail.com',
-    to: account.username,
-    subject: 'CREACION DE USUARIO',
-    text: AppMessageProvider.getMessage('ACCOUNT_CREATION_EMAIL', [account.name, account.username, account.password])
-  })
-  .then(function(data){
-    res.json(data);
-  })
-  .catch(function(err){
-    console.log(err)
-    res.json(err);
-  });
-});
-
 module.exports = router;

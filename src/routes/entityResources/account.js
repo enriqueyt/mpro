@@ -57,7 +57,7 @@ exports.createAccount = function (req, res, next) {
             [
               account.name, 
               account.username, 
-              /*account.password*/ 'mpro-'.concat(account.email.split('@')[0]),
+              'mpro-'.concat(account.email.split('@')[0]),
               'http://138.68.246.213:3000'
             ])
         });
@@ -124,7 +124,15 @@ exports.getAccount = function (req, res, next) {
   var query = {_id: req.params.account};
   var projection = {username: 0, password: 0};
 
-  mongoAccount.findOne(query, projection).populate('company').exec()
+  mongoAccount.findOne(query, projection)
+  .populate({
+    path:'company',
+    model:'entity',
+    populate:{
+      path:'company',
+      model:'entity'
+    }
+  }).exec()
   .then(function (account) {
     res.status(200).send({error: false, data: account});
   })
@@ -209,24 +217,41 @@ exports.updateAccount = function (req, res, next) {
   if (!req.user || !req.user.username) {
     res.status(401).send({error: true, message: 'No user found'});
   }
-
-  var query = {_id: req.params.equipment};	
-  var option = {new: true};
+  console.log(req.params)
+  console.log(req.body)
+  
+  var query = {_id: req.params.account};	
+  var option = {};
   var setValues = {};
 
   if (typeof req.body.name !== 'undefined') {
-    document.name = req.body.name;
+    setValues.name = req.body.name;
+  }
+
+  if (typeof req.body.username !== 'undefined') {
+    setValues.username = req.body.username;
   }
 
   if (typeof req.body.role !== 'undefined') {
-    document.role = req.body.role;
+    setValues.role = req.body.role;
   }
 
   if (typeof req.body.company !== 'undefined') {
-    document.company = req.body.company;
+    setValues.company = req.body.company;
+  }
+
+  if (typeof req.body.status !== 'undefined') {
+    setValues.status = req.body.status;
+  }
+
+  if (typeof req.body.branchCompany !== 'undefined') {
+    setValues.branchCompany = req.body.branchCompany;
   }
 
   var onUpdateDocument = function (err, document) {
+    console.log("err")
+    console.log(err)
+    console.log(document)
     if (err) {
       Log.error({
         parameters: ['ACCOUNT_EXCEPTION', err],
@@ -235,7 +260,7 @@ exports.updateAccount = function (req, res, next) {
         user      : req.user._id,
         model     : err
       });
-
+      
       res.status(500).send({error: true, message: 'Unexpected error was occurred'});
     }
     
@@ -253,8 +278,8 @@ exports.updateAccount = function (req, res, next) {
 
     res.status(200).send({error: false, data: document});
   };
-		
-  mongoEntity.findOneAndUpdate(query, {$set: setValues}, option, onUpdateDocument);
+
+  mongoAccount.update(query, {$set: setValues}, option, onUpdateDocument);
 };
 
 /* ########################################################################## */

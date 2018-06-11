@@ -28,6 +28,11 @@ var maintenanceActivityAttention = new Schema(
     },
     finishDate: {
       type: Date
+    },
+    notificationId:{
+      type: Schema.Types.ObjectId,
+      ref:'notification',
+      default:null
     }
   },
   {

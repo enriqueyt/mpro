@@ -79,4 +79,9 @@ equipment.pre('save', function (next) {
   });
 });
 
+equipment.pre('find', function(next){
+  this.populate('userAssigned');
+  next();
+});
+
 module.exports = Mongoose.model('equipment', equipment);

@@ -13,7 +13,7 @@ function setDefaultDropDownListOption(containerName) {
   return false;
 }
 
-function setDropDownListOptions(actionName, parameter, containerName) {
+function setDropDownListOptions(actionName, parameter, containerName, option) {
   var action = ''.concat(actionName ,'/', parameter);
   var container = $('select#'.concat(containerName)); 
 
@@ -24,14 +24,13 @@ function setDropDownListOptions(actionName, parameter, containerName) {
     
     if (container.prop('multiple') === false) {
       options = options.concat('<option>Seleccione</option>');
-    }
-
+    }    
     _.each(response.data, function (item, i) {
-      options = options.concat('<option value="', item._id, '">', item.name, '</option>');
+      options = options.concat('<option value="', item._id,'"',option!=undefined?item._id==option.selected?" selected='selected' ":"":"", '>', item.name, '</option>');
     });
 
     container.append(options);
-
+    
     return false;
   });
 
@@ -67,13 +66,47 @@ $(document).ready(function () {
   $('#addAccount').click(function (e) {
     $('#addAccountModal').modal('show');
     $('input[type=checkbox]#status').trigger('change');
-
     return false;
+  });
+
+  $('a[name="editAccount"]').click(function (e) {
+    e.preventDefault();
+    $('#editAccountModal').modal('show');
+    var action = this.getAttribute('href').concat('/', this.getAttribute('data-id'));    
+    $.get(action, function(data){
+      var form=data.data;
+      console.log(form)
+      $('#editAccountModal #name').val(form.name);
+      $('#editAccountModal #username').val(form.email);
+      $('#editAccountModal #hidden_id').val(form._id);
+      
+      $('#editAccountModal select#role option[value="'.concat(form.role, '"]')).attr('selected', true);
+      
+      if($("#editAccountModal #company").prop('tagName').toLowerCase()=='select'){
+        if(form.role=='adminBranchCompany'||form.role=='technician'){
+          $('#editAccountModal  select#company option[value="'.concat(form.company.company._id, '"]')).attr('selected', true);
+        }
+        else{
+          $('#editAccountModal select#company option[value="'.concat(form.company._id, '"]')).attr('selected', true);
+        }
+      }
+
+      if(form.role=='adminBranchCompany'||form.role=='technician'){
+        setDropDownListOptions('/entities/branchCompanies/company', form.company.company._id, 'branchCompany',{selected:form.company._id});
+      }
+      
+      var editStatus = $('#editAccountModal #status');
+
+      if(form.status)
+        editStatus.attr('checked', true);
+      else
+        editStatus.removeAttr('checked');
+    });
   });
 
   $('select#company').change(function (e) {
     e.preventDefault();
-
+    
     var companyId = $(this).find('option:selected').val();
 
     if (companyId === 'Seleccione') {
@@ -147,9 +180,96 @@ $(document).ready(function () {
     if (!$(form).find('[name="requireFieldMessage"]').length > 0) {
       var action = $($(this).parents('form')).attr('action');
       data.image=avatarImg;
+      
       var request = $.ajax({
         url: action,
         method: 'POST',
+        data: data
+      });
+       
+      request.done(function (response) {
+        
+        if (!response.error) {
+          var obj = response.data;   
+          
+          if (obj) {
+            if (obj.name !== $.trim($('#entityName').val())) {
+              $('#entityName').text(obj.name);
+            }
+            
+            if (obj.email !== $.trim($('#entityEmail').val())) {
+              $('#entityEmail').text(obj.email);
+            }
+            
+            if (obj.location !== $.trim($('#entityLocation').val())) {
+              $('#entityLocation').val(obj.location);
+            }           
+          }
+          document.addAccountForm.reset();
+          $('#editEntityModal, #addBranchCompanyModal, #addAccountModal').modal('hide');
+          window.location.reload();
+        }
+
+        return false;
+      });
+       
+      request.fail(function(j, error) {
+        console.log("Fail on update: " + error);
+      });
+    }
+
+    return false;
+  });
+
+  $('.editAccountSubmit').click(function (e) {
+    e.preventDefault();
+    var data={}, _this=this;
+    $('#warningAccountForm').css({display: 'none'});
+    $('#warningAccountForm #content').empty();
+    $(document).find('[name="requireFieldMessage"]').remove();
+
+    var form = document[$($(this).parents('form')).attr('name')];
+    var data = {};
+
+    _.each(form, function (item, i) {
+      var control = $(item);
+
+      if (control.attr('class').indexOf('form-control') > -1 || control.attr('class').indexOf('form-control-custom') > -1 || control.attr('type') === 'hidden') {
+        if (control.prop('tagName').toLowerCase() === 'input' || control.prop('tagName').toLowerCase() === 'textarea') {
+          
+          if (control.attr('type') === 'checkbox') {
+            data[control.attr('name')] = control.is(':checked');
+          }else{    
+            if(item.getAttribute("type")=="email"){
+              if(!(/^[a-zA-Z0-9]+\@[a-zA-Z0-9]+\.[a-zA-Z0-9-]{0,5}$/ig).exec(item.value)){
+                $(item).after('<p style="color:red;" name="requireFieldMessage">Correo invalido</p>');              
+              }
+            }
+            data[control.attr('name')] = control.val().trim();
+          }
+          
+        }
+        else if (control.prop('tagName').toLowerCase() === 'select') {
+          var itemValue = control.find('option:selected').attr('value');
+
+          if (itemValue !== undefined) {
+            data[control.attr('name')] = itemValue;
+          }
+          else if (control.attr('required') !== undefined) {
+            control.after('<p style="color:red;" name="requireFieldMessage">Campo requerido</p>');
+          }
+        }
+      }
+    });
+
+    if (!$(form).find('[name="requireFieldMessage"]').length > 0) {
+      var form = $($(this).parents('form')),
+          action = form.attr('action').concat('/',$('#hidden_id').val()),
+          method = form.attr('method');
+      
+      var request = $.ajax({
+        url: action,
+        method: method,
         data: data
       });
        

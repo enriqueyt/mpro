@@ -55,7 +55,9 @@ exports.getUsersViewData = function (req, res, next) {
   var accountsPromise = new Promise(function (resolve, reject) {
     var query = {};
 
-    mongoAccount.find(query).populate('company').lean().exec()
+    mongoAccount.find(query)
+    .populate('company')
+    .lean().exec()
     .then(function (users) {
       if (!users || users.length === 0) {
         var message = 'No user found';
@@ -99,7 +101,7 @@ exports.getUsersViewData = function (req, res, next) {
   var onRender = function (data) {
     var tempUser = req.user || {};
     req.user = {};
-    
+    console.log(data[1])
     return res.render('pages/account/account_admin', {
       user : tempUser,
       companies: data[0],
