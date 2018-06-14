@@ -5,7 +5,7 @@
   "description": "MPRO Core App",
   "scripts": {
     "start": "node src/bin/www",
-    "start:dev": "nodemon src/bin/www; sh scripts/notifications.sh start > /dev/null 2> /dev/null &",
+    "start:dev": "nodemon src/bin/www",
     "pm2:start": "pm2 start src/bin/www",
     "pm2:restart": "pm2 restart $(pm2 id www | grep -oP [0-9]+)",
     "pm2:stop": "pm2 stop $(pm2 id www | grep -oP [0-9]+)",

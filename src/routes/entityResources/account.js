@@ -36,7 +36,7 @@ exports.createAccount = function (req, res, next) {
           parameters: ['ACCOUNT_EXCEPTION', err],
           //text      : 'Exception! '.concat(err),
           user      : req.user._id,
-          model     : err
+          model     : JSON.stringify(err)
         }); 
 
         reject({error: true, code: 500, message: err.message});
@@ -47,7 +47,7 @@ exports.createAccount = function (req, res, next) {
           //text      : 'Success on create! '.concat('User ', req.user.name, ' creates account ', document.name),
           type      : 'create_account',
           user      : req.user._id,
-          model     : document
+          model     : JSON.stringify(document)
         });
         EmailService.send({
           to: account.username,
@@ -217,8 +217,6 @@ exports.updateAccount = function (req, res, next) {
   if (!req.user || !req.user.username) {
     res.status(401).send({error: true, message: 'No user found'});
   }
-  console.log(req.params)
-  console.log(req.body)
   
   var query = {_id: req.params.account};	
   var option = {};
@@ -249,16 +247,14 @@ exports.updateAccount = function (req, res, next) {
   }
 
   var onUpdateDocument = function (err, document) {
-    console.log("err")
-    console.log(err)
-    console.log(document)
+    
     if (err) {
       Log.error({
         parameters: ['ACCOUNT_EXCEPTION', err],
         //text      : 'Exception! '.concat(err),
         type      : 'update_account',
         user      : req.user._id,
-        model     : err
+        model     : JSON.stringify(err)
       });
       
       res.status(500).send({error: true, message: 'Unexpected error was occurred'});
@@ -273,7 +269,7 @@ exports.updateAccount = function (req, res, next) {
       //text      : 'Success on update! '.concat('User ', req.user.name, ' updates account ', document.name),
       type      : 'update_account',
       user      : req.user._id,
-      model     : document
+      model     : JSON.stringify(setValues)
     });
 
     res.status(200).send({error: false, data: document});

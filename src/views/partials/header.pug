@@ -18,11 +18,11 @@
                 a.nav-item(href="/".concat(user.role,"/users")) Usuario
             li.top-nav-item(class=tabEquipmentsActive)
               a.nav-item(href="/".concat(user.role,"/equipments")) Equipos  
-            li.top-item.text-right.user-nav-content
-              a.userConnected(href="/".concat(user.role))
+            li.top-item.text-right.user-nav-content(style="width:100%;")
+              a.userConnected(href="/".concat(user.role), style="margin:1%;")
                 span.userName #{user.name}
-              img.avatar(src=user.image, alt="avatar")
-              a(href="/logout")
+              img.avatar(src=user.image, alt="avatar", style="margin:1%;")
+              a(href="/logout", style="margin:1%;")
                 span.userName Cerrar sesión
   script(type="text/javascript").
     $(document).ready(function(){

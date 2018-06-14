@@ -22,7 +22,7 @@ block content-mpro
                     a.fa.fa-search.fa-w-16.fa-3x
                 .col-md-2(style="padding-left:0;")
                   button#addBranchCompany.btn.btn-primary.button-search(type="button", data-toggle="addBranchCompanyModal")
-                      i.fa.fa-plus 
+                      i.fa.fa-plus.noWrap
                         | Agregar Sucursal
               .row.company-nav-row.no-padding
                 .col-md-12
@@ -44,7 +44,7 @@ block content-mpro
                           td=branchCompany.phone
                           td=branchCompany.location
                           td
-                            a.btn.default.btn-xs.blue-stripe(href="/home/branchCompanies/" + branchCompany._id)
+                            a.btn.default.btn-xs.blue-stripe.edit-company(href="/entities/".concat(branchCompany._id)) Editar
                           td
                             i.fa.fa-trash(aria-hidden="true")
   #addBranchCompanyModal.modal.fade(rol="dialog")
@@ -76,4 +76,32 @@ block content-mpro
             .col-12(style="text-align:right")
               button.btn.btn-secondary(type="button", data-dismiss="modal", style="margin-right:1%;") Cerrar
               button.btn.btn-primary.addBranchCompanySubmit(type="submit") Crear
+  #editCompanyModal.modal.fade.editModal(rol="dialog")
+    .modal-dialog(role="document")
+      .modal-content
+        .modal-header.bg-primary.text-white
+          h4.modal-title.font-weight-bold Editar
+          button.close.fa.fa-close(type="button", style="color:white; opacity:1; text-shadow:1px 1px 1px #ccc; text-indent:0" data-dismiss="modal", aria-label="Close")
+        .modal-body
+          form(role="form", id="editCompanyForm", name="editCompanyForm", action="/entities", method="put")
+            input.form-control(type="hidden", name="_id", id="_id", value="")
+            .form-group.row
+              label.col-3.col-form-label(for="name") Nombre
+              .col-9
+                input.form-control(type="text", id="name", name="name", placeholder="Nombre")
+            .form-group.row
+              label.col-3.col-form-label(for="email") Correo
+              .col-9
+                input.form-control(type="email", id="email", name="email", placeholder="Correo")
+            .form-group.row
+              label.col-3.col-form-label(for="phone") Telefono
+              .col-9
+                input.form-control(type="phone", id="phone", name="phone", placeholder="Telefono")            
+            .form-group.row
+              label.col-3.col-form-label(for="location") Ubicacion
+              .col-9
+                textarea.form-control(id="location", name="location", wrap="hard")            
+            .col-12(style="text-align:right")
+              button.btn.btn-secondary(type="button", data-dismiss="modal", style="margin-right:1%;") Cerrar
+              button.btn.btn-primary.editCompanySubmit(type="submit") Actualizar
   script(src='../../javascripts/company/main.js')

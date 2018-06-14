@@ -72,10 +72,10 @@ $(document).ready(function () {
   $('a[name="editAccount"]').click(function (e) {
     e.preventDefault();
     $('#editAccountModal').modal('show');
-    var action = this.getAttribute('href').concat('/', this.getAttribute('data-id'));    
+    var action = this.getAttribute('href').concat('/', this.getAttribute('data-id'));
     $.get(action, function(data){
       var form=data.data;
-      console.log(form)
+      
       $('#editAccountModal #name').val(form.name);
       $('#editAccountModal #username').val(form.email);
       $('#editAccountModal #hidden_id').val(form._id);
@@ -263,9 +263,9 @@ $(document).ready(function () {
     });
 
     if (!$(form).find('[name="requireFieldMessage"]').length > 0) {
-      var form = $($(this).parents('form')),
-          action = form.attr('action').concat('/',$('#hidden_id').val()),
-          method = form.attr('method');
+      var _form = $($(this).parents('form')),
+          action = _form.attr('action').concat('/',$('#hidden_id').val()),
+          method = _form.attr('method');
       
       var request = $.ajax({
         url: action,

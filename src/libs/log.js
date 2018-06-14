@@ -278,7 +278,7 @@ log.getLogs = function (total, skip) {
 };
 
 function onCreateLog (obj) {
-  return new Promise(function (resolve, reject) {
+  return new Promise(function (resolve, reject) {    
     var log = new logModel(obj);
     
     log.save(function (err, document) {
