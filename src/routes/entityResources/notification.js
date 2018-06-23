@@ -17,10 +17,10 @@ exports.sendNotifications = function (req, res, next) {
 
       today.setDate(today.getDate()-1)      
 
-      tomorrow.setDate(tomorrow.getDate()+2);      
+      tomorrow.setDate(tomorrow.getDate()+2);
       console.log(today)
       console.log(tomorrow)
-      var query = {"date":{"$gte":new Date(today), "$lt":new Date(tomorrow)}, "notificationId":null}, 
+      var query = {"date":{"$gte":new Date(today), "$lte":new Date(tomorrow)}, "notificationId":null}, 
           projection={_id:0, "equipment":1, "date":-1, "checked":1, "notificationId":1};
       
       mongoMaintenanceActivityAttention
@@ -93,6 +93,7 @@ exports.sendNotifications = function (req, res, next) {
     };
 
     var groupBy = function(list, groupby){
+      
       var result = [], obj = {};
       result = _.reduce(list, function(arrEmpty, val){        
         var key = "".concat(val.equipment._id,"-",val.date);        
@@ -114,10 +115,9 @@ exports.sendNotifications = function (req, res, next) {
       return result;
     };
 
-    var notify = function(account){
-     
+    var notify = function(account){      
       EmailService.send({
-        to: account.userAssigned,
+        to: account.email,
         subject: AppMessageProvider.getMessage('NOTIFICATION_SUBJECT'),
         text: AppMessageProvider.getMessage(
           'NOTIFICATION_EMAIL_TEXT',[account.name, Utils.formatDate(account.date, DATE_FORMAT), account.equipment])
@@ -127,8 +127,7 @@ exports.sendNotifications = function (req, res, next) {
 
     var markAsNotified = function(notifications){
       return new Promise(function(resolve, reject){
-        var result = [];
-
+        var result = [];        
         var createNotification = _.reduce(notifications, function (arrEmpty, notification) {           
           arrEmpty.push(saveNotification({
             equipment: notification.equipmentId,

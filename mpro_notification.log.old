@@ -1,0 +1,32 @@
+start service mpro_notification -> 2018-06-22 21:40:31
+calling to ->   2018-06-22 21:40:31
+HTTP/1.1 200 OK
+X-Powered-By: Express
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept
+Access-Control-Allow-Methods: GET, POST, PUT
+Strict-Transport-Security: max-age=31536000; includeSubDomains
+Content-Type: application/json; charset=utf-8
+Content-Length: 2
+ETag: W/"2-l9Fw4VUO7kr8CvBlt4zaMCqXZ0w"
+set-cookie: connect.sid=s%3AOtHWArBeM2OFGxc6A3u4V4C2ObMRPyLx.uDQaSHy20T%2FV9VebjhyqGJYqvAS7jQRkfiWK%2BAQodbA; Path=/; HttpOnly
+Date: Sat, 23 Jun 2018 02:40:31 GMT
+Connection: keep-alive
+
+[]
+start service mpro_notification -> 2018-06-22 21:41:08
+calling to ->   2018-06-22 21:41:08
+HTTP/1.1 200 OK
+X-Powered-By: Express
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept
+Access-Control-Allow-Methods: GET, POST, PUT
+Strict-Transport-Security: max-age=31536000; includeSubDomains
+Content-Type: application/json; charset=utf-8
+Content-Length: 2
+ETag: W/"2-l9Fw4VUO7kr8CvBlt4zaMCqXZ0w"
+set-cookie: connect.sid=s%3ALqR8h7EZEJuTHw_7aJ6Z01U6szwi6m4z.L4NNMgWsHYWxwetTTrRMFiknN8gS4fVFoigcBCpEOHo; Path=/; HttpOnly
+Date: Sat, 23 Jun 2018 02:41:08 GMT
+Connection: keep-alive
+
+[]
