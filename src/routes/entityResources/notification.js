@@ -80,9 +80,9 @@ exports.sendNotifications = function (req, res, next) {
             }, tempAccountsToNotify);
             
             arrAccountsToNotify=[ ...new Set(arrAccountsToNotify)];
-            
+            console.log(arrAccountsToNotify)
             _.each(arrAccountsToNotify, function(value, key){              
-              notify(value);
+              //notify(value);
             });
 
             resolve(attentions);
@@ -96,8 +96,10 @@ exports.sendNotifications = function (req, res, next) {
       
       var result = [], obj = {};
       result = _.reduce(list, function(arrEmpty, val){        
-        var key = "".concat(val.equipment._id,"-",val.date);        
+        var key = "".concat(val.equipment._id,"-",val.date);
+
         if(!obj[key]&&val.checked==false){
+
           obj[key]={ ...{
             equipmentId:val.equipment._id, 
             date:val.date, 
@@ -108,6 +110,7 @@ exports.sendNotifications = function (req, res, next) {
             branchCompanyId:val.equipment.branchCompany._id,
             companyId:val.equipment.branchCompany.company._id
           }};
+
           arrEmpty.push(obj[key]);
         }
         return arrEmpty;
@@ -144,7 +147,7 @@ exports.sendNotifications = function (req, res, next) {
       });
     };
 
-    var saveNotification = function (notification) {
+    var saveNotification = function (notification){
       var promise = new Promise(function (resolve, reject) {
         var onCreateDocument = function (err, document) {          
           if (err) {
@@ -189,9 +192,9 @@ exports.sendNotifications = function (req, res, next) {
           resolve(data)
         });        
       });
-    }
+    };
   
-    var onFinish = function (data) {
+    var onFinish = function (data){
       res.status(200).send(data);
     };
   
