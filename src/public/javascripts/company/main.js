@@ -84,10 +84,11 @@ $(document).ready(function () {
     
     $.get(action, function(data){
       var form=data.data,
-          docform= document.editCompanyForm;      
+          docform= document.editCompanyForm;          
       _.each(docform, function(doc, key){
         if(doc.className=="form-control"){          
-          var aux = form[doc.getAttribute("name")];          
+          var aux = form[doc.getAttribute("name")]; 
+           
           if(typeof aux == "object"){
             $(".editModal #".concat(doc.getAttribute("name"))).parents(".form-group").css({display:''});
             $(".editModal #".concat(doc.getAttribute("name"), " option[value='",aux._id,"']")).attr("selected", true)
@@ -96,6 +97,14 @@ $(document).ready(function () {
           }
         }
       });
+      
+      var editStatus = $('.editModal #status');
+
+      if(form.status)
+        editStatus.attr('checked', true);
+      else
+        editStatus.removeAttr('checked');
+
     });
   });
 
@@ -108,10 +117,13 @@ $(document).ready(function () {
     var data = {};
 
     _.each(form, function (item, i) {      
-      if (item.getAttribute('class') === 'form-control' || item.type === 'hidden') {
+      if (item.getAttribute('class') === 'form-control' || item.type === 'hidden' || item.getAttribute('class') == 'form-control-custom') {
         if (item.tagName.toLowerCase() === 'input' || item.tagName.toLowerCase() === 'textarea') {
           
-          if (item.value.length > 0) {
+          if (item.getAttribute('type') === 'checkbox') {            
+            data[item.name] = $(item).prop('checked');
+          }
+          else if (item.value.length > 0) {
             if(item.getAttribute("type")=="email"){
               if(!(/^[a-zA-Z0-9]+\@[a-zA-Z0-9]+\.[a-zA-Z0-9-]{0,5}$/ig).exec(item.value)){
                 $(item).after('<p style="color:red;" name="description">Correo invalido</p>');
@@ -140,6 +152,7 @@ $(document).ready(function () {
             $(item).after('<p style="color:red;" name="description">Campo requerido</p>');
           }
         }
+
       }
     });
 
@@ -147,7 +160,7 @@ $(document).ready(function () {
       var _form = $($(this).parents('form')),
           action = _form.attr('action').concat('/',$('#_id').val()),
           method = _form.attr('method');
-
+      
       var request = $.ajax({
         url: action,
         method: method,
@@ -168,6 +181,14 @@ $(document).ready(function () {
       });
 
     }
-  })
+  });
+
+  $('input[type=checkbox]#status').change(function (e) {
+    e.preventDefault();
+
+    $('input#statusValue').val($(this).prop('checked') ? 'Activo' : 'Inactivo');
+    
+    return false;
+  });
   
 });

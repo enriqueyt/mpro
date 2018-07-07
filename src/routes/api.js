@@ -35,9 +35,9 @@ router.post(
   Account.createAccount);
 
 router.get(
-  '/accounts/:page-:quantity/:search',
-  SessionHandle.isLogged,
-  Account.getAccount);
+  '/accounts/:page/:quantity/:search',
+  //SessionHandle.isLogged,
+  Account.getAccounts);
 
 router.get(
   '/accounts/:account',

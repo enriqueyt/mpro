@@ -31,7 +31,7 @@ block content-mpro
                       th Email
                       th Contacto
                       th Ubicacion
-                      th
+                      th Status
                       th
                     tbody
                       each company, i in companies
@@ -42,9 +42,12 @@ block content-mpro
                           td=company.phone
                           td=company.location
                           td
-                            a.btn.default.btn-xs.blue-stripe.edit-company(href="/entities/".concat(company._id)) Edit
+                            if company.status==true
+                              label.label-sm.label-success Activo
+                            else
+                              label.label-sm.label-default Inactivo
                           td
-                            i.fa.fa-trash(aria-hidden="true")
+                            a.btn.default.btn-xs.blue-stripe.edit-company(href="/entities/".concat(company._id)) Edit                          
             #branchCompany.tab-pane(role="tabpanel")
               .row.activity-nav-row
                 .col-md-10
@@ -65,7 +68,7 @@ block content-mpro
                       th Contacto
                       th Ubicacion
                       th Empresa
-                      th
+                      th Status
                       th
                     tbody
                       each company, i in branchCompanies
@@ -75,11 +78,14 @@ block content-mpro
                           td=company.email
                           td=company.phone
                           td=company.location
-                          td=company.company.name
+                          td=company.company.name                          
+                          td
+                            if company.company.status==true
+                              label.label-sm.label-success Activo
+                            else
+                              label.label-sm.label-default Inactivo
                           td
                             a.btn.default.btn-xs.blue-stripe.edit-company(href="/entities/".concat(company._id)) Editar
-                          td
-                            i.fa.fa-trash(aria-hidden="true")
   #addCompanyModal.modal.fade(rol="dialog")
     .modal-dialog(role="document")
       .modal-content
@@ -174,7 +180,14 @@ block content-mpro
             .form-group.row
               label.col-3.col-form-label(for="location") Ubicacion
               .col-9
-                textarea.form-control(id="location", name="location", wrap="hard")            
+                textarea.form-control(id="location", name="location", wrap="hard")
+            .form-group.row
+              label.col-3.col-form-label(for="status") Estatus
+              .col-9
+                .input-group
+                  span.input-group-addon
+                    input.form-control-custom(type="checkbox", id="status", name="status")
+                  input(type="text", id="statusValue", name="statusValue", disabled="true")       
             .col-12(style="text-align:right")
               button.btn.btn-secondary(type="button", data-dismiss="modal", style="margin-right:1%;") Cerrar
               button.btn.btn-primary.editCompanySubmit(type="submit") Actualizar

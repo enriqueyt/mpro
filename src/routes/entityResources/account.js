@@ -87,31 +87,31 @@ exports.createAccount = function (req, res, next) {
 /* ########################################################################## */
 
 exports.getAccounts = function (req, res, next) {
-  if (!req.user || !req.user.username) {
-    res.status(401).send({error: true, message: 'No user found'});
-  }
-
-  var page = req.params.page || 0;
-  var quantity = req.params.quantity || 0;
-  var query = {};
+  //if (!req.user || !req.user.username) {
+  //  res.status(401).send({error: true, message: 'No user found'});
+  //}
+  
+  var page = parseInt(req.params.page) || 0;
+  var quantity = parseInt(req.params.quantity) || 0;
+  var query = {role: {$nin:['admin']}};
   var projection = {username: 0, password: 0};
-
-  if (typeof req.params.search !== 'undefined') {
+  
+  if (typeof req.params.search !== 'undefined' && req.params.search != 'all') {
     var searchPattern = req.params.search;
-
-    query = {$or: [{name: searchPattern}, {'company.name': searchPattern}, {role: searchPattern}]};
+    query = {$or: [{name: {$regex:searchPattern}}, {'company.name': searchPattern}, {role: searchPattern}]};
   }
 
   mongoAccount
   .find(query, projection)
   .populate('company')
   .skip(page * quantity)
-  .limit(page)  
+  .limit(page)
   .exec()
   .then(function (accounts) {
     res.status(200).send({error: false, data: accounts});
   })
   .catch(function (err) {
+    console.log(err)
     res.status(500).send({error: true, message: 'Unexpected error was occurred'});
   });
 };
@@ -243,9 +243,9 @@ exports.updateAccount = function (req, res, next) {
   }
 
   if (typeof req.body.branchCompany !== 'undefined') {
-    setValues.branchCompany = req.body.branchCompany;
+    setValues.company = req.body.branchCompany;
   }
-
+  
   var onUpdateDocument = function (err, document) {
     
     if (err) {

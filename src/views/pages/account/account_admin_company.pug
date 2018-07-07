@@ -31,7 +31,6 @@ block content-mpro
                 th.noWrap Fecha de ingreso
                 th Estatus
                 th
-                th
               each account, i in accounts
                 tbody
                   tr(id=account._id)
@@ -51,9 +50,7 @@ block content-mpro
                       else
                         label.label-sm.label-default Inactivo
                     td                      
-                      a.btn.default.btn-xs.blue-stripe(href="/accounts", name="editAccount", data-toggle="editAccountModal", data-id=account._id) Editar
-                    td
-                      i.fa.fa-trash(aria-hidden="true")
+                      a.btn.default.btn-xs.blue-stripe(href="/accounts", name="editAccount", data-toggle="editAccountModal", data-id=account._id) Editar                    
   #addAccountModal.modal.fadde(role="dialog")
     .modal-dialog(role="document")
       .modal-content

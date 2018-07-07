@@ -171,6 +171,10 @@ exports.updateEntity = function (req, res, next) {
     setValues.company = req.body.company;
   }
 
+  if (typeof req.body.status !== 'undefined') {
+    setValues.status = req.body.status;
+  }
+
   var onUpdateDocument = function (err, document) {
     
     if (err) {

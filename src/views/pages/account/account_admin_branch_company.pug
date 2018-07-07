@@ -32,7 +32,6 @@ block content-mpro
                 th.noWrap Fecha de ingreso
                 th Estatus
                 th
-                th 
               each account, i in accounts
                 tbody
                   tr
@@ -48,9 +47,7 @@ block content-mpro
                       else
                         label.label-sm.label-default Inactivo
                     td
-                      a.btn.default.btn-xs.blue-stripe(href="/accounts/" + account.identifier)
-                    td
-                      i.fa.fa-trash(aria-hidden="true")
+                      a.btn.default.btn-xs.blue-stripe(href="/accounts/" + account.identifier)                    
   #addAccountModal.modal.fadde(role="dialog")
     .modal-dialog(role="document")
       .modal-content

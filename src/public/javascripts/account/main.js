@@ -69,7 +69,7 @@ $(document).ready(function () {
     return false;
   });
 
-  $('a[name="editAccount"]').click(function (e) {
+  $(document).on('click', 'a[name="editAccount"]', function (e) {
     e.preventDefault();
     $('#editAccountModal').modal('show');
     var action = this.getAttribute('href').concat('/', this.getAttribute('data-id'));
@@ -266,6 +266,7 @@ $(document).ready(function () {
       var _form = $($(this).parents('form')),
           action = _form.attr('action').concat('/',$('#hidden_id').val()),
           method = _form.attr('method');
+      debugger
       
       var request = $.ajax({
         url: action,
@@ -276,21 +277,7 @@ $(document).ready(function () {
       request.done(function (response) {
         
         if (!response.error) {
-          var obj = response.data;   
-          
-          if (obj) {
-            if (obj.name !== $.trim($('#entityName').val())) {
-              $('#entityName').text(obj.name);
-            }
-            
-            if (obj.email !== $.trim($('#entityEmail').val())) {
-              $('#entityEmail').text(obj.email);
-            }
-            
-            if (obj.location !== $.trim($('#entityLocation').val())) {
-              $('#entityLocation').val(obj.location);
-            }           
-          }
+          var obj = response.data;          
           document.addAccountForm.reset();
           $('#editEntityModal, #addBranchCompanyModal, #addAccountModal').modal('hide');
           window.location.reload();
@@ -307,4 +294,33 @@ $(document).ready(function () {
     return false;
   });
   
+  $('#userSearchButtom').click(function(e){
+    e.preventDefault();
+    var searchImput = $('#userSearchInput').val(), url='', rows='';    
+    //if(searchImput.length){
+      console.log(searchImput)
+      url='/accounts/0/10/'.concat(searchImput.length?searchImput:'all');
+      $.get(url, function(data){
+        console.log(data)
+        if(!data.error){
+          _.each(data.data, function(value, key){            
+            rows=rows.concat('<tr><td>',key+1, '</td>',
+              '<td>', value.name, '</td>',
+              '<td>', value.email, '</td>',
+              '<td>', value.email, '</td>',
+              '<td>', value.role, '</td>',
+              '<td>', value.role=='adminCompany'? value.company.name : value.company.company.name , '</td>',
+              '<td>',  value.role!='adminCompany'? value.company.name : '', '</td>',
+              '<td>', Moment(value.date.toString()).format("dd/MM/YY"), '</td>',
+              '<td><label class="label-sm label-success">', value.status ? 'Activo': 'Inactivo', '</label></td>',
+              '<td><a class="btn default btn-xs blue-stripe" href="/accounts" name="editAccount" data-toggle="editAccountModal" data-id="', value._id ,'">Editar</a></td></tr>')
+          });
+          $('.table tbody').empty();
+          $('.table tbody').html(rows);
+        }
+      });
+
+    //}
+  });
+
 });
