@@ -98,16 +98,24 @@ exports.getAccounts = function (req, res, next) {
   
   if (typeof req.params.search !== 'undefined' && req.params.search != 'all') {
     var searchPattern = req.params.search;
-    query = {$or: [{name: {$regex:searchPattern}}, {'company.name': searchPattern}, {role: searchPattern}]};
+    query = {$or: [{name: new RegExp(searchPattern, 'i')}, {'company.name': searchPattern}, {role: searchPattern}]};
   }
 
   mongoAccount
   .find(query, projection)
-  .populate('company')
+  .populate({
+    path:'company',
+    model:'entity',
+    populate:{
+      path:'company',
+      model:'entity'
+    }
+  })
   .skip(page * quantity)
   .limit(page)
   .exec()
   .then(function (accounts) {
+    console.log(accounts)
     res.status(200).send({error: false, data: accounts});
   })
   .catch(function (err) {

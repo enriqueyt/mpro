@@ -230,10 +230,10 @@ $(document).ready(function () {
 
     var form = document[$($(this).parents('form')).attr('name')];
     var data = {};
-
+    
     _.each(form, function (item, i) {
       var control = $(item);
-
+      
       if (control.attr('class').indexOf('form-control') > -1 || control.attr('class').indexOf('form-control-custom') > -1 || control.attr('type') === 'hidden') {
         if (control.prop('tagName').toLowerCase() === 'input' || control.prop('tagName').toLowerCase() === 'textarea') {
           
@@ -266,8 +266,7 @@ $(document).ready(function () {
       var _form = $($(this).parents('form')),
           action = _form.attr('action').concat('/',$('#hidden_id').val()),
           method = _form.attr('method');
-      debugger
-      
+
       var request = $.ajax({
         url: action,
         method: method,
@@ -296,12 +295,9 @@ $(document).ready(function () {
   
   $('#userSearchButtom').click(function(e){
     e.preventDefault();
-    var searchImput = $('#userSearchInput').val(), url='', rows='';    
-    //if(searchImput.length){
-      console.log(searchImput)
+    var searchImput = $('#userSearchInput').val(), url='', rows='';        
       url='/accounts/0/10/'.concat(searchImput.length?searchImput:'all');
-      $.get(url, function(data){
-        console.log(data)
+      $.get(url, function(data){        
         if(!data.error){
           _.each(data.data, function(value, key){            
             rows=rows.concat('<tr><td>',key+1, '</td>',
@@ -310,8 +306,8 @@ $(document).ready(function () {
               '<td>', value.email, '</td>',
               '<td>', value.role, '</td>',
               '<td>', value.role=='adminCompany'? value.company.name : value.company.company.name , '</td>',
-              '<td>',  value.role!='adminCompany'? value.company.name : '', '</td>',
-              '<td>', Moment(value.date.toString()).format("dd/MM/YY"), '</td>',
+              '<td>', (value.role!='adminCompany'? value.company.name : ''), '</td>',
+              '<td>', moment(value.date.toString()).format("DD/MM/YY"), '</td>',
               '<td><label class="label-sm label-success">', value.status ? 'Activo': 'Inactivo', '</label></td>',
               '<td><a class="btn default btn-xs blue-stripe" href="/accounts" name="editAccount" data-toggle="editAccountModal" data-id="', value._id ,'">Editar</a></td></tr>')
           });
@@ -319,8 +315,6 @@ $(document).ready(function () {
           $('.table tbody').html(rows);
         }
       });
-
-    //}
   });
 
 });

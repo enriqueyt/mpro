@@ -71,27 +71,33 @@ exports.createEntity = function (req, res, next) {
 /* ########################################################################## */
 
 exports.getEntities = function (req, res, next) {
-  if (!req.user || !req.user.username) {
+  /*if (!req.user || !req.user.username) {
     res.status(401).send({error: true, message: 'No user found'});
-  }
+  }*/
 
-  var page = req.params.page || 0;
-  var quantity = req.params.quantity || 0;
+  var page = parseInt(req.params.page) || 0;
+  var quantity = parseInt(req.params.quantity) || 0;
   var query = {type: req.params.type};
 
-  if (typeof req.params.search !== 'undefined') {
+  if (typeof req.params.search !== 'undefined' && req.params.search != 'all') {
     var searchPattern = req.params.search;
-
-    query['$or'] = [{name: searchPattern}, {location: searchPattern}, {'company.name': searchPattern}];
+    query['$or'] = [{name: new RegExp(searchPattern, 'i')}, {location: searchPattern}, {'company.name': searchPattern}];
   }
-
+  
   mongoEntity
   .find(query)
-  .populate('company')
+  .populate({
+    path:'company',
+    model:'entity',
+    populate:{
+      path:'company',
+      model:'entity'
+    }
+  })
   .skip(page * quantity)
   .limit(page)
   .exec()
-  .then(function (entities) {
+  .then(function (entities) {  
     res.status(200).send({error: false, data: entities});
   })
   .catch(function (err) {

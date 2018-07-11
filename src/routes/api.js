@@ -69,9 +69,9 @@ router.post(
   Entity.createEntity);
 
 router.get(
-  '/entities/:page-:quantity/:type/:search',
-  SessionHandle.isLogged,
-  Entity.getEntity);
+  '/entities/:page/:quantity/:type/:search',
+  //SessionHandle.isLogged,
+  Entity.getEntities);
 
 router.get(
   '/entities/:entity',

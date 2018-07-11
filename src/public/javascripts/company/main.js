@@ -74,7 +74,7 @@ $(document).ready(function () {
     }
   });
   
-  $('.edit-company').click(function(e){
+  $(document).on('click', '.edit-company', function(e){
     e.preventDefault();
     $('#editCompanyModal').modal('show');
     
@@ -84,16 +84,16 @@ $(document).ready(function () {
     
     $.get(action, function(data){
       var form=data.data,
-          docform= document.editCompanyForm;          
+          docform= document.editCompanyForm;
       _.each(docform, function(doc, key){
-        if(doc.className=="form-control"){          
-          var aux = form[doc.getAttribute("name")]; 
+        if(doc.className=="form-control"){
+          var element = form[doc.getAttribute("name")];
            
-          if(typeof aux == "object"){
+          if(typeof element == "object"){
             $(".editModal #".concat(doc.getAttribute("name"))).parents(".form-group").css({display:''});
-            $(".editModal #".concat(doc.getAttribute("name"), " option[value='",aux._id,"']")).attr("selected", true)
-          }else if(aux!= undefined){
-            $(".editModal #".concat(doc.getAttribute("name"))).val(aux)
+            $(".editModal #".concat(doc.getAttribute("name"), " option[value='",element._id,"']")).attr("selected", true);
+          }else if(element!= undefined){
+            $(".editModal #".concat(doc.getAttribute("name"))).val(element);
           }
         }
       });
@@ -189,6 +189,31 @@ $(document).ready(function () {
     $('input#statusValue').val($(this).prop('checked') ? 'Activo' : 'Inactivo');
     
     return false;
+  });
+
+  $('#entitySearchButtom, #entityBranchSearchButtom').click(function(e){
+    e.preventDefault();
+    var type= $(this).attr('data-type'), 
+        selector=type=='comany'?'table-entity':'table-branchEntity', 
+        searchImput = $('#'.concat(type=='comany'?'companySearchInput':'branchCompanySearchInput')).val(), 
+        url='', rows='';        
+      url='/entities/0/10/'.concat(type, '/', searchImput.length?searchImput:'all');
+      $.get(url, function(data){        
+        if(!data.error){
+          _.each(data.data, function(value, key){            
+            rows=rows.concat('<tr><td>',key+1, '</td>',
+              '<td>', value.name, '</td>',
+              '<td>', value.email, '</td>',
+              '<td>', value.phone, '</td>',
+              '<td>', value.location, '</td>',
+              type=='company'?'':'<td>',value.company.name,'<td>',
+              '<td><label class="label-sm label-success">', value.status ? 'Activo': 'Inactivo', '</label></td>',
+              '<td><a class="btn default btn-xs blue-stripe edit-company" href="/entities/',value._id,'" name="editAccount"  data-id="', value._id ,'">Editar</a></td></tr>')
+          });
+          $('.'.concat(selector, ' tbody')).empty();
+          $('.'.concat(selector, ' tbody')).html(rows);
+        }
+      });
   });
   
 });

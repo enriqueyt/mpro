@@ -109,8 +109,8 @@ block content-mpro
               span(aria-hidden="true")
             strong Hey! 
           #content(style="display:inline-block")
-          form(role="form", id="editAccountForm", name="editAccountForm", action="/accounts", method="put")
-            input#hidden_id(type="hidden")
+          form(role="form", id="editAccountForm", name="editAccountForm", action="/accounts", method="put")            
+            input.form-control(type="hidden", id="hidden_id")
             .form-group.row
               label.col-3.col-form-label(for="name") Nombre
               .col-9
