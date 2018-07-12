@@ -99,7 +99,7 @@ router.post(
   EquipmentType.createEquipmentType);
 
 router.get(
-  '/equipmentTypes/:page-:quantity/:search',
+  '/equipmentTypes/:page/:quantity/:search',
   SessionHandle.isLogged,
   EquipmentType.getEquipmentTypes);
 
@@ -129,7 +129,7 @@ router.post(
   Equipment.createEquipment);
 
 router.get(
-  '/equipments/:page-:quantity/:search',
+  '/equipments/:page/:quantity/:search',
   SessionHandle.isLogged,
   Equipment.getEquipments);
 

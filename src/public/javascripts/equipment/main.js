@@ -555,5 +555,37 @@ $(document).ready(function () {
     return false;
   });
 
+  $('#equipmentTypeSearchButtom, #equipmentSearchButtom').click(function(e){
+    e.preventDefault();
+    var type= $(this).attr('data-type'), 
+        selector=type=='equipmentTypes'?'table-equipmentType':'table-equipment', 
+        searchImput = $('#'.concat(type=='equipmentTypes'?'equipmentTypeSearchInput':'equipmentSearchInput')).val(), 
+        url='', rows='';
+
+      url='/'.concat(type, '/0/10/', searchImput.length?searchImput:'all');
+      
+      $.get(url, function(data){
+        
+        if(!data.error){
+          _.each(data.data, function(value, key){
+            
+            if(type=='equipmentTypes'){
+              rows=rows.concat(
+                '<tr><td>',key+1, '</td>',
+                '<td>', value.name, '</td>',
+                '<td>', value.company.name, '</td>',
+                '<td>', value.status ? 'Activo': 'Inactivo', '</td>',
+                '<td><a class="btn default btn-xs blue-stripe" onclick="searchEquipmentType(',value._id,')">Editar</a></td>',
+                '<td><i class="fa fa-trash" onclick="deleteEquipmentType(',value._id,')" aria-hidden="true"></i></td></tr>')
+            }
+
+          });
+          $('.'.concat(selector, ' tbody')).empty();
+          $('.'.concat(selector, ' tbody')).html(rows);
+        }
+      });
+
+  });
+
   return false;
 });
