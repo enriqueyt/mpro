@@ -194,11 +194,11 @@ exports.getTechniciansByCompany = function (req, res, next) {
   });
 };
 
-exports.getTechniciansByBranchCompany = function (req, res, next) {
+exports.getTechniciansByBranchCompany = function (req, res, next) {  
   var accountsPromise = new Promise(function (resolve, reject) {
-    var query = {role: 'technician', company: req.params.branchCompany};
+    var query = {role: 'technician', company: Mongoose.Types.ObjectId(req.params.branchCompany)};
     var projection = {_id: 1, name: 1};
-
+    
     mongoAccount.find(query, projection).exec()
     .then(function (accounts) {
       resolve(accounts);

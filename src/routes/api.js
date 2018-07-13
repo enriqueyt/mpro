@@ -51,8 +51,9 @@ router.get(
 
 router.get(
   '/accounts/technicians/branchCompany/:branchCompany', 
-  SessionHandle.isLogged, 
+  //SessionHandle.isLogged, 
   Account.getTechniciansByBranchCompany);
+
 
 router.put(
   '/accounts/:account',
@@ -69,8 +70,7 @@ router.post(
   Entity.createEntity);
 
 router.get(
-  '/entities/:page/:quantity/:type/:search',
-  //SessionHandle.isLogged,
+  '/entities/:page/:quantity/:type/:search',  
   Entity.getEntities);
 
 router.get(
@@ -179,6 +179,11 @@ router.put(
   SessionHandle.isLogged,
   MaintenanceActivity.updateMaintenanceActivity);
 
+  
+  router.get(
+    '/maintenanceActivities/:page/:quantity/:search',
+    MaintenanceActivity.getMaintenanceActivities);
+
 
 /* ########################################################################## */
 /* MAINTENANCE ACTIVITY ATTENTION ROUTES                                      */
@@ -204,6 +209,10 @@ router.put(
   SessionHandle.isLogged,
   MaintenanceActivityAttention.updateMaintenanceActivityAttention
 );
+
+router.get(
+  '/maintenanceActivityAttentions/:page/:quantity/:search',
+  MaintenanceActivityAttention.getMaintenanceActivityAttention);
 
 /* ########################################################################## */
 /* NOTIFICATIONS                                                              */

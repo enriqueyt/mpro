@@ -70,9 +70,9 @@ exports.createEquipment = function (req, res, next) {
 /* ########################################################################## */
 
 exports.getEquipments = function (req, res, next) {
-  if (!req.user || !req.user.username) {
+  /*if (!req.user || !req.user.username) {
     res.status(401).send({error: true, message: 'No user found'});
-  }
+  }*/
 
   var page = parseInt(req.params.page) || 0;
   var quantity = parseInt(req.params.quantity) || 0;
@@ -84,7 +84,16 @@ exports.getEquipments = function (req, res, next) {
     query = {$or: [{name: new RegExp(searchPattern, 'i')}, {code: searchPattern}, {location: searchPattern}]};
   }
 
-  mongoEquipment.find(query).populate('branchCompany').populate('equipmentType')
+  mongoEquipment.find(query)
+  .populate({
+    path:'branchCompany',
+    model:'entity',
+    populate:{
+      path:'company',
+      model:'entity'
+    }
+  })
+  .populate('equipmentType')
   .skip(page * quantity).limit(page).exec()
   .then(function (equipments) {
     res.status(200).send({error: false, data: equipments});

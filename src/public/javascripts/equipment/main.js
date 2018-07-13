@@ -567,9 +567,9 @@ $(document).ready(function () {
       $.get(url, function(data){
         
         if(!data.error){
-          _.each(data.data, function(value, key){
-            
-            if(type=='equipmentTypes'){
+
+          if(type=='equipmentTypes'){
+            _.each(data.data, function(value, key){
               rows=rows.concat(
                 '<tr><td>',key+1, '</td>',
                 '<td>', value.name, '</td>',
@@ -577,9 +577,22 @@ $(document).ready(function () {
                 '<td>', value.status ? 'Activo': 'Inactivo', '</td>',
                 '<td><a class="btn default btn-xs blue-stripe" onclick="searchEquipmentType(',value._id,')">Editar</a></td>',
                 '<td><i class="fa fa-trash" onclick="deleteEquipmentType(',value._id,')" aria-hidden="true"></i></td></tr>')
-            }
-
-          });
+            });
+          }else{
+            _.each(data.data, function(value, key){
+              rows=rows.concat(
+                '<tr><td>',key+1, '</td>',
+                '<td>', value.name, '</td>',
+                '<td>', value.code, '</td>',
+                '<td>', value.location, '</td>',
+                '<td>', value.equipmentType.name, '</td>',
+                '<td>', value.branchCompany.company.name, '</td>',
+                '<td>', value.branchCompany.name, '</td>',
+                '<td>', value.userAssigned.name, '</td>',
+                '<td><a class="btn default btn-xs blue-stripe" href="/home/equipments/',value._id,'">Editar</a></td>',
+                '<td><i class="fa fa-trash" aria-hidden="true"></i></td></tr>')
+            });
+          }
           $('.'.concat(selector, ' tbody')).empty();
           $('.'.concat(selector, ' tbody')).html(rows);
         }

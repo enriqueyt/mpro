@@ -65,9 +65,9 @@ exports.createEquipmentType = function (req, res, next) {
 /* ########################################################################## */
 
 exports.getEquipmentTypes = function (req, res, next) {
-  if (!req.user || !req.user.username) {
+  /*if (!req.user || !req.user.username) {
     res.status(401).send({error: true, message: 'No user found'});
-  }
+  }*/
 
   var page = parseInt(req.params.page) || 0;
   var quantity = parseInt(req.params.quantity) || 0;

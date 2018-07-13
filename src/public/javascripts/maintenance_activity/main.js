@@ -483,4 +483,46 @@ $(document).ready(function () {
 
     return false;
   });
+
+  $('#maintenanceActivitySearchButtom, #maintenanceActivityAttentionSearchButtom').click(function(e){
+    e.preventDefault();
+    var type= $(this).attr('data-type'), 
+        selector=type=='maintenanceActivities'?'table-maintenanceActivity':'table-maintenanceActivityAttention', 
+        searchImput = $('#'.concat(type=='maintenanceActivities'?'maintenanceActivitySearchInput':'maintenanceActivityAttentionSearchInput')).val(), 
+        url='', rows='';
+
+      url='/'.concat(type, '/0/10/', searchImput.length?searchImput:'all');
+      
+      $.get(url, function(data){
+                
+        if(!data.error){
+
+          if(type=='maintenanceActivities'){
+            _.each(data.data, function(value, key){
+              rows=rows.concat(
+                '<tr><td>',key+1, '</td>',
+                '<td>', value.name, '</td>',
+                '<td>', value.company.name, '</td>',
+                '<td>', value.equipmentType.name, '</td>',
+                '<td>', value.status ? 'Activo': 'Inactivo', '</td>',
+                '<td><a class="btn default btn-xs blue-stripe" onclick="searchMaintenanceActivity(',value._id,')">Editar</a></td>',
+                '<td><i class="fa fa-trash" onclick="deleteMaintenanceActivity(',value._id,')" aria-hidden="true"></i></td></tr>')
+            });
+          }else{
+            _.each(data.data, function(value, key){
+              rows=rows.concat(
+                '<tr><td>',key+1, '</td>',
+                '<td>', value.maintenanceActivity.name, '</td>',
+                '<td>', value.equipment.name, '</td>',
+                '<td>', value.ckecked ? 'Activo': 'Inactivo', '</td>',
+                '<td>', moment(value.date.toString()).format("DD/MM/YY"), '</td>')
+            });
+          }
+          $('.'.concat(selector, ' tbody')).empty();
+          $('.'.concat(selector, ' tbody')).html(rows);
+        }
+      });
+
+  });
+
 });

@@ -394,6 +394,41 @@ exports.getMaintenanceActivityAttentionByActivityDate = function (req, res, next
   });
 };
 
+exports.getMaintenanceActivityAttention = function (req, res, next) {
+
+  var maintenanceActivitiesPromise = new Promise(function (resolve, reject) {
+    var query = {};
+
+    if (typeof req.params.search !== 'undefined' && req.params.search != 'all') {
+      var searchPattern = req.params.search;
+      query = {
+        $or: [
+          {'maintenanceActivity.name': new RegExp(searchPattern, 'i')}, 
+          {'maintenanceActivity.description': new RegExp(searchPattern, 'i')}, 
+          {'equipment.name': new RegExp(searchPattern, 'i')}
+        ]
+      };
+    }
+    
+    mongoMaintenanceActivityAttention
+    .find(query)
+    .populate('equipment')
+    .populate('maintenanceActivity')
+    .exec()
+    .then(resolve)
+    .catch(reject);
+  });
+
+  maintenanceActivitiesPromise
+  .then(function (maintenanceActivityAttention) {
+    res.status(200).send({error: false, data: maintenanceActivityAttention});
+  })
+  .catch(function (err) {
+    console.log(err)
+    res.status(500).send({error: true, message: err.message});
+  });
+};
+
 /* ########################################################################## */
 /* UPDATE RESOURCES                                                           */
 /* ########################################################################## */
