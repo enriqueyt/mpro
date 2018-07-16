@@ -395,7 +395,7 @@ $(document).ready(function () {
 
     collection = _.reduce(complementaryInfo.dates, function (accumulator, date) {
       var document = {};
-      
+      console.log(complementaryInfo.maintenanceActivities)
       document['date'] = moment(date, dateFormat.toUpperCase()).valueOf();
       document['maintenanceActivityAttentions'] = _.reduce(complementaryInfo.maintenanceActivities, function (accumulator, maintenanceActivity) {
         var maintenanceActivityAttention = {
@@ -484,6 +484,16 @@ $(document).ready(function () {
     return false;
   });
 
+  $(document).on('click', '.searchMaintenanceActivity, .deleteMaintenanceActivity', function(e){
+    e.preventDefault();
+    var _id = this.getAttribute('data-id');
+    if($(this).hasClass('searchMaintenanceActivity')){
+      searchMaintenanceActivity(_id);
+    }else{
+      deleteMaintenanceActivity(_id);
+    }
+  });
+
   $('#maintenanceActivitySearchButtom, #maintenanceActivityAttentionSearchButtom').click(function(e){
     e.preventDefault();
     var type= $(this).attr('data-type'), 
@@ -505,8 +515,8 @@ $(document).ready(function () {
                 '<td>', value.company.name, '</td>',
                 '<td>', value.equipmentType.name, '</td>',
                 '<td>', value.status ? 'Activo': 'Inactivo', '</td>',
-                '<td><a class="btn default btn-xs blue-stripe" onclick="searchMaintenanceActivity(',value._id,')">Editar</a></td>',
-                '<td><i class="fa fa-trash" onclick="deleteMaintenanceActivity(',value._id,')" aria-hidden="true"></i></td></tr>')
+                '<td><a class="btn default btn-xs blue-stripe searchMaintenanceActivity" data-id="',value._id,'">Editar</a></td>',
+                '<td><i class="fa fa-trash deleteMaintenanceActivity" data-id="',value._id,'" aria-hidden="true"></i></td></tr>')
             });
           }else{
             _.each(data.data, function(value, key){

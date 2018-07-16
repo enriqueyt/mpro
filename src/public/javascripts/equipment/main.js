@@ -555,6 +555,16 @@ $(document).ready(function () {
     return false;
   });
 
+  $(document).on('click', '.searchEquipmentType, .deleteEquipmentType', function(e){
+    e.preventDefault();
+    var _id = this.getAttribute('data-id');
+    if($(this).hasClass('searchEquipmentType')){
+      searchEquipmentType(_id);
+    }else{
+      deleteEquipmentType(_id);
+    }
+  });
+
   $('#equipmentTypeSearchButtom, #equipmentSearchButtom').click(function(e){
     e.preventDefault();
     var type= $(this).attr('data-type'), 
@@ -575,8 +585,8 @@ $(document).ready(function () {
                 '<td>', value.name, '</td>',
                 '<td>', value.company.name, '</td>',
                 '<td>', value.status ? 'Activo': 'Inactivo', '</td>',
-                '<td><a class="btn default btn-xs blue-stripe" onclick="searchEquipmentType(',value._id,')">Editar</a></td>',
-                '<td><i class="fa fa-trash" onclick="deleteEquipmentType(',value._id,')" aria-hidden="true"></i></td></tr>')
+                '<td><a class="btn default btn-xs blue-stripe searchEquipmentType" data-id="',value._id,'">Editar</a></td>',
+                '<td><i class="fa fa-trash deleteEquipmentType" data-id="',value._id,'" aria-hidden="true"></i></td></tr>')
             });
           }else{
             _.each(data.data, function(value, key){

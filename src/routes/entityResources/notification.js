@@ -71,18 +71,21 @@ exports.sendNotifications = function (req, res, next) {
           .then(function(accounts){
             
             var tempAccountsToNotify = _.reduce(attentions, function(arrEmpty, arr){
+              arr.userAssigned['equipment']=arr.equipment;
               return arrEmpty.concat(arr.userAssigned);  
             }, [])
 
             tempAccountsToNotify=[ ...new Set(tempAccountsToNotify)];
+            
             var arrAccountsToNotify = _.reduce(accounts, function(arrEmpty, arr){
+              arr['equipment']=tempAccountsToNotify[0].equipment;
               return arrEmpty.concat(arr);  
             }, tempAccountsToNotify);
             
-            arrAccountsToNotify=[ ...new Set(arrAccountsToNotify)];
-            console.log(arrAccountsToNotify)
-            _.each(arrAccountsToNotify, function(value, key){              
-              //notify(value);
+            arrAccountsToNotify=[ ...new Set(arrAccountsToNotify)];            
+            
+            _.each(arrAccountsToNotify, function(value, key){        
+              notify(value);
             });
 
             resolve(attentions);
@@ -118,7 +121,7 @@ exports.sendNotifications = function (req, res, next) {
       return result;
     };
 
-    var notify = function(account){      
+    var notify = function(account){
       EmailService.send({
         to: account.email,
         subject: AppMessageProvider.getMessage('NOTIFICATION_SUBJECT'),

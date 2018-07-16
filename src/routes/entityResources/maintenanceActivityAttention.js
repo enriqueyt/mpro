@@ -17,7 +17,7 @@ exports.createMaintenanceActivityAttentions = function (req, res, next) {
   if (!req.user || !req.user.username) {
     res.status(401).send({error: true, message: 'No user found'});
   }
-  console.log(req.body.documents)
+  
   var documents = JSON.parse(req.body.documents);
   var maintenanceActivityDates = [];
 
@@ -36,11 +36,12 @@ exports.createMaintenanceActivityAttentions = function (req, res, next) {
     
     return accumulator;
   }, []);
-
+  
   var saveMaintenanceActivityAttentionPromise = function (maintenanceActivityAttention) {
     var promise = new Promise(function (resolve, reject) {
       var onCreateDocument = function (err, document) {        
         if (err) {
+          console.log(err)
           Log.error({
             parameters: ['MAINTENANCE_ACTIVITY_ATTENTION_EXCEPTION', err],
             //text      : 'Exception! '.concat(err),
@@ -51,7 +52,8 @@ exports.createMaintenanceActivityAttentions = function (req, res, next) {
 
           resolve({error: true, code: 500, message: err.message});
         };
-
+        console.log(document)
+        console.log('*-*-*-*-*')
         Log.debug({
           parameters: ['MAINTENANCE_ACTIVITY_ATTENTION_CREATE_SUCCESS', req.user.name, document.name],
           //text      : 'Success on create! '.concat('User ', req.user.name, ' creates maintenance activity attention', document.name),
@@ -102,7 +104,7 @@ exports.createMaintenanceActivityAttentions = function (req, res, next) {
 
     return promise;
   };
-
+  
   var createDocumentPromises = Functional.reduce(maintenanceActivityAttentions, function (accumulator, maintenanceActivityAttention) {
     var promise = saveMaintenanceActivityAttentionPromise(maintenanceActivityAttention);
     accumulator.push(promise);

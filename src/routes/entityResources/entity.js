@@ -82,8 +82,7 @@ exports.getEntities = function (req, res, next) {
   if (typeof req.params.search !== 'undefined' && req.params.search != 'all') {
     var searchPattern = req.params.search;
     query['$or'] = [{name: new RegExp(searchPattern, 'i')}, {location: searchPattern}, {'company.name': searchPattern}];
-  }
-  
+  }  
   mongoEntity
   .find(query)
   .populate({
@@ -97,10 +96,15 @@ exports.getEntities = function (req, res, next) {
   .skip(page * quantity)
   .limit(page)
   .exec()
-  .then(function (entities) {  
-    res.status(200).send({error: false, data: entities});
+  .then(function (data) {
+    var page=query.type=='company'?'partials/company-table-body':'partials/branchcompany-table-body';
+    return res.status(200).render(page, {
+      error:false,
+      entities: data
+    });   
   })
   .catch(function (err) {
+    console.log(err)
     res.status(500).send({error: true, message: 'Unexpected error was occurred'});
   });
 };

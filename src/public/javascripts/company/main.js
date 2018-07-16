@@ -185,35 +185,22 @@ $(document).ready(function () {
 
   $('input[type=checkbox]#status').change(function (e) {
     e.preventDefault();
-
     $('input#statusValue').val($(this).prop('checked') ? 'Activo' : 'Inactivo');
-    
     return false;
   });
 
   $('#entitySearchButtom, #entityBranchSearchButtom').click(function(e){
-    e.preventDefault();
+    e.preventDefault();    
     var type= $(this).attr('data-type'), 
-        selector=type=='comany'?'table-entity':'table-branchEntity', 
-        searchImput = $('#'.concat(type=='comany'?'companySearchInput':'branchCompanySearchInput')).val(), 
-        url='', rows='';        
-      url='/entities/0/10/'.concat(type, '/', searchImput.length?searchImput:'all');
-      $.get(url, function(data){        
-        if(!data.error){
-          _.each(data.data, function(value, key){            
-            rows=rows.concat('<tr><td>',key+1, '</td>',
-              '<td>', value.name, '</td>',
-              '<td>', value.email, '</td>',
-              '<td>', value.phone, '</td>',
-              '<td>', value.location, '</td>',
-              type=='company'?'':'<td>',value.company.name,'<td>',
-              '<td><label class="label-sm label-success">', value.status ? 'Activo': 'Inactivo', '</label></td>',
-              '<td><a class="btn default btn-xs blue-stripe edit-company" href="/entities/',value._id,'" name="editAccount"  data-id="', value._id ,'">Editar</a></td></tr>')
-          });
-          $('.'.concat(selector, ' tbody')).empty();
-          $('.'.concat(selector, ' tbody')).html(rows);
-        }
-      });
+        selector=type=='company'?'table-entity':'table-branchEntity',
+        buttomSelector=type=='company'?'companySearchInput':'branchCompanySearchInput';
+        searchImput = $('#'.concat(buttomSelector)).val(),        
+        url='/entities/0/1000/'.concat(type, '/', searchImput.length?searchImput:'all');
+        
+    $.get(url, function(data){
+      $('.'.concat(selector, ' tbody')).empty();
+      $('.'.concat(selector, ' tbody')).html(data);        
+    });
   });
   
 });

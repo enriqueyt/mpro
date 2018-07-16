@@ -22,10 +22,11 @@ block content-mpro
               .row.equipment-nav-row.nav-row-padding
                 .col-md-10
                   .input-group
-                    input.form-control.input-search(type="text", id="userSearchInput", placeholder="Buscar tipo de equipo")                    
+                    input.form-control.input-search(type="text", id="equipmentTypeSearchInput", placeholder="Buscar tipo de equipo")
+                    a.fa.fa-search.fa-w-16.fa-3x(id="equipmentTypeSearchButtom", data-type="equipmentTypes")
               .row.equipment-nav-row
                 .col-md-12
-                  table.table.table-header
+                  table.table.table-header.table-equipmentType
                     thead
                       th #
                       th Nombre
@@ -56,15 +57,15 @@ block content-mpro
               .row.equipment-nav-row.nav-row-padding
                 .col-md-10
                   .input-group
-                    input.form-control.input-search(type="text", id="userSearchInput", placeholder="Buscar Equipo")
-                    a.fa.fa-search.fa-w-16.fa-3x
+                    input.form-control.input-search(type="text", id="equipmentSearchInput", placeholder="Buscar equipo")
+                    a.fa.fa-search.fa-w-16.fa-3x(id="equipmentSearchButtom", data-type="equipments")
                 .col-md-2
                   button#addEquipment.btn.btn-primary.button-search(type="button", data-toggle="addEquipmentModal")
                     i.fa.fa-plus 
                       | Agregar Equipo
               .row.equipment-nav-row.no-padding.nav-row-padding
                 .col-md-12
-                  table.table.table-header
+                  table.table.table-header.table-equipment
                     thead
                       th #
                       th Nombre
