@@ -259,15 +259,15 @@ $(document).ready(function () {
       if (control.attr('class').indexOf('form-control') > -1 || control.attr('type') === 'hidden') {
         if (control.prop('tagName').toLowerCase() === 'input') {
           if (control.val().trim().length > 0) {
-            if(item.getAttribute("type")=="email"){
-              if(!(/^[a-zA-Z0-9]+\@[a-zA-Z0-9]+\.[a-zA-Z0-9-]{0,5}$/ig).exec(item.value)){
-                $(item).after('<p style="color:red;" name="description">Correo invalido</p>');
+            if (item.getAttribute("type") === "email"){
+              if (!(/^[a-zA-Z0-9]+\@[a-zA-Z0-9]+\.[a-zA-Z0-9-]{0,5}$/ig).exec(item.value)) {
+                $(item).after('<p style="color:red;" name="description">Correo inválido</p>');
                 return;
               }
             }
-            if(item.getAttribute("type")=="phone"){              
-              if(!(/^[0-9]+$/ig).exec(item.value)){
-                $(item).after('<p style="color:red;" name="description">Cmapo debe ser numérico</p>');
+            if (item.getAttribute("type") === "phone") {              
+              if (!(/^[0-9]+$/ig).exec(item.value)) {
+                $(item).after('<p style="color:red;" name="description">Campo debe ser numérico</p>');
                 return;
               }
             }
