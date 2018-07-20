@@ -5,6 +5,7 @@ var EmailService = require('../../libs/emailServices');
 var AppMessageProvider = require('../../libs/appMessageProvider');
 var LogMessageProvider = require('../../libs/logMessageProvider');
 var Utils = require('../../libs/utils');
+var _ = require('underscore');
 
 var mongoAccount = Mongoose.model('account');
 
@@ -90,7 +91,6 @@ exports.getAccounts = function (req, res, next) {
   //if (!req.user || !req.user.username) {
   //  res.status(401).send({error: true, message: 'No user found'});
   //}
-  
   var page = parseInt(req.params.page) || 0;
   var quantity = parseInt(req.params.quantity) || 0;
   var query = {role: {$nin:['admin']}};
@@ -113,10 +113,19 @@ exports.getAccounts = function (req, res, next) {
   })
   .skip(page * quantity)
   .limit(page)
+  .lean()
   .exec()
   .then(function (accounts) {
-    console.log(accounts)
-    res.status(200).send({error: false, data: accounts});
+    var result = [], obj = {};
+    _.each(accounts, function(val, key){
+      obj = Object.assign({}, val);
+      obj.date=Utils.formatDate(val.date.toString(), "DD/MM/YY");      
+      result.push(obj);
+    });
+    res.render('partials/accounts-table-body', {
+      error:false,
+      data: result
+    }); 
   })
   .catch(function (err) {
     console.log(err)
@@ -149,7 +158,7 @@ exports.getAccount = function (req, res, next) {
   });
 };
 
-exports.getTechniciansByCompany = function (req, res, next) {
+exports.getTechniciansByCompany = function (req, res, next) {  
   var branchCompaniesPromise = new Promise(function (resolve, reject) {
     var query = {type: 'branchCompany', company: req.params.company};
 
@@ -194,9 +203,10 @@ exports.getTechniciansByCompany = function (req, res, next) {
   });
 };
 
-exports.getTechniciansByBranchCompany = function (req, res, next) {  
+exports.getTechniciansByBranchCompany = function (req, res, next) {
+
   var accountsPromise = new Promise(function (resolve, reject) {
-    var query = {role: 'technician', company: Mongoose.Types.ObjectId(req.params.branchCompany)};
+    var query = {role: 'technician', company: req.params.branchCompany};
     var projection = {_id: 1, name: 1};
     
     mongoAccount.find(query, projection).exec()

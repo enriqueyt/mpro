@@ -35,8 +35,8 @@ router.post(
   Account.createAccount);
 
 router.get(
-  '/accounts/:page/:quantity/:search',
-  //SessionHandle.isLogged,
+  '/accounts/:page-:quantity/:search',
+  SessionHandle.isLogged,
   Account.getAccounts);
 
 router.get(
@@ -50,8 +50,8 @@ router.get(
   Account.getTechniciansByCompany);
 
 router.get(
-  '/accounts/technicians/branchCompany/:branchCompany', 
-  //SessionHandle.isLogged, 
+  '/accounts/technicians/branchCompany/:branchCompany',
+  SessionHandle.isLogged,
   Account.getTechniciansByBranchCompany);
 
 
