@@ -90,7 +90,7 @@ router.get('/adminBranchCompany', SessionHandle.isLogged, function (req, res, ne
   var onRender = function (data) {
     var tempUser = req.user || {};
     req.user = {};
-
+    console.log(tempUser)
     return res.render('pages/dashboard/dashboard_admin_branch_company', {
       user: tempUser,
       currentAccount: data.user,

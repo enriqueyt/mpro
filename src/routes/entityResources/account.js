@@ -50,7 +50,8 @@ exports.createAccount = function (req, res, next) {
           user      : req.user._id,
           model     : JSON.stringify(document)
         });
-        EmailService.send({
+        console.log("email send")
+        var emailContent={
           to: account.username,
           subject: AppMessageProvider.getMessage('ACCOUNT_CREATION_EMAIL_SUBJECT'),
           text: AppMessageProvider.getMessage(
@@ -61,7 +62,9 @@ exports.createAccount = function (req, res, next) {
               'mpro-'.concat(account.email.split('@')[0]),
               'http://138.68.246.213:3000'
             ])
-        });
+        }
+        console.log(emailContent)
+        EmailService.send(emailContent);
 
         resolve({error: false, data: document});
       }

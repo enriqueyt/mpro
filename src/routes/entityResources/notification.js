@@ -17,7 +17,7 @@ exports.sendNotifications = function (req, res, next) {
 
       today.setDate(today.getDate()-1)      
 
-      tomorrow.setDate(tomorrow.getDate()+2);
+      tomorrow.setDate(tomorrow.getDate()+30);
       console.log(today)
       console.log(tomorrow)
       var query = {"date":{"$gte":new Date(today), "$lte":new Date(tomorrow)}, "notificationId":null}, 
@@ -72,16 +72,24 @@ exports.sendNotifications = function (req, res, next) {
             
             var tempAccountsToNotify = _.reduce(attentions, function(arrEmpty, arr){
               arr.userAssigned['equipment']=arr.equipment;
+              arr.userAssigned['serviceDate']=arr.date;
               return arrEmpty.concat(arr.userAssigned);  
             }, [])
 
             tempAccountsToNotify=[ ...new Set(tempAccountsToNotify)];
             
-            var arrAccountsToNotify = _.reduce(accounts, function(arrEmpty, arr){
-              arr['equipment']=tempAccountsToNotify[0].equipment;
-              return arrEmpty.concat(arr);  
-            }, tempAccountsToNotify);
+            var arrAccountsToNotify;
+
+            _.each(tempAccountsToNotify, function(val, key){
             
+              arrAccountsToNotify = _.reduce(accounts, function(arrEmpty, arr){                
+                arr['equipment']=val.equipment;
+                arr['serviceDate']=val.serviceDate;
+                return arrEmpty.concat(arr);  
+              }, tempAccountsToNotify);
+
+            });
+              
             arrAccountsToNotify=[ ...new Set(arrAccountsToNotify)];            
             
             _.each(arrAccountsToNotify, function(value, key){        
@@ -126,7 +134,7 @@ exports.sendNotifications = function (req, res, next) {
         to: account.email,
         subject: AppMessageProvider.getMessage('NOTIFICATION_SUBJECT'),
         text: AppMessageProvider.getMessage(
-          'NOTIFICATION_EMAIL_TEXT',[account.name, Utils.formatDate(account.date, DATE_FORMAT), account.equipment])
+          'NOTIFICATION_EMAIL_TEXT',[account.name, Utils.formatDate(account.serviceDate, DATE_FORMAT), account.equipment])
       });
 
     };
