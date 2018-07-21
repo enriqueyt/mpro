@@ -5,7 +5,7 @@
   "description": "MPRO Core App",
   "scripts": {
     "start": "node src/bin/www; npm run notifications:start",
-    "start:dev": "nodemon src/bin/www; npm run notifications:start",
+    "start:dev": "npm run notifications:start; nodemon src/bin/www",
     "pm2:start": "pm2 start src/bin/www; npm run notifications:start",
     "pm2:restart": "pm2 restart $(pm2 id www | grep -oP [0-9]+)",
     "pm2:stop": "pm2 stop $(pm2 id www | grep -oP [0-9]+); npm run notifications:stop",
