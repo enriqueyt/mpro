@@ -27,7 +27,7 @@ $(document).ready(function () {
           
           if (item.value.length > 0) {
             if(item.getAttribute("type")=="email"){
-              if(!(/^[a-zA-Z0-9]+\@[a-zA-Z0-9]+\.[a-zA-Z0-9-]{0,5}$/ig).exec(item.value)){
+              if(!(/^[a-zA-Z0-9_-]+\@[a-zA-Z0-9]+\.[a-zA-Z0-9-]{0,5}$/ig).exec(item.value)){
                 $(item).after('<p style="color:red;" name="description">Correo invalido</p>');
                 return;
               }
@@ -125,7 +125,7 @@ $(document).ready(function () {
           }
           else if (item.value.length > 0) {
             if(item.getAttribute("type")=="email"){
-              if(!(/^[a-zA-Z0-9]+\@[a-zA-Z0-9]+\.[a-zA-Z0-9-]{0,5}$/ig).exec(item.value)){
+              if(!(/^[a-zA-Z0-9_-]+\@[a-zA-Z0-9]+\.[a-zA-Z0-9-]{0,5}$/ig).exec(item.value)){
                 $(item).after('<p style="color:red;" name="description">Correo invalido</p>');
                 return;
               }
@@ -196,7 +196,7 @@ $(document).ready(function () {
         buttomSelector=type=='company'?'companySearchInput':'branchCompanySearchInput';
         searchImput = $('#'.concat(buttomSelector)).val(),        
         url='/entities/0/1000/'.concat(type, '/', searchImput.length?searchImput:'all');
-        
+
     $.get(url, function(data){
       $('.'.concat(selector, ' tbody')).empty();
       $('.'.concat(selector, ' tbody')).html(data);        
