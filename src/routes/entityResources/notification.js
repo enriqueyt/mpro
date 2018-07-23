@@ -74,7 +74,7 @@ exports.sendNotifications = function (req, res, next) {
               arr.userAssigned['equipment']=arr.equipment;
               arr.userAssigned['serviceDate']=arr.date;
               return arrEmpty.concat(arr.userAssigned);  
-            }, [])
+            }, []);
 
             tempAccountsToNotify=[ ...new Set(tempAccountsToNotify)];
             
