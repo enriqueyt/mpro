@@ -241,7 +241,7 @@ $(document).ready(function () {
             data[control.attr('name')] = control.is(':checked');
           }else{    
             if(item.getAttribute("type")=="email"){
-              if(!(/^[a-zA-Z0-9]+\@[a-zA-Z0-9]+\.[a-zA-Z0-9-]{0,5}$/ig).exec(item.value)){
+              if(!(/^[a-zA-Z0-9_-]+\@[a-zA-Z0-9]+\.[a-zA-Z0-9-]{0,5}$/ig).exec(item.value)){
                 $(item).after('<p style="color:red;" name="requireFieldMessage">Correo invalido</p>');              
               }
             }
