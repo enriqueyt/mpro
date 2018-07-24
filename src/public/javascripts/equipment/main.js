@@ -572,7 +572,7 @@ $(document).ready(function () {
         searchImput = $('#'.concat(type=='equipmentTypes'?'equipmentTypeSearchInput':'equipmentSearchInput')).val(), 
         url='', rows='';
 
-      url='/'.concat(type, '/0/10/', searchImput.length?searchImput:'all');
+      url='/'.concat(type, '/0/1000/', searchImput.length?searchImput:'all');
       
       $.get(url, function(data){
         

@@ -501,7 +501,7 @@ $(document).ready(function () {
         searchImput = $('#'.concat(type=='maintenanceActivities'?'maintenanceActivitySearchInput':'maintenanceActivityAttentionSearchInput')).val(), 
         url='', rows='';
 
-      url='/'.concat(type, '/0/10/', searchImput.length?searchImput:'all');
+      url='/'.concat(type, '/0/1000/', searchImput.length?searchImput:'all');
       
       $.get(url, function(data){
                 

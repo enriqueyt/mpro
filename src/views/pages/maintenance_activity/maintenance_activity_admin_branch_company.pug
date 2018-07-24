@@ -15,8 +15,9 @@ block content-mpro
             #maintenanceActivity.tab-pane.active(role="tabpanel")
               .row.activity-nav-row
                 .col-md-10
-                  .input-group
+                  .input-group.has-clear
                     input.form-control.input-search(type="text", id="maintenanceActivitySearchInput", placeholder="Buscar Actividad")
+                    span.form-control-clear.fa.fa-times.fa-3.hidden
                     a.fa.fa-search.fa-w-16.fa-3x(id="maintenanceActivitySearchButtom", data-type="maintenanceActivities")
                 .col-md-2(style="padding-left:0;")
                   button#manageActivity.btn.btn-primary(type="button", data-toggle="manageActivityModal")
@@ -50,8 +51,9 @@ block content-mpro
             #maintenanceActivityAttention.tab-pane(role="tabpanel")
               .row.activity-nav-row
                 .col-md-10
-                  .input-group
+                  .input-group.has-clear
                     input.form-control.input-search(type="text", id="maintenanceActivityAttentionSearchInput", placeholder="Buscar atención")
+                    span.form-control-clear.fa.fa-times.fa-3.hidden
                     a.fa.fa-search.fa-w-16.fa-3x(id="maintenanceActivityAttentionSearchButtom", data-type="maintenanceActivityAttentions")
                 .col-md-2(style="padding-left:0;")
                   button#manageActivityAttention.btn.btn-primary(type="button", data-toggle="manageActivityModal")
