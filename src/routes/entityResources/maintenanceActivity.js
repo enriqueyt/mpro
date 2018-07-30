@@ -30,7 +30,7 @@ exports.createMaintenanceActivities = function (req, res, next) {
 
           resolve({error: true, message: err.message});
         };
-  
+
         Log.debug({
           parameters: ['MAINTENANCE_ACTIVITY_CREATE_SUCCESS', req.user.name, document.name],
           //text      : 'Success on create! '.concat('User ', req.user.name, ' creates maintenance activity ', document.name),

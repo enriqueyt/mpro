@@ -114,6 +114,8 @@ block content-mpro
                       .col-9
                         select.form-control(id="equipmentType", name="equipmentType", required="true")
                           option Seleccione
+                          each equipmentType in equipmentTypes
+                            option(value=equipmentType._id) #{equipmentType.name}
                     input.form-control(type="hidden", name="company", value=currentAccount.company._id)
                   .col-12(style="text-align:right")
                     button.btn.btn-secondary(type="button", data-dismiss="modal", style="margin-right:1%;") Cerrar
