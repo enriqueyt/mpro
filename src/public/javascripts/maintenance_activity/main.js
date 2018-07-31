@@ -373,17 +373,17 @@ $(document).ready(function () {
         else if (control.prop('tagName').toLowerCase() === 'select') {
           var itemValues = control.find('option:selected');							
 
-          if (itemValues.length > 1) {
+          if (control.attr('name').indexOf('maintenanceActivities') > -1) {
             itemValues = _.reduce(itemValues, function (accumulator, itemValue) {
               accumulator.push($(itemValue).attr('value'));
               return accumulator;
             }, []);
           }
-          else if (itemValues.length === 1) {
+          else {
             itemValues = itemValues.attr('value');
           }
 
-          if (itemValues !== undefined && itemValues.length > 1) {
+          if (typeof itemValues !== 'undefined' && itemValues.length > 0) {
             complementaryInfo[control.attr('name')] = itemValues;
           }
           else {

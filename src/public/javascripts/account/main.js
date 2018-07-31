@@ -180,7 +180,7 @@ $(document).ready(function () {
     var roleControl = $(form).find('#role');
     var branchCompanyControl = $(form).find('#branchCompany');
 
-    if (typeof roleControl !== 'undefined' && typeof branchCompanyControl !== 'undefined') {
+    if (typeof roleControl !== 'undefined' && $(branchCompanyControl).val() === 'Seleccione') {
       if ((/adminBranchCompany|technician/).test($(roleControl).val()) === true) {
         $(branchCompanyControl).after('<p style="color:red;" name="requireFieldMessage">Campo requerido</p>');
       }
