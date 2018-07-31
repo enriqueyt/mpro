@@ -50,7 +50,7 @@ exports.createAccount = function (req, res, next) {
           user      : req.user._id,
           model     : JSON.stringify(document)
         });
-        console.log("email send")
+        
         var emailContent={
           to: account.username,
           subject: AppMessageProvider.getMessage('ACCOUNT_CREATION_EMAIL_SUBJECT'),
@@ -63,7 +63,7 @@ exports.createAccount = function (req, res, next) {
               'http://138.68.246.213:3000'
             ])
         }
-        console.log(emailContent)
+        
         EmailService.send(emailContent);
 
         resolve({error: false, data: document});
@@ -94,16 +94,22 @@ exports.getAccounts = function (req, res, next) {
   //if (!req.user || !req.user.username) {
   //  res.status(401).send({error: true, message: 'No user found'});
   //}
+  console.log(req.user)
   var page = parseInt(req.params.page) || 0;
   var quantity = parseInt(req.params.quantity) || 0;
   var query = {role: {$nin:['admin']}};
   var projection = {username: 0, password: 0};
+
+  if(req.user.role=='adminBranchCompany'){
+    query['company'] = Mongoose.Types.ObjectId(req.user.company._id);
+  }
   
   if (typeof req.params.search !== 'undefined' && req.params.search != 'all') {
     var searchPattern = req.params.search;
+    //query['$or']=[{name: new RegExp(searchPattern, 'i')}, {'company.name': searchPattern}, {role: searchPattern}];
     query = {$or: [{name: new RegExp(searchPattern, 'i')}, {'company.name': searchPattern}, {role: searchPattern}]};
   }
-
+  console.log(query)
   mongoAccount
   .find(query, projection)
   .populate({

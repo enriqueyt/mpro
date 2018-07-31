@@ -75,7 +75,7 @@ router.get('/adminBranchCompany', SessionHandle.isLogged, function (req, res, ne
 
   var onFetchActivities = function (user) {
     var promise = new Promise(function (resolve, reject) {
-      Log.getLogs(10,0).onFetchByRole(user)
+      Log.getLogs(1000,0).onFetchByRole(user)
       .then(function (data) {
         resolve({user: user, activities: data});
       })

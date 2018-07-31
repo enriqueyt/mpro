@@ -305,7 +305,7 @@ $(document).ready(function () {
   $('#userSearchButtom').click(function(e){
     e.preventDefault();
     var searchImput = $('#userSearchInput').val(), url='', rows='';        
-      url='/accounts/0-100/'.concat(searchImput.length?searchImput:'all');
+      url='/accounts/0-1000/'.concat(searchImput.length?searchImput:'all');
       $.get(url, function(data){        
         $('.table tbody').empty();
         $('.table tbody').html(data);        

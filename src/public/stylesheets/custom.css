@@ -524,3 +524,15 @@ body .notifyjs-wrapper{
 	font-size: 14px;
 	color: #ccc
 }
+
+.form-control-clear {
+	z-index: 10;
+    cursor: pointer;
+    position: relative;
+    right: 2%;
+    top: 25px;
+  }
+
+  .hidden{
+	  display:none;
+  }

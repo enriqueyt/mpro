@@ -23,7 +23,6 @@
     "postbuild": "node scripts/restore-pkg"
   },
   "dependencies": {
-    "@sendgrid/mail": "^6.2.1",
     "bcrypt-nodejs": "0.0.3",
     "body-parser": "~1.17.1",
     "cookie-parser": "~1.4.3",
