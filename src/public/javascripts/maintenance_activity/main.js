@@ -498,13 +498,33 @@ $(document).ready(function () {
     e.preventDefault();
     var type= $(this).attr('data-type'), 
         selector=type=='maintenanceActivities'?'table-maintenanceActivity':'table-maintenanceActivityAttention', 
-        searchImput = $('#'.concat(type=='maintenanceActivities'?'maintenanceActivitySearchInput':'maintenanceActivityAttentionSearchInput')).val(), 
+        searchImput = $('#'.concat(type=='maintenanceActivities'?'maintenanceActivitySearchInput':'maintenanceActivityAttentionSearchInput')).val(),
         url='', rows='';
 
       url='/'.concat(type, '/0/1000/', searchImput.length?searchImput:'all');
+
+      $.ajaxSetup({
+        headers: { 'Token': 'Basic '.concat(btoa($(this).attr('data-content'))) }
+    });
+
+      var request = $.ajax({
+        url: url,
+        method: 'GET',
+        headers: {'Token': 'Basic '.concat(btoa($(this).attr('data-content')))}        
+      });
+       
+      request.done(function (data) {
+        var element = $('.'.concat(selector)).find('tbody')
+        element.empty();
+        element.html(data);
+        return false;
+      });
+       
+      request.fail(function(j, error) {
+        console.log("Fail on update: " + error);
+      });
       
-      $.get(url, function(data){
-                
+      /*$.get(url, function(data){ 
         if(!data.error){
 
           if(type=='maintenanceActivities'){
@@ -531,7 +551,7 @@ $(document).ready(function () {
           $('.'.concat(selector, ' tbody')).empty();
           $('.'.concat(selector, ' tbody')).html(rows);
         }
-      });
+      });*/
 
   });
 
