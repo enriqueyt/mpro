@@ -177,6 +177,15 @@ $(document).ready(function () {
       }
     });
 
+    var roleControl = $(form).find('#role');
+    var branchCompanyControl = $(form).find('#branchCompany');
+
+    if (typeof roleControl !== 'undefined' && $(branchCompanyControl).val() === 'Seleccione') {
+      if ((/adminBranchCompany|technician/).test($(roleControl).val()) === true) {
+        $(branchCompanyControl).after('<p style="color:red;" name="requireFieldMessage">Campo requerido</p>');
+      }
+    }
+
     if (!$(form).find('[name="requireFieldMessage"]').length > 0) {
       var action = $($(this).parents('form')).attr('action');
       data.image=avatarImg;

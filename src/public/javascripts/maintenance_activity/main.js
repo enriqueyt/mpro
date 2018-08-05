@@ -373,17 +373,17 @@ $(document).ready(function () {
         else if (control.prop('tagName').toLowerCase() === 'select') {
           var itemValues = control.find('option:selected');							
 
-          if (itemValues.length > 1) {
+          if (control.attr('name').indexOf('maintenanceActivities') > -1) {
             itemValues = _.reduce(itemValues, function (accumulator, itemValue) {
               accumulator.push($(itemValue).attr('value'));
               return accumulator;
             }, []);
           }
-          else if (itemValues.length === 1) {
+          else {
             itemValues = itemValues.attr('value');
           }
 
-          if (itemValues !== undefined && itemValues.length > 1) {
+          if (typeof itemValues !== 'undefined' && itemValues.length > 0) {
             complementaryInfo[control.attr('name')] = itemValues;
           }
           else {
@@ -523,35 +523,6 @@ $(document).ready(function () {
       request.fail(function(j, error) {
         console.log("Fail on update: " + error);
       });
-      
-      /*$.get(url, function(data){ 
-        if(!data.error){
-
-          if(type=='maintenanceActivities'){
-            _.each(data.data, function(value, key){
-              rows=rows.concat(
-                '<tr><td>',key+1, '</td>',
-                '<td>', value.name, '</td>',
-                '<td>', value.company.name, '</td>',
-                '<td>', value.equipmentType.name, '</td>',
-                '<td>', value.status ? 'Activo': 'Inactivo', '</td>',
-                '<td><a class="btn default btn-xs blue-stripe searchMaintenanceActivity" data-id="',value._id,'">Editar</a></td>',
-                '<td><i class="fa fa-trash deleteMaintenanceActivity" data-id="',value._id,'" aria-hidden="true"></i></td></tr>')
-            });
-          }else{
-            _.each(data.data, function(value, key){
-              rows=rows.concat(
-                '<tr><td>',key+1, '</td>',
-                '<td>', value.maintenanceActivity.name, '</td>',
-                '<td>', value.equipment.name, '</td>',
-                '<td>', value.ckecked ? 'Activo': 'Inactivo', '</td>',
-                '<td>', moment(value.date.toString()).format("DD/MM/YY"), '</td>')
-            });
-          }
-          $('.'.concat(selector, ' tbody')).empty();
-          $('.'.concat(selector, ' tbody')).html(rows);
-        }
-      });*/
 
   });
 
