@@ -425,7 +425,7 @@ exports.getMaintenanceActivityAttention = function (req, res, next) {
       if(data[0].role=='admin')
         query={};
       else
-        query = {company: data[0].company.company._id != undefined ? data[0].company.company._id : data[0].company._id};
+        query = {company: data[0].company.company != undefined ? data[0].company.company._id : data[0].company._id};
       if (typeof req.params.search !== 'undefined' && req.params.search != 'all') {
         var searchPattern = req.params.search;
       }

@@ -525,5 +525,4 @@ $(document).ready(function () {
       });
 
   });
-
 });

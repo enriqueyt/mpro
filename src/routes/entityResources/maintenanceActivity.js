@@ -200,10 +200,12 @@ exports.getMaintenanceActivities = function (req, res, next){
   var onFetchMaintenanceActivities = function (data) {
     var promise = new Promise(function (resolve, reject) {
       var query, expression;
-      if(data[0].role=='admin')
+      if(data[0].role=='admin'){
         query={};
-      else
-        query = {company: data[0].company.company._id != undefined ? data[0].company.company._id : data[0].company._id};
+      }
+      else{
+        query = {company: data[0].company.company != undefined ? data[0].company.company._id : data[0].company._id};
+      }
       if (typeof req.params.search !== 'undefined' && req.params.search != 'all') {
         var searchPattern = req.params.search;
       }

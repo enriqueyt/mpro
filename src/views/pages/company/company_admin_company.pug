@@ -17,8 +17,9 @@ block content-mpro
             #branchCompany.tab-pane.active(role="tabpanel")
               .row.company-nav-row.nav-row-padding
                 .col-md-10
-                  .input-group
+                  .input-group.has-clear
                     input.form-control.input-search(type="text", id="branchCompanySearchInput", placeholder="Buscar Sucursal")
+                    span.form-control-clear.fa.fa-times.fa-3.hidden
                     a.fa.fa-search.fa-w-16.fa-3x(id="entityBranchSearchButtom", data-type="branchCompany")
                 .col-md-2(style="padding-left:0;")
                   button#addBranchCompany.btn.btn-primary.button-search(type="button", data-toggle="addBranchCompanyModal")

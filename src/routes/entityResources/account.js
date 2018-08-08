@@ -127,10 +127,11 @@ exports.getAccounts = function (req, res, next) {
   .then(function (accounts) {
     var result = [], obj = {};
     _.each(accounts, function(val, key){
-      obj = Object.assign({}, val);
+      obj = val;
       obj.date=Utils.formatDate(val.date.toString(), "DD/MM/YY");      
       result.push(obj);
     });
+    console.log(result)
     res.render('partials/accounts-table-body', {
       error:false,
       data: result
