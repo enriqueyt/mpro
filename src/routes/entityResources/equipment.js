@@ -228,6 +228,10 @@ exports.updateMaintenanceActivityDate = function (req, res, next) {
     setValues['finishedDate'] = Date.now();
   }
 
+  if (typeof req.body.comment !== 'undefined') {
+    setValues['comment'] = req.body.comment;
+  }
+
   var transformValues = function (values) {
     var newValues = Functional.reduce(
       Object.keys(values), 

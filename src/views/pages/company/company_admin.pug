@@ -22,7 +22,7 @@ block content-mpro
                 .col-md-2(style="padding-left:0;")
                   button#addComapny.btn.btn-primary.button-search(type="button", data-toggle="addCompanyModal")
                       i.fa.fa-plus.noWrap
-                        | Agregar Empresa
+                        | Agregar
               .row.activity-nav-row.no-padding
                 .col-md-12
                   table.table.table-header.table-entity
@@ -59,7 +59,7 @@ block content-mpro
                 .col-md-2(style="padding-left:0;")
                   button#addBranchCompany.btn.btn-primary.button-search(type="button", data-toggle="addBranchCompanyModal")
                       i.fa.fa-plus 
-                        | Agregar Sucursal
+                        | Agregar
               .row.company-nav-row.no-padding 
                 .col-md-12
                   table.table.table-header.table-branchEntity
@@ -92,7 +92,7 @@ block content-mpro
     .modal-dialog(role="document")
       .modal-content
         .modal-header.bg-primary.text-white
-          h4.modal-title.font-weight-bold Agregar Empresa
+          h4.modal-title.font-weight-bold Agregar
           button.close.fa.fa-close(type="button", style="color:white; opacity:1; text-shadow:1px 1px 1px #ccc; text-indent:0" data-dismiss="modal", aria-label="Close")
         .modal-body
           form(role="form", id="addComapnyForm", name="addComapnyForm", action="/entities", method="post")
@@ -120,7 +120,7 @@ block content-mpro
     .modal-dialog(role="document")
       .modal-content
         .modal-header.bg-primary.text-white
-          h4.modal-title.font-weight-bold Agregar Sucursal
+          h4.modal-title.font-weight-bold Agregar
           button.close.fa.fa-close(type="button", style="color:white; opacity:1; text-shadow:1px 1px 1px #ccc; text-indent:0" data-dismiss="modal", aria-label="Close")
         .modal-body
           form(role="form", id="addBranchCompanyForm", name="addBranchCompanyForm", action="/entities", method="post")
