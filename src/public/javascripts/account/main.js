@@ -197,7 +197,7 @@ $(document).ready(function () {
       });
        
       request.done(function (response) {
-        
+
         if (!response.error) {
           var obj = response.data;   
           
@@ -222,8 +222,8 @@ $(document).ready(function () {
         return false;
       });
        
-      request.fail(function(j, error) {
-        console.log("Fail on update: " + error);
+      request.fail(function(error) {        
+        $(form).find('.form-group:eq(0)').before('<p style="color:red;" name="requireFieldMessage">'.concat(error.responseText,'</p>'));        
       });
     }
 

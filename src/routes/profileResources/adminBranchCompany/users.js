@@ -83,7 +83,7 @@ exports.getUsersViewData = function (req, res, next) {
     var roleEnumValues = mongoAccount.getRoleValues();
     var roles = [];
     Functional.each(roleEnumValues,function(v,k){      
-      if(v.id!=='admin'&&v.id!=='adminCompany'&&v.id!=='adminBranchCompany') roles.push(v);
+      if(v.id!=='admin'&&v.id!=='adminCompany') roles.push(v);
     });
 
     var tempUser = req.user || {};

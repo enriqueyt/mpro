@@ -25,16 +25,16 @@ $(document).ready(function () {
       if (item.getAttribute('class') === 'form-control' || item.type === 'hidden') {
         if (item.tagName.toLowerCase() === 'input' || item.tagName.toLowerCase() === 'textarea') {
           
-          if (item.value.length > 0) {
+          if (item.value.length  || item.getAttribute('no-required')!=null) {            
             if(item.getAttribute("type")=="email"){
-              if(!(/^[a-zA-Z0-9_-]+\@[a-zA-Z0-9]+\.[a-zA-Z0-9-]{0,5}$/ig).exec(item.value)){
+              if(!(/^[a-zA-Z0-9_-]+\@[a-zA-Z0-9]+\.[a-zA-Z0-9-]{0,5}$/ig).exec(item.value)&&item.length){
                 $(item).after('<p style="color:red;" name="description">Correo invalido</p>');
                 return;
               }
             }
-            if(item.getAttribute("type")=="phone"){              
-              if(!(/^[0-9]+$/ig).exec(item.value)){
-                $(item).after('<p style="color:red;" name="description">Cmapo debe ser numérico</p>');
+            if(item.getAttribute("type")=="phone"){
+              if(!(/^[0-9]+$/ig).exec(item.value)&&item.length>0){
+                $(item).after('<p style="color:red;" name="description">Campo debe ser numérico</p>');
                 return;
               }
             }
@@ -58,7 +58,7 @@ $(document).ready(function () {
       }
     });
 
-    if (!$(form).find('[name="description"]').length > 0) {					
+    if (!$(form).find('[name="description"]').length > 0) {
       var action = $($(this).parents('form')).attr('action');
 
       $.post(action, data, function (response) {						
@@ -123,7 +123,7 @@ $(document).ready(function () {
           if (item.getAttribute('type') === 'checkbox') {            
             data[item.name] = $(item).prop('checked');
           }
-          else if (item.value.length > 0) {
+          else if (item.value.length > 0&&!item.getAttribute('no-required')) {
             if(item.getAttribute("type")=="email"){
               if(!(/^[a-zA-Z0-9_-]+\@[a-zA-Z0-9]+\.[a-zA-Z0-9-]{0,5}$/ig).exec(item.value)){
                 $(item).after('<p style="color:red;" name="description">Correo invalido</p>');
@@ -132,7 +132,7 @@ $(document).ready(function () {
             }
             if(item.getAttribute("type")=="phone"){              
               if(!(/^[0-9]+$/ig).exec(item.value)){
-                $(item).after('<p style="color:red;" name="description">Cmapo debe ser numérico</p>');
+                $(item).after('<p style="color:red;" name="description">Campo debe ser numérico</p>');
                 return;
               }
             }

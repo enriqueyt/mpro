@@ -8,7 +8,7 @@ body{
 	/*https://developer.mozilla.org/es/docs/Web/CSS/hyphens*/
 	hyphens: auto;
 	letter-spacing: 0em;
-	font-size: large;
+	font-size: medium;
 }
 
 a{
@@ -58,7 +58,7 @@ li{
 
 select.form-control{
 	background: transparent;
-	height: 70px!important;
+	height: 50px!important;
 	color:rgb(209,209,209);
 	appearance:none;
 	font-weight: bold;
@@ -111,7 +111,7 @@ ul{
 }
 
 input{
-	height: 70px;
+	height: 50px;
 }
 
 .dropdown{
@@ -312,7 +312,7 @@ input{
 	cursor:pointer; 
 	background-color:rgb(0,155,219);
 	white-space: nowrap;
-	height: 70px;
+	height: 40px;
  }
 
  .button-search i{
@@ -323,7 +323,7 @@ input{
 	cursor:pointer; 
 	background-color:rgb(0,155,219);
 	white-space: nowrap;
-	height: 70px;
+	height: 40px;
  }
 
  .btn-primary i{
@@ -530,7 +530,7 @@ body .notifyjs-wrapper{
     cursor: pointer;
     position: relative;
     right: 2%;
-    top: 25px;
+    top: 17px;
   }
 
   .hidden{
