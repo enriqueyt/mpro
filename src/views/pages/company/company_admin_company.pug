@@ -24,7 +24,7 @@ block content-mpro
                 .col-md-2(style="padding-left:0;")
                   button#addBranchCompany.btn.btn-primary.button-search(type="button", data-toggle="addBranchCompanyModal")
                       i.fa.fa-plus.noWrap
-                        | Agregar Sucursal
+                        | Agregar
               .row.company-nav-row.no-padding
                 .col-md-12
                   table.table.table-header.table-branchEntity
@@ -57,7 +57,7 @@ block content-mpro
     .modal-dialog(role="document")
       .modal-content
         .modal-header.bg-primary.text-white
-          h4.modal-title Agregar Sucursal
+          h4.modal-title Agregar
           button.close.fa.fa-close(type="button", style="color:white; opacity:1; text-shadow:1px 1px 1px #ccc; text-indent:0" data-dismiss="modal", aria-label="Close")
         .modal-body
           form(role="form", id="addBranchCompanyForm", name="addBranchCompanyForm", action="/entities", method="post")
