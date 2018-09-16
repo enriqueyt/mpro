@@ -28,7 +28,7 @@ block content-mpro
                 .col-md-2
                   button#addEquipment.btn.btn-primary.button-search(type="button", data-toggle="addEquipmentModal")
                     i.fa.fa-plus 
-                      | Agregar Equipo
+                      | Agregar
               .row.equipment-nav-row
                 .col-md-12.no-padding
                   table.table.table-header.table-equipment
@@ -58,7 +58,7 @@ block content-mpro
     .modal-dialog(role="document")
       .modal-content
         .modal-header.bg-primary.text-white
-          h4.modal-title.font-weight-bold Agregar Equipo
+          h4.modal-title.font-weight-bold Agregar
           button.close.fa.fa-close(type="button", style="color:white; opacity:1; text-shadow:1px 1px 1px #ccc; text-indent:0" data-dismiss="modal", aria-label="Close")
         .modal-body
           form(role="form", id="addEquipmentForm", name="addEquipmentForm", action="/equipments", method="post")            
