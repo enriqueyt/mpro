@@ -5,16 +5,21 @@ block content-mpro
   .container-fluid
     .row
       .col-md-12
-        .row.manageActivity-nav-row.nav-row-padding
-          .col-md-10
+        .row.information-company
+          .col-md-12
+            h4(style="display:inline-block") <b>#{currentAccount.company.company.name}</b>
+            span  : 
+            h4(style="display:inline-block") <b>#{currentAccount.company.name}</b>
+        .row.activity-nav-row.nav-row-padding.searchBar
+          .col-md-11
             .input-group.has-clear
-              input.form-control.input-search(type="text", id="maintenanceActivityAttentionSearchInput", placeholder="Busar atención")
+              input.form-control.input-search.search-box(type="text", id="maintenanceActivityAttentionSearchInput", placeholder="Busar atención")
               span.form-control-clear.fa.fa-times.fa-3.hidden
-              a.fa.fa-search.fa-w-16.fa-3x(id="maintenanceActivityAttentionSearchButtom", data-type="maintenanceActivityAttentions", data-content=user.session_id)
-          .col-md-2(style="padding-left:0;")
+              a.fa.fa-search.fa-w-16.fa-3x(id="maintenanceActivityAttentionSearchButton", data-type="maintenanceActivityAttentions", data-content=user.session_id)
+          .col-md-1(style="padding-left:0;")
             button#manageActivityAttention.btn.btn-primary(type="button", data-toggle="manageActivityModal")
-                i.fa.fa-plus.noWrap
-                  | Agregar
+              i.fa.fa-plus.noWrap
+                |  Agregar
         .row
           .col-md-12.no-padding
             table.table.table-header.table-maintenanceActivityAttention

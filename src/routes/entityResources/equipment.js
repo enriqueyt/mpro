@@ -110,8 +110,9 @@ exports.getEquipment = function (req, res, next) {
 
   var query = {_id: req.params.equipment};
 
-  mongoEquipment.findOne(query).populate('company').exec()
+  mongoEquipment.findOne(query).populate('branchCompany').exec()
   .then(function (equipment) {
+    console.log(JSON.stringify(equipment))
     res.status(200).send({error: false, data: equipment});
   })
   .catch(function (err) {
@@ -173,6 +174,14 @@ exports.updateEquipment = function (req, res, next) {
 
   if (typeof req.body.equipmentType !== 'undefined') {
     setValues['equipmentType'] = req.body.equipmentType;
+  }
+
+  if (typeof req.body.status !== 'undefined') {
+    setValues['status'] = req.body.status;
+  }
+
+  if (typeof req.body.deleted !== 'undefined') {
+    setValues['deleted'] = req.body.deleted;
   }
 
   if (typeof req.body.account !== 'undefined') {

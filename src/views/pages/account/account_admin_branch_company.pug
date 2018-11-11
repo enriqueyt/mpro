@@ -7,21 +7,20 @@ block content-mpro
       .col-md-12
         .row.information-company
           .col-md-12
-            span Empresa a la que colabora 
             h4(style="display:inline-block") <b>#{currentAccount.company.company.name}</b>
-            span  Sucursal 
+            span  : 
             h4(style="display:inline-block") <b>#{currentAccount.company.name}</b>
-        .row.user-nav-row.nav-row-padding
-          .col-md-10
+        .row.account-nav-row.nav-row-padding.searchBar
+          .col-md-11
             .input-group.has-clear
-              input.form-control(type="text", id="userSearchInput", placeholder="Buscar usuario")
+              input.form-control.input-search.search-box(type="text", id="userSearchInput", placeholder="Buscar usuario")
               span.form-control-clear.fa.fa-times.fa-3.hidden
-              a.fa.fa-search.fa-w-16.fa-3x(id="userSearchButtom")
-          .col-md-2(style="padding-left:0;")
-              button#addAccount.btn.btn-primary.button-search(type="button", data-toggle="addAccountModal")
-                  i.fa.fa-plus 
-                    | Agregar
-        .row.user-nav-row.no-padding
+              a.fa.fa-search.fa-w-16.fa-3x(id="userSearchButton")
+          .col-md-1(style="padding-left:0;")
+            button#addAccount.btn.btn-primary.button-search(type="button", data-toggle="addAccountModal")
+              i.fa.fa-plus.noWrap
+                |  Agregar
+        .row.account-nav-row.no-padding
           .col-md-12
             table.table.table-header
               thead

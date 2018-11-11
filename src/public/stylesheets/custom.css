@@ -110,11 +110,7 @@ ul{
 	background-color: white;
 }
 
-input{
-	height: 30px;
-}
-
-.dropdown{
+.dropdown {
 	position: relative;
 }
 
@@ -226,10 +222,6 @@ input{
 	  text-transform: uppercase;
   }
 
-  .activity-nav-row{
-	padding: 1% 1.5%;
-  }
-
   .vertical-middle{
 	vertical-align: middle;
   }
@@ -265,26 +257,30 @@ input{
 	  white-space: nowrap;
   }
 
-  .avatar {
-	margin: 0em 0.1em 0.9em 0.8em;
-	width: 4%;
-	position: relative;
-	-webkit-border-radius: 50%;
-	-moz-border-radius: 50%;
-	border-radius: 50%;
-	-webkit-box-shadow: 0 0 0 3px #fff, 0 0 0 3px #999, 0 1px 2px 1px rgba(0,0,0,.2);
-	-moz-box-shadow: 0 0 0 3px #fff, 0 0 0 3px #999, 0 1px 2px 1px rgba(0,0,0,.2);
-	box-shadow: 0 0 0 3px #fff, 0 0 0 3px #999, 0 1px 2px 1px rgba(0,0,0,.2);
-  }
+.avatar {
+  margin: 0em 0.1em 0.9em 0.8em;
+  width: 4%;
+  position: relative;
+  -webkit-border-radius: 50%;
+  -moz-border-radius: 50%;
+  border-radius: 50%;
+  -webkit-box-shadow: 0 0 0 3px #fff, 0 0 0 3px #999, 0 1px 2px 1px rgba(0,0,0,.2);
+  -moz-box-shadow: 0 0 0 3px #fff, 0 0 0 3px #999, 0 1px 2px 1px rgba(0,0,0,.2);
+  box-shadow: 0 0 0 3px #fff, 0 0 0 3px #999, 0 1px 2px 1px rgba(0,0,0,.2);
+}
 
-  .input-search::placeholder{
+.input-search {
+	height: 40px;
+}
+
+.input-search::placeholder {
 	text-align: center;
-  }
+}
 
-  .fa-search{
-	  color:#eaeaea!important;
-	  padding-left: 0.5%;
-  }
+.searchBar .fa-search {
+	color:#eaeaea!important;
+	padding-left: 0.5%;
+}
   
  ::placeholder{
 	text-transform: uppercase !important;	
@@ -373,44 +369,48 @@ input{
 	text-align: center;
 }
 
-.noWrap{
-	white-space:nowrap;
+.noWrap {
+  white-space: nowrap;
 }
 
-.modal-header{
-	background-color: rgb(51,51,53)!important;	
+.modal-header {
+  background-color: rgb(51,51,53)!important;	
 }
 
-.modal-title{
-	margin:0 auto;
-	color:rgb(158,156,159);
+.modal-title {
+  margin:0 auto;
+  color:rgb(158,156,159);
 }
 
 button.close{
-	display:none;
+  display:none;
 }
 
-.modal-body .col-form-label{
-	vertical-align: middle;
-	padding-top: 5%;
-	color:rgb(196,196,196);
-	font-size: small;
-	font-weight: bold;
-	text-transform: uppercase;
+.modal-body .col-form-label {
+  vertical-align: middle;
+  padding-top: 5%;
+  color:rgb(196,196,196);
+  font-size: small;
+  font-weight: bold;
+  text-transform: uppercase;
 }
 
-.modal-body button{
-	width: 45%;
-	height: 50px;
-	color:white;
-	text-transform:uppercase;
+.modal-body button {
+  width: 45%;
+  height: 40px;
+  color:white;
+  text-transform:uppercase;
+}
+
+.modal-body input {
+  height: 50px;
 }
 
 .modal-body button.btn-secondary{
 	background-color: rgb(121,121,121);
 }
 
-.modal-body  .col-12{
+.modal-body .col-12{
 	text-align: center!important;
 }
 

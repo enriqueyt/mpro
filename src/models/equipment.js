@@ -46,6 +46,14 @@ var equipment = new Schema(
         finishedDate: Date
       }
     ],
+    status: {
+      type: Boolean,
+      default: true
+    },
+    deleted: {
+      type: Boolean,
+      default: false
+    },
     date: {
       type: Date,
       default: Date.now
