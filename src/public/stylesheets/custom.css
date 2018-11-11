@@ -285,7 +285,7 @@ ul{
  ::placeholder{
 	text-transform: uppercase !important;	
 	color:#CFCFCF !important;
-	font-size: medium;
+	font-size: small;
 	font-weight: bold;
  }
 
@@ -408,6 +408,7 @@ button.close{
 
 .modal-body button.btn-secondary{
 	background-color: rgb(121,121,121);
+	height: 40px!important;
 }
 
 .modal-body .col-12{
@@ -423,11 +424,11 @@ ul.modal-nav{
 }
 
 .modal-nav .nav-item {
-	white-space: nowrap;	
+	white-space: nowrap!important;	
 }
 
 .nav-item, table th, table tbody td a {
-	white-space: nowrap;	
+	white-space: nowrap!important;	
 }
 
 .modal-nav a{
