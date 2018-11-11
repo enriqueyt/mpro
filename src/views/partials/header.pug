@@ -33,15 +33,11 @@
       $("li.top-nav-item").click(function () {
         var action = $(this).find("a.nav-item").attr("href");
         document.location.href = action;
-
-        return false;
       });
 
       $(".page-nav li.nav-item").click(function (e) {
         $($(this).parent().get(0)).find(".nav-item-active").removeClass("nav-item-active");
         $(this).find("a").addClass("nav-item-active");
-
-        return false;
       });
 
       if (/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|ipad|iris|kindle|Android|Silk|lge |maemo|midp|mmp|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i.test(navigator.userAgent) 
@@ -53,16 +49,10 @@
         var $this = $(this);
         var visible = Boolean($this.val());
         $this.siblings('.form-control-clear').toggleClass('hidden', !visible);
-
-        return false;
       }).trigger('propertychange');
       
       $('.form-control-clear').click(function () {
         $(this).siblings('input[type="text"]').val('').trigger('propertychange').focus();
         $(this).siblings('.fa-search').trigger('click');
-
-        return false;
       });
-
-      return false;
     });

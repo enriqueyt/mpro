@@ -374,14 +374,6 @@ function searchMaintenanceActivityAttention(identifier) {
 }
 
 $(document).ready(function () {
-  $('#tabEquipmentType a').click(function (e) {
-    e.preventDefault();
-    
-    $(this).tab('show');
-
-    return false;
-  });
-
   $('#addEquipmentType').click(function (e) {
     $('#addEquipmentTypeModal').modal('show');
 

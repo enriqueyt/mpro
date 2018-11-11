@@ -1,12 +1,4 @@
 $(document).ready(function () {
-  $('#tabCompany a').click(function (e) {
-    e.preventDefault();
-    
-    $(this).tab('show');
-
-    return false;
-  });
-
   $('#addComapny').click(function (e) {
     $('#addCompanyModal').modal('show');
 
