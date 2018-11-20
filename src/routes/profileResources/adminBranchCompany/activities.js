@@ -148,8 +148,6 @@ exports.getActivitiesViewData = function (req, res, next) {
           return maintenanceActivityAttention;
         });
 
-        data.push(maintenanceActivityAttentions);
-
         resolve(data);
       })
       .catch(function (err) {

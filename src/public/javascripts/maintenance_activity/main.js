@@ -82,6 +82,11 @@ function searchMaintenanceActivity(identifier) {
   return false;
 }
 
+function showMaintenanceActivityAttention(identifier){
+  $('#detailsActivityModal').modal('show');
+  $('#detailsActivityModal').find('.modal-body').html($('#'+identifier).html());
+}
+
 function updateMaintenanceActivity(action, data, onSuccess, onFailure) {
   $.ajax({
     url: action,

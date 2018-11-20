@@ -50,6 +50,7 @@ exports.getActivitiesViewData = function (req, res, next) {
 
     mongoMaintenanceActivityAttention.find(query).populate('maintenanceActivity').populate('equipment').lean().exec()
     .then(function (maintenanceActivityAttentions) {
+
       var maintenanceActivityAttentions = Functional.map(maintenanceActivityAttentions, function (maintenanceActivityAttention) {
         maintenanceActivityAttention.date = Utils.formatDate(maintenanceActivityAttention.date.toString(), DATE_FORMAT);
         
