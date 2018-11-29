@@ -1,0 +1,82 @@
+extends ../../layout
+block content-mpro
+  - var tabEquipmentsActive = "top-nav-item-active"
+  include ../../partials/header.pug
+  .container-fluid
+    .row
+      .col-md-12
+        .row.information-company
+          .col-md-12
+            h4(style="display:inline-block") <b>#{currentAccount.company.company.name}</b>
+            span  : 
+            h4(style="display:inline-block") <b>#{currentAccount.company.name}</b>
+        .row.equipment-nav-row.container-fluid
+          ul.page-nav(role="tablist", id="tabEquipment")
+            li.nav-item
+              a.nav-link.nav-item-active(data-toggle="tab", href="#equipment", role="tab", aria-controls="equipment") Equipos
+          .tab-content(style="width:100%")
+            #equipment.tab-pane.active(role="tabpanel")
+              .row.equipment-nav-row.nav-row-padding.searchBar
+                .col-md-12
+                  .input-group.has-clear
+                    input.form-control.input-search.search-box(type="text", id="equipmentSearchInput", placeholder="Buscar equipo")
+                    span.form-control-clear.fa.fa-times.fa-3.hidden
+                    a.fa.fa-search.fa-w-16.fa-3x(id="equipmentSearchButton", data-type="equipments")  
+              .row.equipment-nav-row.no-padding
+                .col-md-12
+                  table.table.table-header.table-equipment
+                    thead
+                      th #
+                      th Nombre
+                      th Código
+                      th Ubicación
+                      th Tipo
+                      th
+                      th
+                      th
+                    tbody
+                      each equipment, i in equipments
+                        tr
+                          td=i + 1
+                          td=equipment.name
+                          td=equipment.code
+                          td=equipment.location
+                          td=equipment.equipmentType.name
+                          td
+                            a.btn.default.btn-xs.blue-stripe(href="/home/equipments/" + equipment._id)
+                              i.fa.fa-search(aria-search="true")
+                          td
+                            a.btn.default.btn-xs.blue-stripe(onclick="searchNextMaintenanceActivityAttention('" + equipment._id + "')")
+                              i.fa.fa-calendar-check-o(aria-search="true")
+                          td
+                            i.fa.fa-trash(aria-hidden="true")
+  
+  #maintenanceActivityAttentionModal.modal.fade(role="dialog")
+    .modal-dialog(role="document")
+      .modal-content
+        .modal-header.bg-primary.text-white
+          h4.modal-title.font-weight-bold Atención de Equipo 
+            nbsp
+            span#date
+          button.close.fa.fa-close(type="button", style="color:white; opacity:1; text-shadow:1px 1px 1px #ccc; text-indent:0" data-dismiss="modal", aria-label="Close")
+        .modal-body
+          form(role="form", id="maintenanceActivityAttentionGroup", name="maintenanceActivityAttentionGroup", action="/equipments/maintenanceActivityDates", method="put")
+            .form-group.row
+              .col-md-6(style="text-align:left")
+                h4.font-weight-bold Estado: 
+                  nbsp
+                  span(style="display:none;", id="toAttend") Por Atender
+                  span(style="display:none;", id="notStarted") No Iniciado
+                  span(style="display:none;", id="inProgress") En Progreso
+                  span(style="display:none;", id="finished") Finalizado
+              .col-md-6(style="text-align:right")
+                input.form-control(type="hidden", id="maintenanceActivityDate", name="maintenanceActivityDate")
+                button#startAttentionSubmit.btn.btn-primary(type="submit", style="display:none; cursor:pointer; background-color:rgb(0,155,219)") Iniciar
+                button#finishAttentionSubmit.btn.btn-primary(type="submit", style="display:none; cursor:pointer; background-color:rgb(0,155,219)") Finalizar
+          form(role="form", id="maintenanceActivityAttention", name="maintenanceActivityAttention", action="/maintenanceActivityAttentions", method="put")
+            .row
+              .col-12(style="text-align:right")
+                button.btn.btn-secondary(type="button", data-dismiss="modal", style="margin-right:1%;") Cerrar
+                button#maintenanceActivityAttentionSubmit.btn.btn-primary(type="submit", style="display:none;") Guardar
+  script(src='../../javascripts/equipment/main.js')
+    

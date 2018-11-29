@@ -1,0 +1,42 @@
+version: '3.2'
+services:
+  mprodb:
+    image: mongo
+    volumes:
+      - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d    
+    container_name: mprodb
+    hostname: mpro
+    networks:
+      - mpronet
+    ports:
+      - 27017:27017 # Port used by mongodb to conecctions from clients.
+  mproapp:
+    image: mpro/mpro-app:latest
+    container_name: mpro
+    hostname: mpro
+    networks:
+      - mpronet
+    environment:
+      - COMMAND=start
+      - DB_HOST=mprodb
+    ports:
+      - "3000:3000"
+  mproapp-dev:
+    image: mpro/mpro-app:snapshot
+    volumes:
+      - ../:/home/mpro/src
+    container_name: mpro-dev
+    hostname: mpro
+    networks:
+      - mpronet
+    environment:
+      - COMMAND=test
+      - DB_HOST=mprodb
+    ports:
+      - "3000:3000"
+networks:
+  mpronet:
+    driver: bridge
+    ipam:
+      config:
+      - subnet: 172.32.6.0/24

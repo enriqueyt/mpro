@@ -1,3 +1,8 @@
+# IDE stuff
+*.iml
+.idea/
+.vscode/
+
 # Logs
 logs
 *.log
@@ -20,11 +25,23 @@ coverage
 .lock-wscript
 
 # Compiled binary addons (http://nodejs.org/api/addons.html)
-build/Release
+build
 
 # Dependency directory
 # https://docs.npmjs.com/cli/shrinkwrap#caveats
 node_modules
+package-lock.json
 
 # Debug log from npm
 npm-debug.log
+
+# IDE javascript resource references
+jsconfig.json
+
+# DockerUtils library
+docker/**/
+
+# Notifications
+mpro_notifications/
+
+test/router/profileResources/activities.json

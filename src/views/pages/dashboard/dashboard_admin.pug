@@ -1,0 +1,35 @@
+extends ../../layout
+block content-mpro
+  include ../../partials/header.pug
+  .container-fluid
+    .row
+      .col-md-12
+        .container-fluid#tabcontent
+          .row
+            .col-md-12
+              table.table.table-header
+                thead
+                  th #
+                  th Accion
+                  th Descripcion
+                  th Fecha                
+                  th Tipo
+                tbody
+                  each act,i in activity
+                    tr
+                      td=i + 1
+                      td=act.type
+                      td=act.text
+                      td=act.date
+                      td=act.level
+  script(type='text/javascript').
+    $(document).ready(function () {
+      if ('!{Object.keys(user).length > 0}' === 'true' && '!{user.username}' === '!{currentAccount.username}') {				
+        $('#myActivityTable').DataTable({
+          'paging': true,
+          'ordering': true,
+          'pagingType': 'full_numbers',
+          'lengthMenu': [[ 50, 100, 500, -1], [50, 100, 500, 'All']]
+        });
+      }
+    })

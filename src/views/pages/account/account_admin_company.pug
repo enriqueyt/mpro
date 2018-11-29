@@ -1,0 +1,148 @@
+extends ../../layout
+block content-mpro
+  - var tabUserActive = "top-nav-item-active"
+  include ../../partials/header.pug
+  .container-fluid
+    .row
+      .col-md-12
+        .row.information-company
+          .col-md-12
+            h4(style="display:inline-block") <b>#{currentAccount.company.name}</b>
+        .row.account-nav-row.nav-row-padding.searchBar
+          .col-md-11
+            .input-group.has-clear
+              input.form-control.input-search.search-box(type="text", id="userSearchInput", placeholder="Buscar usuario")
+              span.form-control-clear.fa.fa-times.fa-3.hidden
+              a.fa.fa-search.fa-w-16.fa-3x(id="userSearchButton")
+          .col-md-1(style="padding-left:0;")
+            button#addAccount.btn.btn-primary.button-search(type="button", data-toggle="addAccountModal")
+              i.fa.fa-plus.noWrap 
+                |  Agregar
+        .row.account-nav-row
+          .col-md-12.no-padding
+            table.table.table-header
+              thead
+                th #
+                th Nombre
+                th username
+                th Correo
+                th Rol
+                th Sucursal
+                th.noWrap Fecha de ingreso
+                th Estatus
+                th
+              tbody
+                each account, i in accounts
+                  tr(id=account._id)
+                    td=i+1
+                    td=account.name
+                    td=account.username
+                    td=account.email
+                    td=account.roleValue
+                    if account.role=="adminCompany"
+                      td
+                    else
+                      td=account.company.name
+                    td=account.date
+                    td
+                      if account.status==true
+                        label.label-sm.label-success Activo
+                      else
+                        label.label-sm.label-default Inactivo
+                    td                      
+                      a.btn.default.btn-xs.blue-stripe(href="/accounts", name="editAccount", data-toggle="editAccountModal", data-id=account._id)
+                        i.fa.fa-edit(aria-hidden="true")                    
+  #addAccountModal.modal.fadde(role="dialog")
+    .modal-dialog(role="document")
+      .modal-content
+        .modal-header.bg-primary.text-white
+          h4.modal-title.font-weight-bold Agregar
+          button.close.fa.fa-close(type="button", style="color:white; opacity:1; text-shadow:1px 1px 1px #ccc; text-indent:0" data-dismiss="modal", aria-label="Close")
+        .modal-body
+          #warningAccountForm.alert.alert-warning.alert-dismissible(role="alert", style="display:none;")
+            button.close(type="button", data-dismiss="alert", aria-label="Close")
+              span(aria-hidden="true")
+            strong Hey! 
+          #content(style="display:inline-block")
+          form(role="form", id="addAccountForm", name="addAccountForm", action="/accounts", method="post")
+            .form-group.row
+              label.col-3.col-form-label(for="name") Nombre
+              .col-9
+                input.form-control(type="text", id="name", name="name", placeholder="Nombre", required="true")
+            .form-group.row
+              label.col-3.col-form-label(for="email") Correo
+              .col-9
+                input.form-control(type="email", id="username", name="username", placeholder="Correo", required="true" )
+            .form-group.row
+              label.col-3.col-form-label(for="role") Role
+              .col-9
+                select.form-control(id="role", name="role", required="true")
+                  option Seleccione
+                  each role in roles
+                    option(value=role.id) #{role.value}
+            input.form-control(type="hidden", name="company", value=currentAccount.company._id)
+            .form-group.row
+              label.col-3.col-form-label(for="branchCompany") Sucursal
+              .col-9
+                select.form-control(id="branchCompany", name="branchCompany")
+                  option Seleccione
+                  each branchCompany in branchCompanies
+                    option(value=branchCompany._id) #{branchCompany.name}
+            .form-group.row
+              label.col-3.col-form-label(for="status") Estatus
+              .col-9
+                .input-group
+                  span.input-group-addon
+                    input.form-control-custom(type="checkbox", id="status", name="status")
+                  input.form-control(type="text", id="statusValue", name="statusValue", disabled="true")
+            .col-12(style="text-align:right")
+              button.btn.btn-secondary(type="button", data-dismiss="modal", style="margin-right:1%;") Cerrar
+              button.btn.btn-primary.addAccountSubmit(type="submit") Crear
+  #editAccountModal.modal.fadde(role="dialog")
+    .modal-dialog(role="document")
+      .modal-content
+        .modal-header.bg-primary.text-white
+          h4.modal-title.font-weight-bold Editar Usuario
+          button.close.fa.fa-close(type="button", style="color:white; opacity:1; text-shadow:1px 1px 1px #ccc; text-indent:0" data-dismiss="modal", aria-label="Close")
+        .modal-body
+          #warningAccountForm.alert.alert-warning.alert-dismissible(role="alert", style="display:none;")
+            button.close(type="button", data-dismiss="alert", aria-label="Close")
+              span(aria-hidden="true")
+            strong Hey! 
+          #content(style="display:inline-block")
+          form(role="form", id="editAccountForm", name="editAccountForm", action="/accounts", method="put")            
+            input.form-control(type="hidden", id="hidden_id")
+            .form-group.row
+              label.col-3.col-form-label(for="name") Nombre
+              .col-9
+                input.form-control(type="text", id="name", name="name", placeholder="Nombre", required="true")
+            .form-group.row
+              label.col-3.col-form-label(for="email") Correo
+              .col-9
+                input.form-control(type="email", id="username", name="username", placeholder="Correo", required="true" )
+            .form-group.row
+              label.col-3.col-form-label(for="role") Role
+              .col-9
+                select.form-control(id="role", name="role", required="true")
+                  option Seleccione
+                  each role in roles
+                    option(value=role.id) #{role.value}            
+            input.form-control(type="hidden", name="company", id="company", value=currentAccount.company._id)
+            .form-group.row
+              label.col-3.col-form-label(for="branchCompany") Sucursal
+              .col-9
+                select.form-control(id="branchCompany", name="branchCompany", required)
+                  option Seleccione
+                  each branchCompany in branchCompanies
+                    option(value=branchCompany._id) #{branchCompany.name}
+            .form-group.row
+              label.col-3.col-form-label(for="status") Estatus
+              .col-9
+                .input-group
+                  span.input-group-addon
+                    input.form-control-custom(type="checkbox", id="status", name="status")        
+                  input.form-control(type="text", id="statusValue", name="statusValue", disabled="true")        
+            .col-12(style="text-align:right")
+              button.btn.btn-secondary(type="button", data-dismiss="modal", style="margin-right:1%;") Cerrar
+              button.btn.btn-primary.editAccountSubmit(type="submit") Actualizar
+  script(src='../../javascripts/account/main.js')

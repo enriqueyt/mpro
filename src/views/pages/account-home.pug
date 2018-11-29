@@ -1,0 +1,195 @@
+extends ../layout
+block content-mpro
+  include ../partials/header.pug
+  .container-fluid
+    .row.margin-top-10
+      .col-md-12
+        .profile-sidebar
+          .portlet.light.profile-sidebar-portlet
+            .profile-userpic
+              img.img-responsive(src='../../images/avatar.png', alt='')
+            .profile-usertitle
+              .profile-usertitle-name
+                | #{account.name}
+              .profile-usertitle-job
+                | #{account.role}
+              if account.status==true
+                span.label.label-sm.label-success Activo
+              else
+                span.label.label-sm.label-warning Inactivo
+          .portlet.light
+            .row.list-separated.profile-stat
+              .col-md-6.col-sm-6.col-xs-8
+                .uppercase.profile-stat-title
+                  | 37
+                .uppercase.profile-stat-text
+                  | Servicios
+              .col-md-6.col-sm-6.col-xs-8
+                .uppercase.profile-stat-title
+                  | 51
+                .uppercase.profile-stat-text
+                  | Tareas
+            div
+              h4.profile-desc-title Ubicacion
+              span.profile-desc-text  #{account.location}
+              .margin-top-20.profile-desc-link
+        .profile-content
+          .row
+            .col-md-10
+              .portlet.light
+                .portlet-title.tabbable-line
+                  .caption.caption-md
+                    i.icon-globe.theme-font.hide
+                    span.caption-subject.font-blue-madison.bold.uppercase Notificaciones
+                  ul.nav.nav-tabs
+                    li.active
+                      a(href='#tab_1_1', data-toggle='tab')
+                        | Sistema
+                    li
+                      a(href='#tab_1_2', data-toggle='tab')
+                        | Actividades
+                .portlet-body
+                    .tab-content
+                      #tab_1_1.tab-pane.active
+                        .scroller(style='height: 320px;', data-always-visible='1', data-rail-visible1='0', data-handle-color='#D7DCE2')
+                          ul.feeds
+                            li
+                              .col1
+                                .cont
+                                  .cont-col1
+                                    .label.label-sm.label-success
+                                      i.fa.fa-bell-o
+                                  .cont-col2
+                                    .desc
+                                      | Tienes 4 pendiente. 
+                                      span.label.label-sm.label-info
+                                        | Accion 
+                                        i.fa.fa-share
+                            li
+                              a(href='javascript:;')
+                                .col1
+                                  .cont
+                                    .cont-col1
+                                      .label.label-sm.label-success
+                                        i.fa.fa-bell-o
+                                    .cont-col2
+                                      .desc
+                                        | Bacon ipsum dolor amet kevin picanha meatloaf tri-tip 
+                                .col2
+                                    .date
+                                      | 20 mins
+                        
+                      #tab_1_2.tab-pane
+                        .scroller(style='height: 337px;', data-always-visible='1', data-rail-visible1='0', data-handle-color='#D7DCE2')
+                          ul.feeds
+                            li
+                              a(href='javascript:;')
+                                .col1
+                                  .cont
+                                    .cont-col1
+                                      .label.label-sm.label-success
+                                        i.fa.fa-bell-o
+                                    .cont-col2
+                                      .desc
+                                        | Bacon ipsum dolor amet kevin picanha meatloaf tri-tip 
+                                .col2
+                                  .date
+                                    | ahora
+          .row
+            .col-md-10
+              .portlet.light.tasks-widget
+                .portlet-title
+                  .caption.caption-md
+                    i.icon-bar-chart.theme-font.hide
+                    span.caption-subject.font-blue-madison.bold.uppercase Actividades por realizar
+                    span.caption-helper 16 pendientas
+                  .inputs
+                    .portlet-input.input-small.input-inline
+                      .input-icon.right
+                        i.icon-magnifier
+                        input.form-control.form-control-solid(type='text', placeholder='search...')
+                .portlet-body
+                  .task-content
+                    .scroller(style='height: 282px;', data-always-visible='1', data-rail-visible1='0', data-handle-color='#D7DCE2')
+                      ul.task-list
+                        li
+                          .task-checkbox
+                            input(type='hidden', value='1', name='test')
+                            input.liChild(type='checkbox', value='2', name='test')
+                          .task-title
+                            span.task-title-sp
+                              | Bacon ipsum dolor amet kevin picanha meatloaf tri-tip 
+                            span.label.label-sm.label-success categoria
+                            span.task-bell
+                              i.fa.fa-bell-o
+                          .task-config
+                            .task-config-btn.btn-group
+                              a.btn.btn-xs.default(href='javascript:;', data-toggle='dropdown', data-hover='dropdown', data-close-others='true')
+                                i.fa.fa-cog
+                                i.fa.fa-angle-down
+                              ul.dropdown-menu.pull-right
+                                li
+                                  a(href='javascript:;')
+                                    i.fa.fa-check
+                                    |  Completar
+                                li
+                                  a(href='javascript:;')
+                                    i.fa.fa-pencil
+                                    |  Editar
+                                li
+                                  a(href='javascript:;')
+                                    i.fa.fa-trash-o
+                                    |  Cancelar
+                        li
+                          .task-checkbox
+                            input.liChild(type='checkbox', value='')
+                          .task-title
+                            span.task-title-sp
+                              | Bacon ipsum dolor amet kevin picanha meatloaf tri-tip 
+                            span.label.label-sm.label-danger categoria
+                          .task-config
+                            .task-config-btn.btn-group
+                              a.btn.btn-xs.default(href='javascript:;', data-toggle='dropdown', data-hover='dropdown', data-close-others='true')
+                                i.fa.fa-cog
+                                i.fa.fa-angle-down
+                              ul.dropdown-menu.pull-right
+                                li
+                                  a(href='javascript:;')
+                                    i.fa.fa-check
+                                    |  Complete
+                                li
+                                  a(href='javascript:;')
+                                    i.fa.fa-pencil
+                                    |  Edit
+                                li
+                                  a(href='javascript:;')
+                                    i.fa.fa-trash-o
+                                    |  Cancel
+                        li.last-line
+                          .task-checkbox
+                            input.liChild(type='checkbox', value='')
+                          .task-title
+                            span.task-title-sp
+                              | Bacon ipsum dolor amet kevin picanha meatloaf tri-tip 
+                            span.label.label-sm.label-warning categoria 
+                          .task-config
+                            .task-config-btn.btn-group
+                              a.btn.btn-xs.default(href='javascript:;', data-toggle='dropdown', data-hover='dropdown', data-close-others='true')
+                                i.fa.fa-cog
+                                i.fa.fa-angle-down
+                              ul.dropdown-menu.pull-right
+                                li
+                                  a(href='javascript:;')
+                                    i.fa.fa-check
+                                    |  Completar
+                                li
+                                  a(href='javascript:;')
+                                    i.fa.fa-pencil
+                                    |  Editar
+                                li
+                                  a(href='javascript:;')
+                                    i.fa.fa-trash-o
+                                    |  Cancelar
+                    .task-footer
+                      .btn-arrow-link.pull-right
+                        a(href='javascript:;') ver mas

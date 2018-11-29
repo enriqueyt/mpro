@@ -1,0 +1,199 @@
+extends ../../layout
+block content-mpro
+  - var tabCompaniesActive = "top-nav-item-active"
+  include ../../partials/header.pug
+  .container-fluid
+    .row
+      .col-md-12
+        .row.company-nav-row
+          ul.page-nav(role="tablist", id="tabCompany")
+            li.nav-item
+              a.nav-link.nav-item-active(data-toggle="tab", href="#company", role="tab", aria-controls="company") Empresas
+            li.nav-item
+              a.nav-link(data-toggle="tab", href="#branchCompany", role="tab", aria-controls="branchCompany") Sucursales
+          .tab-content(style="width:100%")
+            #company.tab-pane.active(role="tabpanel")
+              .row.company-nav-row.nav-row-padding.searchBar
+                .col-md-11
+                  .input-group.has-clear
+                    input.form-control.input-search.search-box(type="text", id="companySearchInput", placeholder="Buscar Empresa")
+                    span.form-control-clear.fa.fa-times.fa-3.hidden
+                    a.fa.fa-search.fa-w-16.fa-3x(id="entitySearchButton", data-type="company")
+                .col-md-1(style="padding-left:0;")
+                  button#addComapny.btn.btn-primary.button-search(type="button", data-toggle="addCompanyModal")
+                    i.fa.fa-plus.noWrap
+                      |  Agregar
+              .row.company-nav-row.no-padding
+                .col-md-12
+                  table.table.table-header.table-entity
+                    thead
+                      th #
+                      th Nombre
+                      th Email
+                      th Contacto
+                      th Ubicacion
+                      th Status
+                      th
+                    tbody
+                      each company, i in companies
+                        tr
+                          td=i+1
+                          td=company.name
+                          td=company.email
+                          td=company.phone
+                          td=company.location
+                          td
+                            if company.status==true
+                              label.label-sm.label-success Activo
+                            else
+                              label.label-sm.label-default Inactivo
+                          td
+                            a.btn.default.btn-xs.blue-stripe.edit-company(href="/entities/".concat(company._id))
+                              i.fa.fa-edit(aria-hidden="true")                          
+            #branchCompany.tab-pane(role="tabpanel")
+              .row.company-nav-row.nav-row-padding.searchBar
+                .col-md-11
+                  .input-group.has-clear
+                    input.form-control.input-search.search-box(type="text", id="branchCompanySearchInput", placeholder="Buscar Sucursal")
+                    span.form-control-clear.fa.fa-times.fa-3.hidden
+                    a.fa.fa-search.fa-w-16.fa-3x(id="entityBranchSearchButton", data-type="branchCompany")
+                .col-md-1(style="padding-left:0;")
+                  button#addBranchCompany.btn.btn-primary.button-search(type="button", data-toggle="addBranchCompanyModal")
+                      i.fa.fa-plus.noWrap
+                        |  Agregar
+              .row.company-nav-row.no-padding 
+                .col-md-12
+                  table.table.table-header.table-branchEntity
+                    thead
+                      th #
+                      th Nombre
+                      th Email
+                      th Contacto
+                      th Ubicacion
+                      th Empresa
+                      th Status
+                      th
+                    tbody
+                      each company, i in branchCompanies
+                        tr
+                          td=i+1
+                          td=company.name
+                          td=company.email
+                          td=company.phone
+                          td=company.location
+                          td=company.company.name                          
+                          td
+                            if company.status==true
+                              label.label-sm.label-success Activo
+                            else
+                              label.label-sm.label-default Inactivo
+                          td
+                            a.btn.default.btn-xs.blue-stripe.edit-company(href="/entities/".concat(company._id))
+                              i.fa.fa-edit(aria-hidden="true")
+  #addCompanyModal.modal.fade(rol="dialog")
+    .modal-dialog(role="document")
+      .modal-content
+        .modal-header.bg-primary.text-white
+          h4.modal-title.font-weight-bold Agregar
+          button.close.fa.fa-close(type="button", style="color:white; opacity:1; text-shadow:1px 1px 1px #ccc; text-indent:0" data-dismiss="modal", aria-label="Close")
+        .modal-body
+          form(role="form", id="addComapnyForm", name="addComapnyForm", action="/entities", method="post")
+            input.form-control(type="hidden", name="type", value="company")
+            .form-group.row
+              label.col-3.col-form-label(for="name") Nombre
+              .col-9
+                input.form-control(type="text", id="name", name="name", placeholder="Nombre")
+            .form-group.row
+              label.col-3.col-form-label(for="email") Correo
+              .col-9
+                input.form-control(type="email", id="email", name="email", placeholder="Correo", no-required)
+            .form-group.row
+              label.col-3.col-form-label(for="phone") Telefono
+              .col-9
+                input.form-control(type="phone", id="phone", name="phone", placeholder="Telefono", no-required)
+            .form-group.row
+              label.col-3.col-form-label(for="location") Ubicacion
+              .col-9
+                textarea.form-control(id="location", name="location", wrap="hard")
+            .col-12(style="text-align:right")
+              button.btn.btn-secondary(type="button", data-dismiss="modal", style="margin-right:1%;") Cerrar
+              button.btn.btn-primary.addComapnySubmit(type="submit") Crear
+  #addBranchCompanyModal.modal.fade(rol="dialog")
+    .modal-dialog(role="document")
+      .modal-content
+        .modal-header.bg-primary.text-white
+          h4.modal-title.font-weight-bold Agregar
+          button.close.fa.fa-close(type="button", style="color:white; opacity:1; text-shadow:1px 1px 1px #ccc; text-indent:0" data-dismiss="modal", aria-label="Close")
+        .modal-body
+          form(role="form", id="addBranchCompanyForm", name="addBranchCompanyForm", action="/entities", method="post")
+            input.form-control(type="hidden", name="type", value="branchCompany")
+            .form-group.row
+              label.col-3.col-form-label(for="name") Nombre
+              .col-9
+                input.form-control(type="text", id="name", name="name", placeholder="Nombre")
+            .form-group.row
+              label.col-3.col-form-label(for="email") Correo
+              .col-9
+                input.form-control(type="email", id="email", name="email", placeholder="Correo", no-required)
+            .form-group.row
+              label.col-3.col-form-label(for="phone") Telefono
+              .col-9
+                input.form-control(type="phone", id="phone", name="phone", placeholder="Telefono", no-required)
+            .form-group.row
+              label.col-3.col-form-label(for="location") Ubicacion
+              .col-9
+                textarea.form-control(id="location", name="location", wrap="hard")
+            .form-group.row
+              label.col-3.col-form-label(for="company") Empresa
+              .col-9
+                select.form-control(id="company", name="company")
+                  option Seleccione
+                  each company in companies
+                    option(value=company._id) #{company.name}
+            .col-12(style="text-align:right")
+              button.btn.btn-secondary(type="button", data-dismiss="modal", style="margin-right:1%;") Cerrar
+              button.btn.btn-primary.addBranchCompanySubmit(type="submit") Crear
+  #editCompanyModal.modal.fade.editModal(rol="dialog")
+    .modal-dialog(role="document")
+      .modal-content
+        .modal-header.bg-primary.text-white
+          h4.modal-title.font-weight-bold Editar
+          button.close.fa.fa-close(type="button", style="color:white; opacity:1; text-shadow:1px 1px 1px #ccc; text-indent:0" data-dismiss="modal", aria-label="Close")
+        .modal-body
+          form(role="form", id="editCompanyForm", name="editCompanyForm", action="/entities", method="put")
+            input.form-control(type="hidden", name="_id", id="_id", value="")
+            .form-group.row
+              label.col-3.col-form-label(for="name") Nombre
+              .col-9
+                input.form-control(type="text", id="name", name="name", placeholder="Nombre")
+            .form-group.row
+              label.col-3.col-form-label(for="email") Correo
+              .col-9
+                input.form-control(type="email", id="email", name="email", placeholder="Correo")
+            .form-group.row
+              label.col-3.col-form-label(for="phone") Telefono
+              .col-9
+                input.form-control(type="phone", id="phone", name="phone", placeholder="Telefono")
+            .form-group.row(style="display:none")
+              label.col-3.col-form-label(for="phone") Company 
+              .col-9
+                select.form-control(id="company", name="company")
+                  option Seleccione
+                  each company in companies
+                    option(value=company._id) #{company.name}
+            .form-group.row
+              label.col-3.col-form-label(for="location") Ubicacion
+              .col-9
+                textarea.form-control(id="location", name="location", wrap="hard")
+            .form-group.row
+              label.col-3.col-form-label(for="status") Estatus
+              .col-9
+                .input-group
+                  span.input-group-addon
+                    input.form-control-custom(type="checkbox", id="status", name="status")
+                  input(type="text", id="statusValue", name="statusValue", disabled="true")       
+            .col-12(style="text-align:right")
+              button.btn.btn-secondary(type="button", data-dismiss="modal", style="margin-right:1%;") Cerrar
+              button.btn.btn-primary.editCompanySubmit(type="submit") Actualizar
+  script(src='../../javascripts/company/main.js')
+    
