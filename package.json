@@ -4,7 +4,7 @@
   "private": true,
   "description": "MPRO Core App",
   "scripts": {
-    "start": "node src/bin/www",
+    "start": "npm run notifications:start; node src/bin/www",
     "start:dev": "npm run notifications:start; nodemon src/bin/www",
     "pm2:start": "npm run notifications:start; pm2 start src/bin/www",
     "pm2:restart": "pm2 restart $(pm2 id www | grep -oP [0-9]+)",
